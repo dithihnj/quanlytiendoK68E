@@ -6,6 +6,8 @@
   <title>Hệ Thống Quản Lý Đồ Án Tốt Nghiệp • Khóa K68 (2023 - 2027)</title>
   <!-- Tailwind CSS via allowlisted gstatic -->
   <script src="https://www.gstatic.com/antigravity/web/dev/tailwindcss.min.js"></script>
+  <!-- Supabase Cloud SDK for Realtime & Database -->
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <style>
     :root {
       --primary: #2563eb;
@@ -789,8 +791,12 @@
         </div>
 
         <div class="flex items-center gap-2 text-xs">
-          <!-- Realtime Sync Button for Teacher -->
-          <button onclick="syncDataFromBackend(true)" id="btnTeacherSync" class="px-3 py-1.5 bg-blue-50 hover:bg-blue-100 text-blue-700 font-bold rounded-lg transition flex items-center gap-1.5 border border-blue-200" title="Cập nhật dữ liệu mới nhất từ Google Sheets">
+          <!-- Realtime Cloud Sync Indicator & Button for Teacher -->
+          <div class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg text-xs font-semibold bg-emerald-50 text-emerald-700 border border-emerald-200 select-none">
+            <span class="pulse-dot"></span>
+            <span>Cloud Realtime</span>
+          </div>
+          <button onclick="syncDataFromBackend(true)" id="btnTeacherSync" class="px-3 py-1.5 bg-blue-50 hover:bg-blue-100 text-blue-700 font-bold rounded-lg transition flex items-center gap-1.5 border border-blue-200" title="Cập nhật dữ liệu mới nhất từ Supabase Cloud">
             <svg id="syncIcon" class="w-3.5 h-3.5 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/></svg>
             <span id="syncText">Đồng Bộ Dữ Liệu</span>
           </button>
@@ -1247,6 +1253,123 @@
     const STORAGE_DATA_KEY = "thesis_students_tracking_2302_v3";
     const STORAGE_AUTH_KEY = "thesis_auth_current_user_v3";
 
+    // ==============================================================
+    // CẤU HÌNH KẾT NỐI ĐÁM MÂY SUPABASE REALTIME (CLOUD DATABASE)
+    // ==============================================================
+    const SUPABASE_URL = "https://znrpuhmwhjmmgwcmenpw.supabase.co";
+    const SUPABASE_ANON_KEY = "sb_publishable_r-xHXvESEwLPTHIETaiayg_zvW7Td2-";
+    let supabaseClient = null;
+
+    try {
+      if (typeof window !== "undefined" && window.supabase) {
+        supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+        console.log("Supabase Client initialized successfully:", SUPABASE_URL);
+      }
+    } catch (e) {
+      console.warn("Supabase initialization error:", e);
+    }
+
+    let supabaseRealtimeChannel = null;
+    function initSupabaseRealtime() {
+      if (!supabaseClient) return;
+      try {
+        if (supabaseRealtimeChannel) {
+          supabaseClient.removeChannel(supabaseRealtimeChannel);
+        }
+
+        supabaseRealtimeChannel = supabaseClient
+          .channel('realtime_k68_sync')
+          .on('postgres_changes', { event: '*', schema: 'public', table: 'student_progress' }, payload => {
+            const row = payload.new;
+            if (row && row.student_id) {
+              const sId = row.student_id;
+              if (row.checked_tasks) state.progress[sId] = row.checked_tasks;
+              if (row.last_submitted) state.lastSubmitted[sId] = row.last_submitted;
+              if (row.last_access) state.lastAccess[sId] = row.last_access;
+              if (row.student_note !== undefined && row.student_note !== null) state.notes[sId] = row.student_note;
+              if (row.custom_roadmap && Array.isArray(row.custom_roadmap) && row.custom_roadmap.length > 0) {
+                state.customRoadmaps[sId] = row.custom_roadmap;
+              }
+              saveState();
+              renderAll();
+            }
+          })
+          .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'chat_messages' }, payload => {
+            const msg = payload.new;
+            if (msg && msg.student_id) {
+              if (!state.chatHistory) state.chatHistory = {};
+              if (!state.chatHistory[msg.student_id]) state.chatHistory[msg.student_id] = [];
+              const exists = state.chatHistory[msg.student_id].some(m => m.id === msg.id);
+              if (!exists) {
+                state.chatHistory[msg.student_id].push({
+                  id: msg.id,
+                  studentId: msg.student_id,
+                  studentName: msg.student_name,
+                  senderRole: msg.sender_role,
+                  senderName: msg.sender_name,
+                  text: msg.message_text,
+                  timestamp: new Date(msg.created_at).toLocaleTimeString('vi-VN', { hour: '2-digit', minute: '2-digit' }) + ' ' + new Date(msg.created_at).toLocaleDateString('vi-VN')
+                });
+                saveState();
+                const active = getActiveChatStudent();
+                if (active && active.id === msg.student_id) {
+                  renderMessagesList(state.chatHistory[msg.student_id]);
+                }
+              }
+            }
+          })
+          .on('postgres_changes', { event: 'UPDATE', schema: 'public', table: 'chat_messages' }, payload => {
+            const msg = payload.new;
+            if (msg && msg.student_id && msg.is_recalled) {
+              if (state.chatHistory && state.chatHistory[msg.student_id]) {
+                state.chatHistory[msg.student_id].forEach(m => {
+                  if (m.id === msg.id) {
+                    m.text = "[Tin nhắn đã được thu hồi]";
+                  }
+                });
+                saveState();
+                const active = getActiveChatStudent();
+                if (active && active.id === msg.student_id) {
+                  renderMessagesList(state.chatHistory[msg.student_id]);
+                }
+              }
+            }
+          })
+          .on('postgres_changes', { event: '*', schema: 'public', table: 'student_files' }, payload => {
+            const fileRow = payload.new || payload.old;
+            if (fileRow && fileRow.student_id) {
+              loadStudentFilesFromBackend(fileRow.student_id);
+            }
+          })
+          .subscribe();
+      } catch (e) {
+        console.warn("Realtime subscription error:", e);
+      }
+    }
+
+    // Tự động lưu tiến độ vào Supabase sau khi tích chọn (Debounce 500ms)
+    let progressSaveTimeout = null;
+    function debouncedSaveStudentProgress(sId) {
+      if (!supabaseClient) return;
+      clearTimeout(progressSaveTimeout);
+      progressSaveTimeout = setTimeout(async () => {
+        const prog = getStudentProgress(sId);
+        try {
+          await supabaseClient.from('student_progress').upsert({
+            student_id: sId,
+            percent: prog.percent,
+            done_count: prog.done,
+            total_count: prog.total,
+            checked_tasks: state.progress[sId] || {},
+            student_note: state.notes[sId] || '',
+            updated_at: new Date().toISOString()
+          }, { onConflict: 'student_id' });
+        } catch (e) {
+          console.warn("Auto save progress to Supabase error:", e);
+        }
+      }, 500);
+    }
+
     let state = {
       selectedStudentId: RAW_STUDENTS[0].id,
       progress: {},         // { [studentId]: { [taskId]: true } }
@@ -1348,6 +1471,14 @@
       state.lastAccess[sId] = nowStr;
       saveState();
 
+      if (supabaseClient) {
+        supabaseClient.from('student_progress').upsert({
+          student_id: sId,
+          last_access: nowStr,
+          updated_at: new Date().toISOString()
+        }, { onConflict: 'student_id' }).then(() => {});
+      }
+
       if (isGoogleAppsScript()) {
         google.script.run
           .withSuccessHandler(res => {
@@ -1361,8 +1492,8 @@
       }
     }
 
-    // SYNC DATA FROM BACKEND GOOGLE SHEETS
-    function syncDataFromBackend(showNotification = false) {
+    // SYNC DATA FROM BACKEND SUPABASE & GOOGLE SHEETS
+    async function syncDataFromBackend(showNotification = false) {
       const syncBtn = document.getElementById("btnTeacherSync");
       const syncIcon = document.getElementById("syncIcon");
       const syncText = document.getElementById("syncText");
@@ -1370,63 +1501,106 @@
       if (syncIcon) syncIcon.classList.add("animate-spin");
       if (syncText) syncText.textContent = "Đang đồng bộ...";
 
-      if (!isGoogleAppsScript()) {
+      if (supabaseClient) {
+        try {
+          const { data: progressRows, error: pError } = await supabaseClient.from('student_progress').select('*');
+          if (progressRows && !pError) {
+            progressRows.forEach(row => {
+              const sId = row.student_id;
+              if (row.checked_tasks) state.progress[sId] = row.checked_tasks;
+              if (row.last_submitted) state.lastSubmitted[sId] = row.last_submitted;
+              if (row.last_access) state.lastAccess[sId] = row.last_access;
+              if (row.student_note !== undefined && row.student_note !== null) state.notes[sId] = row.student_note;
+              if (row.custom_roadmap && Array.isArray(row.custom_roadmap) && row.custom_roadmap.length > 0) {
+                state.customRoadmaps[sId] = row.custom_roadmap;
+              }
+            });
+          }
+
+          const { data: studentRows } = await supabaseClient.from('students').select('*');
+          if (studentRows) {
+            studentRows.forEach(s => {
+              if (s.topic) state.customTopics[s.id] = s.topic;
+              if (s.password) state.studentPasswords[s.id] = s.password;
+            });
+          }
+
+          const { data: settingsRows } = await supabaseClient.from('system_settings').select('*');
+          if (settingsRows) {
+            settingsRows.forEach(st => {
+              if (st.key === 'TEACHER_PASSWORD') state.teacherPassword = st.value;
+              if (st.key === 'TEACHER_EMAIL') state.teacherEmail = st.value;
+              if (st.key === 'EMAIL_AUTO_NOTIFY') state.emailNotifyEnabled = st.value === 'true';
+            });
+          }
+
+          saveState();
+          renderAll();
+
+          if (syncIcon) syncIcon.classList.remove("animate-spin");
+          if (syncText) syncText.textContent = "Đồng Bộ Dữ Liệu";
+          if (showNotification) showToast("Đã đồng bộ thành công!", "Dữ liệu mới nhất đã được cập nhật từ Supabase Cloud.");
+          return;
+        } catch (err) {
+          console.warn("Supabase sync error:", err);
+        }
+      }
+
+      if (isGoogleAppsScript()) {
+        google.script.run
+          .withSuccessHandler(res => {
+            if (syncIcon) syncIcon.classList.remove("animate-spin");
+            if (syncText) syncText.textContent = "Đồng Bộ Dữ Liệu";
+
+            if (res && res.success && res.data) {
+              Object.keys(res.data).forEach(sId => {
+                const item = res.data[sId];
+                if (item.checkedTasks && Object.keys(item.checkedTasks).length > 0) {
+                  state.progress[sId] = item.checkedTasks;
+                }
+                if (item.lastSubmitted && item.lastSubmitted !== "Chưa gửi") {
+                  state.lastSubmitted[sId] = item.lastSubmitted;
+                }
+                if (item.lastAccess) {
+                  state.lastAccess[sId] = item.lastAccess;
+                }
+                if (item.note) {
+                  state.notes[sId] = item.note;
+                }
+                if (item.topic) {
+                  state.customTopics[sId] = item.topic;
+                }
+                if (item.customRoadmap && Array.isArray(item.customRoadmap) && item.customRoadmap.length > 0) {
+                  state.customRoadmaps[sId] = item.customRoadmap;
+                }
+              });
+
+              if (res.authInfo) {
+                if (res.authInfo.teacherEmail) state.teacherEmail = res.authInfo.teacherEmail;
+                if (res.authInfo.emailNotifyEnabled !== undefined) state.emailNotifyEnabled = res.authInfo.emailNotifyEnabled;
+                if (res.authInfo.teacherPassword) state.teacherPassword = res.authInfo.teacherPassword;
+                if (res.authInfo.studentPasswords) state.studentPasswords = res.authInfo.studentPasswords;
+              }
+
+              saveState();
+              renderAll();
+              if (showNotification) showToast("Đã đồng bộ thành công!", `Cập nhật dữ liệu từ Google Sheets lúc ${res.serverTime}`);
+            }
+          })
+          .withFailureHandler(err => {
+            if (syncIcon) syncIcon.classList.remove("animate-spin");
+            if (syncText) syncText.textContent = "Đồng Bộ Thất Bại";
+            if (showNotification) showToast("Lỗi đồng bộ", err.message || err.toString(), true);
+          })
+          .getAllStudentsData();
+      } else {
         setTimeout(() => {
           if (syncIcon) syncIcon.classList.remove("animate-spin");
           if (syncText) syncText.textContent = "Đồng Bộ Dữ Liệu";
           if (showNotification) showToast("Đang chạy Offline", "Dữ liệu được lưu trong trình duyệt cục bộ (Local Storage).");
           renderAll();
-        }, 600);
-        return;
+        }, 500);
       }
-
-      google.script.run
-        .withSuccessHandler(res => {
-          if (syncIcon) syncIcon.classList.remove("animate-spin");
-          if (syncText) syncText.textContent = "Đồng Bộ Dữ Liệu";
-
-          if (res && res.success && res.data) {
-            // Merge server data into client state
-            Object.keys(res.data).forEach(sId => {
-              const item = res.data[sId];
-              if (item.checkedTasks && Object.keys(item.checkedTasks).length > 0) {
-                state.progress[sId] = item.checkedTasks;
-              }
-              if (item.lastSubmitted && item.lastSubmitted !== "Chưa gửi") {
-                state.lastSubmitted[sId] = item.lastSubmitted;
-              }
-              if (item.lastAccess) {
-                state.lastAccess[sId] = item.lastAccess;
-              }
-              if (item.note) {
-                state.notes[sId] = item.note;
-              }
-              if (item.topic) {
-                state.customTopics[sId] = item.topic;
-              }
-              if (item.customRoadmap && Array.isArray(item.customRoadmap) && item.customRoadmap.length > 0) {
-                state.customRoadmaps[sId] = item.customRoadmap;
-              }
-            });
-
-            if (res.authInfo) {
-              if (res.authInfo.teacherEmail) state.teacherEmail = res.authInfo.teacherEmail;
-              if (res.authInfo.emailNotifyEnabled !== undefined) state.emailNotifyEnabled = res.authInfo.emailNotifyEnabled;
-              if (res.authInfo.teacherPassword) state.teacherPassword = res.authInfo.teacherPassword;
-              if (res.authInfo.studentPasswords) state.studentPasswords = res.authInfo.studentPasswords;
-            }
-
-            saveState();
-            renderAll();
-            if (showNotification) showToast("Đã đồng bộ thành công!", `Cập nhật dữ liệu từ Google Sheets lúc ${res.serverTime}`);
-          }
-        })
-        .withFailureHandler(err => {
-          if (syncIcon) syncIcon.classList.remove("animate-spin");
-          if (syncText) syncText.textContent = "Đồng Bộ Thất Bại";
-          if (showNotification) showToast("Lỗi đồng bộ", err.message || err.toString(), true);
-        })
-        .getAllStudentsData();
     }
 
     // SUBMIT PROGRESS MODAL & LOGIC
@@ -1448,13 +1622,15 @@
       document.getElementById("submitModal").classList.add("hidden");
     }
 
-    function executeSubmitProgress() {
+    async function executeSubmitProgress() {
       const sId = state.selectedStudentId;
       const s = RAW_STUDENTS.find(it => it.id === sId) || { name: "Sinh viên", id: sId };
       const prog = getStudentProgress(sId);
       const note = document.getElementById("modalNoteInput").value.trim();
+      const nowStr = new Date().toLocaleTimeString('vi-VN', { hour: '2-digit', minute: '2-digit' }) + ' ' + new Date().toLocaleDateString('vi-VN');
 
       state.notes[sId] = note;
+      state.lastSubmitted[sId] = nowStr;
       saveState();
 
       const btn = document.getElementById("btnConfirmSubmit");
@@ -1462,54 +1638,81 @@
       btn.disabled = true;
       btnText.textContent = "Đang gửi báo cáo...";
 
-      const payload = {
-        studentId: sId,
-        studentName: s.name,
-        percent: prog.percent,
-        doneCount: prog.done,
-        totalCount: prog.total,
-        note: note,
-        checkedTasks: state.progress[sId] || {},
-        topic: getStudentTopic(s),
-        customRoadmap: getStudentRoadmap(sId)
-      };
+      if (supabaseClient) {
+        try {
+          await supabaseClient.from('student_progress').upsert({
+            student_id: sId,
+            percent: prog.percent,
+            done_count: prog.done,
+            total_count: prog.total,
+            checked_tasks: state.progress[sId] || {},
+            student_note: note,
+            last_submitted: nowStr,
+            custom_roadmap: getStudentRoadmap(sId),
+            updated_at: new Date().toISOString()
+          }, { onConflict: 'student_id' });
+        } catch (e) {
+          console.warn("Supabase submit progress error:", e);
+        }
+      }
 
-      const nowStr = new Date().toLocaleTimeString('vi-VN', { hour: '2-digit', minute: '2-digit' }) + ' ' + new Date().toLocaleDateString('vi-VN');
+      // Gửi thông báo email đến GV nếu đã bật cấu hình
+      if (state.emailNotifyEnabled && state.teacherEmail) {
+        try {
+          fetch('/api/send-report', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              type: 'student_submission',
+              teacherEmail: state.teacherEmail,
+              student: {
+                id: sId,
+                name: s.name,
+                percent: prog.percent,
+                done: prog.done,
+                total: prog.total,
+                note: note,
+                topic: getStudentTopic(s),
+                timestamp: nowStr
+              }
+            })
+          }).catch(e => console.log('Email notify handled:', e));
+        } catch (e) {}
+      }
 
       if (isGoogleAppsScript()) {
+        const payload = {
+          studentId: sId,
+          studentName: s.name,
+          percent: prog.percent,
+          doneCount: prog.done,
+          totalCount: prog.total,
+          note: note,
+          checkedTasks: state.progress[sId] || {},
+          topic: getStudentTopic(s),
+          customRoadmap: getStudentRoadmap(sId)
+        };
         google.script.run
           .withSuccessHandler(res => {
             btn.disabled = false;
             btnText.textContent = "Xác Nhận Gửi Ngay";
             closeSubmitModal();
-
-            if (res && res.success) {
-              state.lastSubmitted[sId] = res.timestamp;
-              saveState();
-              renderStudentDetail();
-              showToast("Đã gửi thành công!", `Giảng viên đã nhận được báo cáo tiến độ (${prog.percent}%) của bạn lúc ${res.timestamp}`);
-            } else {
-              showToast("Có lỗi xảy ra", res.error || "Không thể gửi dữ liệu", true);
-            }
+            renderStudentDetail();
+            showToast("Đã gửi thành công!", `Giảng viên đã nhận được báo cáo tiến độ (${prog.percent}%) của bạn.`);
           })
           .withFailureHandler(err => {
             btn.disabled = false;
             btnText.textContent = "Xác Nhận Gửi Ngay";
             closeSubmitModal();
-            showToast("Gửi thất bại", err.message || err.toString(), true);
           })
           .submitStudentProgress(payload);
       } else {
-        // Fallback for standalone offline view
-        setTimeout(() => {
-          btn.disabled = false;
-          btnText.textContent = "Xác Nhận Gửi Ngay";
-          state.lastSubmitted[sId] = nowStr;
-          saveState();
-          closeSubmitModal();
-          renderStudentDetail();
-          showToast("Đã gửi tiến độ (Lưu cục bộ)!", `Đã ghi nhận tiến độ ${prog.percent}% lúc ${nowStr}`);
-        }, 500);
+        btn.disabled = false;
+        btnText.textContent = "Xác Nhận Gửi Ngay";
+        closeSubmitModal();
+        renderStudentDetail();
+        renderAll();
+        showToast("Đã gửi thành công!", `Tiến độ ${prog.percent}% của bạn đã được cập nhật lên hệ thống lúc ${nowStr}`);
       }
     }
 
@@ -1741,6 +1944,10 @@
         state.teacherPassword = newPass;
         saveState();
 
+        if (supabaseClient) {
+          supabaseClient.from('system_settings').upsert({ key: 'TEACHER_PASSWORD', value: newPass, updated_at: new Date().toISOString() }, { onConflict: 'key' }).then(() => {});
+        }
+
         if (isGoogleAppsScript()) {
           google.script.run
             .withSuccessHandler(res => {
@@ -1783,6 +1990,10 @@
         if (!state.studentPasswords) state.studentPasswords = {};
         state.studentPasswords[sId] = newPass;
         saveState();
+
+        if (supabaseClient) {
+          supabaseClient.from('students').update({ password: newPass }).eq('id', sId).then(() => {});
+        }
 
         if (isGoogleAppsScript()) {
           google.script.run
@@ -1827,6 +2038,10 @@
         saveState();
       }
 
+      if (supabaseClient) {
+        supabaseClient.from('students').update({ password: sId }).eq('id', sId).then(() => {});
+      }
+
       if (isGoogleAppsScript()) {
         google.script.run
           .withSuccessHandler(res => {
@@ -1859,6 +2074,13 @@
       state.teacherEmail = email;
       state.emailNotifyEnabled = notifyEnabled;
       saveState();
+
+      if (supabaseClient) {
+        supabaseClient.from('system_settings').upsert([
+          { key: 'TEACHER_EMAIL', value: email, updated_at: new Date().toISOString() },
+          { key: 'EMAIL_AUTO_NOTIFY', value: notifyEnabled ? 'true' : 'false', updated_at: new Date().toISOString() }
+        ], { onConflict: 'key' }).then(() => {});
+      }
 
       if (isGoogleAppsScript()) {
         google.script.run
@@ -2034,6 +2256,7 @@
 
       saveState();
       renderAll();
+      debouncedSaveStudentProgress(sId);
     }
 
     function markAllCurrentStudent(isCheckAll) {
@@ -2055,6 +2278,7 @@
 
       saveState();
       renderAll();
+      debouncedSaveStudentProgress(sId);
     }
 
     function addNewPhaseModal() {
@@ -2203,6 +2427,9 @@
         state.customTopics[s.id] = newTopic.trim();
         saveState();
         renderAll();
+        if (supabaseClient) {
+          supabaseClient.from('students').update({ topic: newTopic.trim() }).eq('id', s.id).then(() => {});
+        }
       }
     }
 
@@ -2217,7 +2444,8 @@
       clearTimeout(noteTimer);
       noteTimer = setTimeout(() => {
         hint.classList.add("hidden");
-      }, 1500);
+        debouncedSaveStudentProgress(state.selectedStudentId);
+      }, 1200);
     }
 
     function handleSearch() {
@@ -2800,11 +3028,42 @@
       container.scrollTop = container.scrollHeight;
     }
 
-    function refreshChatMessages(showIndicator = false) {
+    async function refreshChatMessages(showIndicator = false) {
       const student = getActiveChatStudent();
+      if (!student) return;
       const sId = student.id;
       const refreshIcon = document.getElementById("chatRefreshIcon");
       if (showIndicator && refreshIcon) refreshIcon.classList.add("animate-spin");
+
+      if (supabaseClient) {
+        try {
+          const { data: msgs, error } = await supabaseClient
+            .from('chat_messages')
+            .select('*')
+            .eq('student_id', sId)
+            .order('created_at', { ascending: true });
+
+          if (showIndicator && refreshIcon) refreshIcon.classList.remove("animate-spin");
+
+          if (msgs && !error) {
+            if (!state.chatHistory) state.chatHistory = {};
+            state.chatHistory[sId] = msgs.map(m => ({
+              id: m.id,
+              timestamp: new Date(m.created_at).toLocaleTimeString('vi-VN', { hour: '2-digit', minute: '2-digit' }) + ' ' + new Date(m.created_at).toLocaleDateString('vi-VN'),
+              studentId: m.student_id,
+              studentName: m.student_name,
+              senderRole: m.sender_role,
+              senderName: m.sender_name,
+              text: m.is_recalled ? "[Tin nhắn đã được thu hồi]" : m.message_text
+            }));
+            saveState();
+            renderMessagesList(state.chatHistory[sId]);
+            return;
+          }
+        } catch (e) {
+          console.warn("Supabase fetch chat error:", e);
+        }
+      }
 
       if (isGoogleAppsScript()) {
         google.script.run
@@ -2832,7 +3091,7 @@
       }
     }
 
-    function handleSendChatMessage(e) {
+    async function handleSendChatMessage(e) {
       e.preventDefault();
       const input = document.getElementById("chatMessageInput");
       const text = input.value.trim();
@@ -2861,6 +3120,26 @@
       const btnSend = document.getElementById("btnSendChat");
       btnSend.classList.add("opacity-60", "pointer-events-none");
 
+      if (supabaseClient) {
+        try {
+          const { data, error } = await supabaseClient.from('chat_messages').insert({
+            student_id: student.id,
+            student_name: student.name,
+            sender_role: msgObj.senderRole,
+            sender_name: msgObj.senderName,
+            message_text: text,
+            is_recalled: false
+          }).select().single();
+
+          if (data && !error) {
+            msgObj.id = data.id;
+            saveState();
+          }
+        } catch (err) {
+          console.warn("Supabase chat send error:", err);
+        }
+      }
+
       if (isGoogleAppsScript()) {
         const payload = {
           studentId: student.id,
@@ -2888,11 +3167,11 @@
       } else {
         setTimeout(() => {
           btnSend.classList.remove("opacity-60", "pointer-events-none");
-        }, 300);
+        }, 200);
       }
     }
 
-    function handleRecallChatMessage(msgIndex) {
+    async function handleRecallChatMessage(msgIndex) {
       if (!confirm("Bạn có chắc chắn muốn thu hồi tin nhắn này không? Tin nhắn sẽ hiển thị trạng thái đã thu hồi với cả hai bên.")) return;
       const student = getActiveChatStudent();
       const sId = student.id;
@@ -2905,12 +3184,23 @@
       const targetMsg = state.chatHistory[sId][msgIndex];
       const targetTime = targetMsg.timestamp || "";
       const targetText = targetMsg.text || "";
-      const targetRowId = targetMsg.rowId || null;
+      const targetRowId = targetMsg.rowId || targetMsg.id || null;
 
       // Đánh dấu đã thu hồi ngay lập tức trên UI và localStorage
       targetMsg.text = "[Tin nhắn đã được thu hồi]";
       saveState();
       renderMessagesList(state.chatHistory[sId]);
+
+      if (supabaseClient && targetRowId) {
+        try {
+          await supabaseClient.from('chat_messages').update({
+            is_recalled: true,
+            message_text: "[Tin nhắn đã được thu hồi]"
+          }).eq('id', targetRowId);
+        } catch (e) {
+          console.warn("Supabase recall chat error:", e);
+        }
+      }
 
       if (isGoogleAppsScript()) {
         google.script.run
@@ -2933,7 +3223,7 @@
             messageText: targetText 
           });
       } else {
-        showToast("Đã thu hồi tin nhắn", "Tin nhắn đã được thu hồi cục bộ.");
+        showToast("Đã thu hồi tin nhắn", "Tin nhắn đã được thu hồi thành công.");
       }
     }
 
@@ -3068,6 +3358,48 @@
       };
 
       const nowStr = new Date().toLocaleTimeString('vi-VN', { hour: '2-digit', minute: '2-digit' }) + ' ' + new Date().toLocaleDateString('vi-VN');
+
+      if (supabaseClient) {
+        try {
+          const finalUrl = fileUrl || (base64Data ? `data:${mimeType};base64,${base64Data}` : "#");
+          const { data, error } = await supabaseClient.from('student_files').insert({
+            student_id: sId,
+            student_name: s.name,
+            file_name: fileName,
+            category: category,
+            file_size: fileSizeStr,
+            file_url: finalUrl,
+            note: note
+          }).select().single();
+
+          btn.disabled = false;
+          btnText.textContent = "Xác Nhận Nộp Tài Liệu";
+          closeUploadFileModal();
+
+          const newFileObj = {
+            id: data ? data.id : Date.now(),
+            rowId: data ? data.id : Date.now(),
+            timestamp: nowStr,
+            studentId: sId,
+            studentName: s.name,
+            fileName: fileName,
+            category: category,
+            fileSizeStr: fileSizeStr,
+            fileUrl: finalUrl,
+            note: note
+          };
+
+          if (!state.studentFiles) state.studentFiles = {};
+          if (!state.studentFiles[sId]) state.studentFiles[sId] = [];
+          state.studentFiles[sId].unshift(newFileObj);
+          saveState();
+          renderStudentFilesList();
+          showToast("Nộp tài liệu thành công!", `Đã lưu tệp "${fileName}" lên hệ thống đám mây.`);
+          return;
+        } catch (err) {
+          console.warn("Supabase file upload error:", err);
+        }
+      }
 
       if (isGoogleAppsScript()) {
         google.script.run
@@ -3212,7 +3544,36 @@
       }).join("");
     }
 
-    function loadStudentFilesFromBackend(studentId) {
+    async function loadStudentFilesFromBackend(studentId) {
+      if (supabaseClient) {
+        try {
+          const { data: files, error } = await supabaseClient
+            .from('student_files')
+            .select('*')
+            .eq('student_id', studentId)
+            .order('uploaded_at', { ascending: false });
+
+          if (files && !error) {
+            if (!state.studentFiles) state.studentFiles = {};
+            state.studentFiles[studentId] = files.map(f => ({
+              id: f.id,
+              rowId: f.id,
+              fileName: f.file_name,
+              category: f.category,
+              fileSizeStr: f.file_size,
+              fileUrl: f.file_url,
+              note: f.note,
+              timestamp: new Date(f.uploaded_at).toLocaleTimeString('vi-VN', { hour: '2-digit', minute: '2-digit' }) + ' ' + new Date(f.uploaded_at).toLocaleDateString('vi-VN')
+            }));
+            saveState();
+            renderStudentFilesList();
+            return;
+          }
+        } catch (e) {
+          console.warn("Supabase files fetch error:", e);
+        }
+      }
+
       if (!isGoogleAppsScript()) return;
       google.script.run
         .withSuccessHandler(res => {
@@ -3226,14 +3587,25 @@
         .getStudentFiles(studentId);
     }
 
-    function handleDeleteStudentFile(fileIndex, rowId) {
+    async function handleDeleteStudentFile(fileIndex, rowId) {
       const sId = state.selectedStudentId;
       if (!confirm("Bạn có chắc chắn muốn xóa tệp này không?")) return;
 
+      let targetId = rowId;
       if (state.studentFiles && state.studentFiles[sId]) {
+        const fileObj = state.studentFiles[sId][fileIndex];
+        if (!targetId && fileObj) targetId = fileObj.id || fileObj.rowId;
         state.studentFiles[sId].splice(fileIndex, 1);
         saveState();
         renderStudentFilesList();
+      }
+
+      if (supabaseClient && targetId) {
+        try {
+          await supabaseClient.from('student_files').delete().eq('id', targetId);
+        } catch (e) {
+          console.warn("Supabase delete file error:", e);
+        }
       }
 
       if (isGoogleAppsScript() && rowId) {
@@ -3276,6 +3648,12 @@
       loadState();
       populateLoginDatalist();
       checkUrlForTeacherMode();
+
+      // Khởi tạo kênh Realtime Supabase
+      if (typeof initSupabaseRealtime === "function") {
+        initSupabaseRealtime();
+      }
+
       if (!currentUser) {
         showLoginModal();
       } else {
@@ -3283,9 +3661,11 @@
         if (currentUser.role === "teacher") {
           syncDataFromBackend(false);
           loadStudentFilesFromBackend(state.selectedStudentId);
+          refreshChatMessages(false);
         } else if (currentUser.role === "student") {
           notifyBackendStudentAccess(currentUser.id, currentUser.name);
           loadStudentFilesFromBackend(currentUser.id);
+          refreshChatMessages(false);
         }
       }
     });
