@@ -1,0 +1,20 @@
+{
+  "version": 2,
+  "name": "quan-ly-do-an-k68",
+  "crons": [
+    {
+      "path": "/api/send-report",
+      "schedule": "0 1 * * 1"
+    }
+  ],
+  "routes": [
+    {
+      "src": "/api/(.*)",
+      "dest": "/api/$1"
+    },
+    {
+      "src": "/(.*)",
+      "dest": "/index.html"
+    }
+  ]
+}
