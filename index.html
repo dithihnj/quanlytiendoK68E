@@ -2402,29 +2402,8 @@
         }
       }
 
-      // Gửi thông báo email trực tiếp đến GV qua API hệ thống
-      const targetTeacherEmail = state.teacherEmail || localStorage.getItem("K68_TEACHER_EMAIL") || "tkdark3010@gmail.com";
-      if (state.emailNotifyEnabled && targetTeacherEmail) {
-        try {
-          fetch('/api/send-report', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({
-              type: 'progress_report',
-              teacherEmail: targetTeacherEmail,
-              studentsData: [{
-                name: s.name,
-                id: sId,
-                percent: prog.percent,
-                done: prog.done,
-                total: prog.total,
-                topic: getStudentTopic(s),
-                lastSubmitted: nowStr
-              }]
-            })
-          }).catch(e => console.warn('Email notify error:', e));
-        } catch (e) {}
-      }
+      // Lưu ý: Đã bỏ gửi email khi sinh viên nộp tiến độ theo yêu cầu của Giảng viên.
+      // Chỉ gửi email khi: có sinh viên gửi tin nhắn riêng đến, báo cáo tự động hàng tuần hoặc khi GV chủ động bấm nút gửi báo cáo.
 
       if (isGoogleAppsScript()) {
         const payload = {
@@ -4859,7 +4838,7 @@
 
       const nowStr = new Date().toLocaleTimeString('vi-VN', { hour: '2-digit', minute: '2-digit' }) + ' ' + new Date().toLocaleDateString('vi-VN');
 
-      // Nếu nộp bằng tệp máy tính:
+      // Nếu nộp bằng tệp máy tính / điện thoại:
       if (currentUploadMode === "file" && currentUploadFile && currentUploadFile.file) {
         const rawFile = currentUploadFile.file;
 
@@ -4883,7 +4862,7 @@
 
         // 2. Nếu chưa có link storage:
         if (!fileUrl) {
-          if (rawFile.size <= 6 * 1024 * 1024) {
+          if (rawFile.size <= 4 * 1024 * 1024) {
             try {
               fileUrl = await new Promise((resolve, reject) => {
                 const reader = new FileReader();
@@ -4895,7 +4874,11 @@
               fileUrl = "#";
             }
           } else {
-            fileUrl = URL.createObjectURL(rawFile);
+            // Tệp > 4MB và chưa cấu hình Storage bucket
+            btn.disabled = false;
+            btnText.textContent = "Xác Nhận Nộp Tài Liệu";
+            showToast("Tệp quá lớn (> 4MB)", "Tệp của bạn dung lượng " + fileSizeStr + " vượt quá giới hạn tải trực tiếp (4MB). Vui lòng chuyển sang tab 'Đính kèm Link Drive' để dán link Google Drive/OneDrive, hoặc liên hệ GV để mở Storage Bucket.", true);
+            return;
           }
         }
       }
@@ -4924,6 +4907,14 @@
             note: note
           }).select().single();
 
+          if (error) {
+            console.error("Supabase file upload error:", error);
+            btn.disabled = false;
+            btnText.textContent = "Xác Nhận Nộp Tài Liệu";
+            showToast("Lỗi lưu tệp lên máy chủ", (error.message || "Cơ sở dữ liệu từ chối lưu") + ". Vui lòng thử nộp qua tab 'Đính kèm Link Drive'.", true);
+            return;
+          }
+
           btn.disabled = false;
           btnText.textContent = "Xác Nhận Nộp Tài Liệu";
           closeUploadFileModal();
@@ -4946,10 +4937,14 @@
           state.studentFiles[sId].unshift(newFileObj);
           saveState();
           renderStudentFilesList();
-          showToast("Nộp tài liệu thành công!", `Đã lưu tệp "${fileName}" lên hệ thống đám mây.`);
+          showToast("Nộp tài liệu thành công!", `Đã lưu tệp "${fileName}" và đồng bộ đến máy tính của Giảng viên.`);
           return;
         } catch (err) {
-          console.warn("Supabase file upload error:", err);
+          console.error("Supabase exception:", err);
+          btn.disabled = false;
+          btnText.textContent = "Xác Nhận Nộp Tài Liệu";
+          showToast("Lỗi kết nối", "Không thể gửi tệp lên hệ thống: " + (err.message || err.toString()), true);
+          return;
         }
       }
 
@@ -5049,6 +5044,9 @@
         else if (nameLower.endsWith(".zip") || nameLower.endsWith(".rar") || nameLower.endsWith(".py") || nameLower.endsWith(".ipynb")) fileIcon = "💻";
         else if (f.fileUrl && (f.fileUrl.includes("drive.google") || f.fileUrl.includes("github.com"))) fileIcon = "🔗";
 
+        const isDataUrl = f.fileUrl && f.fileUrl.startsWith('data:');
+        const dlAttr = isDataUrl ? `download="${(f.fileName || 'tai-lieu').replace(/"/g, '')}"` : '';
+
         return `
           <div class="p-3.5 sm:p-4 rounded-xl border border-slate-200/90 bg-white hover:border-blue-300 transition flex flex-col sm:flex-row sm:items-center justify-between gap-3 shadow-2xs">
             <div class="flex items-start gap-3 min-w-0">
@@ -5057,7 +5055,7 @@
               </div>
               <div class="min-w-0">
                 <div class="flex flex-wrap items-center gap-2">
-                  <a href="${f.fileUrl || '#'}" target="_blank" rel="noopener noreferrer" class="text-xs sm:text-sm font-bold text-slate-900 hover:text-blue-600 truncate transition">
+                  <a href="${f.fileUrl || '#'}" ${dlAttr} target="_blank" rel="noopener noreferrer" class="text-xs sm:text-sm font-bold text-slate-900 hover:text-blue-600 truncate transition">
                     ${f.fileName}
                   </a>
                   <span class="text-[10px] px-2 py-0.5 rounded-md font-semibold bg-blue-50 text-blue-700 border border-blue-200">
@@ -5076,6 +5074,7 @@
             <div class="flex items-center gap-2 self-end sm:self-center flex-shrink-0">
               <a 
                 href="${f.fileUrl || '#'}" 
+                ${dlAttr}
                 target="_blank" 
                 rel="noopener noreferrer" 
                 class="px-3 py-1.5 bg-blue-50 hover:bg-blue-100 text-blue-700 font-bold rounded-lg text-xs transition flex items-center gap-1 border border-blue-200"
