@@ -3306,7 +3306,7 @@
       reader.readAsDataURL(file);
     }
 
-    function handleExecuteUpload(event) {
+    async function handleExecuteUpload(event) {
       event.preventDefault();
       const sId = state.selectedStudentId;
       const s = RAW_STUDENTS.find(it => it.id === sId) || { id: sId, name: "Sinh viên" };
