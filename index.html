@@ -2859,6 +2859,8 @@
 
       state.teacherEmail = email;
       state.emailNotifyEnabled = notifyEnabled;
+      const customReportEl = document.getElementById("customReportEmailInput");
+      if (customReportEl) customReportEl.value = email;
       if (gmailPass) {
         state.gmailAppPassword = gmailPass;
         localStorage.setItem("GMAIL_APP_PASSWORD", gmailPass);
@@ -3078,7 +3080,14 @@
     }
 
     function handleSendClassSummaryReport() {
-      executeDirectSendReport();
+      const settingInput = document.getElementById("settingTeacherEmailInput");
+      const settingEmail = settingInput ? settingInput.value.trim() : "";
+      if (settingEmail) {
+        state.teacherEmail = settingEmail;
+        const customInput = document.getElementById("customReportEmailInput");
+        if (customInput) customInput.value = settingEmail;
+      }
+      executeDirectSendReport(settingEmail);
     }
 
     function getFormattedReportData(targetEmail) {
@@ -3131,9 +3140,21 @@
       };
     }
 
-    async function executeDirectSendReport() {
-      const emailInput = document.getElementById("customReportEmailInput");
-      const targetEmail = (emailInput && emailInput.value.trim()) || state.teacherEmail || "tkdark3010@gmail.com";
+    async function executeDirectSendReport(explicitEmail) {
+      const customInput = document.getElementById("customReportEmailInput");
+      const settingInput = document.getElementById("settingTeacherEmailInput");
+      const isSettingsOpen = document.getElementById("teacherSettingsModal") && !document.getElementById("teacherSettingsModal").classList.contains("hidden");
+
+      let targetEmail = explicitEmail;
+      if (!targetEmail) {
+        if (isSettingsOpen && settingInput && settingInput.value.trim()) {
+          targetEmail = settingInput.value.trim();
+        } else if (customInput && customInput.value.trim()) {
+          targetEmail = customInput.value.trim();
+        } else {
+          targetEmail = state.teacherEmail || localStorage.getItem("K68_TEACHER_EMAIL") || "tkdark3010@gmail.com";
+        }
+      }
       if (!targetEmail || !targetEmail.includes("@") || !targetEmail.includes(".")) {
         showToast("Email không hợp lệ", "Vui lòng nhập đúng định dạng Gmail (ví dụ: tkdark3010@gmail.com)", true);
         return;
