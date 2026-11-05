@@ -3828,6 +3828,11 @@
 
     function selectStudent(studentId) {
       state.selectedStudentId = studentId;
+      // Đánh dấu đã đọc tin nhắn của sinh viên này khi bấm chọn
+      if (state.unreadMessages && state.unreadMessages[studentId]) {
+        state.unreadMessages[studentId] = 0;
+        updateChatBadges();
+      }
       saveState();
       renderAll();
       if (isChatOpen) {
@@ -4417,6 +4422,13 @@
 
       if (isChatOpen) {
         chatBox.classList.remove("hidden");
+        const activeSt = getActiveChatStudent();
+        if (activeSt && state.unreadMessages && state.unreadMessages[activeSt.id]) {
+          state.unreadMessages[activeSt.id] = 0;
+          saveState();
+          updateChatBadges();
+          renderStudentList();
+        }
         updateChatUIHeaderAndButton();
         refreshChatMessages(false);
         setTimeout(() => {
