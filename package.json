@@ -1,1 +1,9 @@
+{
+  "name": "quanlytiendok68e",
+  "version": "1.0.0",
+  "description": "Hệ thống quản lý tiến độ đồ án tốt nghiệp Khóa K68",
+  "dependencies": {
+    "nodemailer": "^6.9.13"
+  }
+}
 
