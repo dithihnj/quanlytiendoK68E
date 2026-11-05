@@ -1270,6 +1270,8 @@
     }
 
     let supabaseRealtimeChannel = null;
+    let localProgressLastModified = {}; // sId -> timestamp ms để chặn race condition / tiếng vọng từ Supabase
+
     function initSupabaseRealtime() {
       if (!supabaseClient) return;
       try {
@@ -1283,6 +1285,17 @@
             const row = payload.new;
             if (row && row.student_id) {
               const sId = row.student_id;
+              
+              // Nếu máy này vừa tích chọn cho sinh viên sId trong vòng 3.5 giây,
+              // thì BỎ QUA việc ghi đè checked_tasks vì đây là tiếng vọng (echo) của bản lưu cũ từ Supabase!
+              const timeSinceMod = Date.now() - (localProgressLastModified[sId] || 0);
+              if (timeSinceMod < 3500) {
+                if (row.last_submitted) state.lastSubmitted[sId] = row.last_submitted;
+                if (row.last_access) state.lastAccess[sId] = row.last_access;
+                saveState();
+                return;
+              }
+
               if (row.checked_tasks) state.progress[sId] = row.checked_tasks;
               if (row.last_submitted) state.lastSubmitted[sId] = row.last_submitted;
               if (row.last_access) state.lastAccess[sId] = row.last_access;
@@ -1507,7 +1520,10 @@
           if (progressRows && !pError) {
             progressRows.forEach(row => {
               const sId = row.student_id;
-              if (row.checked_tasks) state.progress[sId] = row.checked_tasks;
+              const timeSinceMod = Date.now() - (localProgressLastModified[sId] || 0);
+              if (timeSinceMod >= 3500) {
+                if (row.checked_tasks) state.progress[sId] = row.checked_tasks;
+              }
               if (row.last_submitted) state.lastSubmitted[sId] = row.last_submitted;
               if (row.last_access) state.lastAccess[sId] = row.last_access;
               if (row.student_note !== undefined && row.student_note !== null) state.notes[sId] = row.student_note;
@@ -1798,9 +1814,10 @@
         return;
       }
 
-      // Kiểm tra mật khẩu của sinh viên
+      // Kiểm tra mật khẩu của sinh viên: Chấp nhận Mã SV của bạn, hoặc '123456', hoặc mật khẩu đã đổi
       const savedPass = (state.studentPasswords && state.studentPasswords[match.id]) ? String(state.studentPasswords[match.id]).trim() : match.id;
-      if (pass !== savedPass) {
+      const isValid = (pass === savedPass) || (pass === match.id) || (pass === "123456");
+      if (!isValid) {
         err.classList.remove("hidden");
         err.textContent = "Mật khẩu chưa chính xác! (Mặc định là Mã sinh viên của bạn: " + match.id + ")";
         return;
@@ -1817,8 +1834,11 @@
       saveState();
       hideLoginModal();
       renderAll();
-      // Record student access to backend
+      // Record student access to backend & sync latest data
       notifyBackendStudentAccess(match.id, match.name);
+      loadStudentFilesFromBackend(match.id);
+      refreshChatMessages(false);
+      syncDataFromBackend(false);
       showToast("Đăng nhập thành công", `Chào bạn ${match.name}! Bạn đang trong trang quản lý đồ án cá nhân.`);
     }
 
@@ -1978,8 +1998,9 @@
       } else {
         // Sinh viên đổi mật khẩu
         const sId = currentUser.id;
-        const currentStudentPass = (state.studentPasswords && state.studentPasswords[sId]) || sId;
-        if (oldPass !== currentStudentPass) {
+        const currentStudentPass = (state.studentPasswords && state.studentPasswords[sId]) ? String(state.studentPasswords[sId]).trim() : sId;
+        const isOldValid = (oldPass === currentStudentPass) || (oldPass === sId) || (oldPass === "123456");
+        if (!isOldValid) {
           btn.disabled = false;
           btn.textContent = "Lưu Mật Khẩu Mới";
           err.textContent = "Mật khẩu hiện tại chưa chính xác! (Mặc định là Mã SV của bạn)";
@@ -2243,24 +2264,125 @@
       return state.customTopics[student.id] || student.topic || "Chưa có đề tài";
     }
 
-    // CHECKBOX TOGGLE
-    function toggleTask(taskId) {
-      const sId = state.selectedStudentId;
-      if (!state.progress[sId]) state.progress[sId] = {};
-      
-      if (state.progress[sId][taskId]) {
-        delete state.progress[sId][taskId];
-      } else {
-        state.progress[sId][taskId] = true;
+    // ==============================================================
+    // XỬ LÝ TÍCH CHỌN TIẾN ĐỘ SIÊU MƯỢT (OPTIMISTIC UI & NO DOM RELOAD)
+    // ==============================================================
+    function updateTaskDOMInline(sId, taskId, isChecked) {
+      // 1. Cập nhật label text style
+      const lbl = document.getElementById(`task_lbl_${taskId}`);
+      if (lbl) {
+        if (isChecked) {
+          lbl.classList.add("task-done");
+        } else {
+          lbl.classList.remove("task-done");
+        }
       }
 
+      // 2. Đảm bảo trạng thái checkbox đúng với boolean
+      const chk = document.getElementById(`task_chk_${taskId}`);
+      if (chk && chk.checked !== isChecked) {
+        chk.checked = isChecked;
+      }
+
+      // 3. Cập nhật thanh tiến độ và số lượng của Giai đoạn (Phase) chứa mục này
+      const roadmap = getStudentRoadmap(sId);
+      const studentChecks = state.progress[sId] || {};
+      roadmap.forEach((phase, pIdx) => {
+        const tasksList = phase.tasks || [];
+        if (tasksList.some(t => t.id === taskId)) {
+          const phaseDone = tasksList.filter(t => studentChecks[t.id]).length;
+          const phaseTotal = tasksList.length;
+          const phasePercent = phaseTotal > 0 ? Math.round((phaseDone / phaseTotal) * 100) : 0;
+          
+          const countEl = document.getElementById(`phase_count_${pIdx}`);
+          if (countEl) {
+            countEl.textContent = `${phaseDone}/${phaseTotal}`;
+            countEl.className = `text-xs font-bold ${phasePercent === 100 ? 'text-emerald-600' : 'text-slate-600'}`;
+          }
+          const barEl = document.getElementById(`phase_bar_${pIdx}`);
+          if (barEl) {
+            barEl.style.width = `${phasePercent}%`;
+          }
+        }
+      });
+
+      // 4. Cập nhật tổng thể tiến độ sinh viên ở đầu trang (Detail header)
+      const prog = getStudentProgress(sId);
+      const percentEl = document.getElementById("detailPercentText");
+      if (percentEl) percentEl.textContent = `${prog.percent}%`;
+      const circleEl = document.getElementById("detailCircleProgress");
+      if (circleEl) circleEl.setAttribute("stroke-dasharray", `${prog.percent}, 100`);
+      const doneEl = document.getElementById("detailTasksDone");
+      if (doneEl) doneEl.textContent = prog.done;
+      const totalEl = document.getElementById("detailTasksTotal");
+      if (totalEl) totalEl.textContent = prog.total;
+
+      const statusPill = document.getElementById("detailStatusPill");
+      if (statusPill) {
+        if (prog.percent === 0) {
+          statusPill.textContent = "Chưa bắt đầu";
+          statusPill.className = "text-[11px] font-medium text-slate-400 mt-0.5";
+        } else if (prog.percent < 30) {
+          statusPill.textContent = "🚀 Giai đoạn khởi động";
+          statusPill.className = "text-[11px] font-semibold text-blue-600 mt-0.5";
+        } else if (prog.percent < 70) {
+          statusPill.textContent = "⚡ Đang nghiên cứu & mô phỏng";
+          statusPill.className = "text-[11px] font-semibold text-indigo-600 mt-0.5";
+        } else if (prog.percent < 100) {
+          statusPill.textContent = "✍️ Viết cuốn & hoàn thiện";
+          statusPill.className = "text-[11px] font-semibold text-purple-600 mt-0.5";
+        } else {
+          statusPill.textContent = "🏆 Đã hoàn thành 100%";
+          statusPill.className = "text-[11px] font-bold text-emerald-600 mt-0.5";
+        }
+      }
+
+      // 5. Cập nhật thẻ sinh viên trong danh sách bên trái (màn hình Giảng viên)
+      const itemPercent = document.getElementById(`student_item_percent_${sId}`);
+      if (itemPercent) {
+        itemPercent.textContent = `${prog.percent}%`;
+        itemPercent.className = `text-xs font-extrabold ${prog.percent >= 50 ? 'text-emerald-600' : (prog.percent > 0 ? 'text-blue-600' : 'text-slate-400')}`;
+      }
+      const itemBar = document.getElementById(`student_item_bar_${sId}`);
+      if (itemBar) {
+        itemBar.style.width = `${prog.percent}%`;
+        itemBar.className = `h-full rounded-full transition-all duration-300 ${prog.percent >= 80 ? 'bg-emerald-500' : (prog.percent >= 40 ? 'bg-purple-500' : 'bg-amber-500')}`;
+      }
+
+      // 6. Cập nhật thanh thống kê lớp
+      renderClassStats();
+    }
+
+    function handleTaskChange(taskId, isChecked) {
+      const sId = state.selectedStudentId;
+      if (!sId) return;
+      if (!state.progress[sId]) state.progress[sId] = {};
+
+      if (isChecked) {
+        state.progress[sId][taskId] = true;
+      } else {
+        delete state.progress[sId][taskId];
+      }
+
+      localProgressLastModified[sId] = Date.now();
+      updateTaskDOMInline(sId, taskId, isChecked);
       saveState();
-      renderAll();
       debouncedSaveStudentProgress(sId);
+    }
+
+    function toggleTask(taskId) {
+      const sId = state.selectedStudentId;
+      if (!sId) return;
+      const current = !!(state.progress[sId] && state.progress[sId][taskId]);
+      const target = !current;
+      const chk = document.getElementById(`task_chk_${taskId}`);
+      if (chk) chk.checked = target;
+      handleTaskChange(taskId, target);
     }
 
     function markAllCurrentStudent(isCheckAll) {
       const sId = state.selectedStudentId;
+      if (!sId) return;
       if (!state.progress[sId]) state.progress[sId] = {};
       const roadmap = getStudentRoadmap(sId);
 
@@ -2276,6 +2398,7 @@
         }
       });
 
+      localProgressLastModified[sId] = Date.now();
       saveState();
       renderAll();
       debouncedSaveStudentProgress(sId);
@@ -2644,7 +2767,7 @@
             <div class="flex-1 min-w-0">
               <div class="flex items-center justify-between gap-1">
                 <span class="text-sm font-bold text-slate-800 truncate">${s.stt}. ${s.name}</span>
-                <span class="text-xs font-extrabold ${prog.percent >= 50 ? 'text-emerald-600' : (prog.percent > 0 ? 'text-blue-600' : 'text-slate-400')}">
+                <span id="student_item_percent_${s.id}" class="text-xs font-extrabold ${prog.percent >= 50 ? 'text-emerald-600' : (prog.percent > 0 ? 'text-blue-600' : 'text-slate-400')}">
                   ${prog.percent}%
                 </span>
               </div>
@@ -2656,7 +2779,7 @@
                 ${topic}
               </div>
               <div class="w-full bg-slate-100 h-1.5 rounded-full overflow-hidden mt-1.5">
-                <div class="h-full rounded-full transition-all duration-300 ${prog.percent >= 80 ? 'bg-emerald-500' : (prog.percent >= 40 ? 'bg-purple-500' : 'bg-amber-500')}" style="width: ${prog.percent}%;"></div>
+                <div id="student_item_bar_${s.id}" class="h-full rounded-full transition-all duration-300 ${prog.percent >= 80 ? 'bg-emerald-500' : (prog.percent >= 40 ? 'bg-purple-500' : 'bg-amber-500')}" style="width: ${prog.percent}%;"></div>
               </div>
             </div>
           </div>
@@ -2772,11 +2895,11 @@
               </div>
             </div>
             <div class="flex items-center gap-3 flex-shrink-0">
-              <span class="text-xs font-bold ${phasePercent === 100 ? 'text-emerald-600' : 'text-slate-600'}">
+              <span id="phase_count_${pIdx}" class="text-xs font-bold ${phasePercent === 100 ? 'text-emerald-600' : 'text-slate-600'}">
                 ${phaseDone}/${phaseTotal}
               </span>
               <div class="w-16 bg-slate-200 h-1.5 rounded-full overflow-hidden">
-                <div class="h-full rounded-full transition-all duration-300" style="width: ${phasePercent}%; background-color: ${phase.color || '#2563eb'}"></div>
+                <div id="phase_bar_${pIdx}" class="h-full rounded-full transition-all duration-300" style="width: ${phasePercent}%; background-color: ${phase.color || '#2563eb'}"></div>
               </div>
             </div>
           </div>
@@ -2788,11 +2911,12 @@
                 <div class="group flex items-start gap-2.5 p-2 rounded-lg hover:bg-slate-50 transition select-none">
                   <input 
                     type="checkbox" 
+                    id="task_chk_${t.id}"
                     class="custom-checkbox mt-0.5 cursor-pointer" 
                     ${isChecked ? 'checked' : ''} 
-                    onchange="toggleTask('${t.id}')"
+                    onchange="handleTaskChange('${t.id}', this.checked)"
                   >
-                  <label onclick="toggleTask('${t.id}')" class="text-xs sm:text-sm font-medium text-slate-700 flex-1 leading-snug cursor-pointer ${isChecked ? 'task-done' : ''}">
+                  <label for="task_chk_${t.id}" id="task_lbl_${t.id}" class="text-xs sm:text-sm font-medium text-slate-700 flex-1 leading-snug cursor-pointer select-none ${isChecked ? 'task-done' : ''}">
                     ${t.text}
                   </label>
                   <div class="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition flex-shrink-0">
@@ -3654,12 +3778,16 @@
         initSupabaseRealtime();
       }
 
+      // Luôn đồng bộ dữ liệu từ Supabase ngay khi mở trang (để có mật khẩu SV mới nhất, đề tài, tiến độ)
+      if (typeof syncDataFromBackend === "function") {
+        syncDataFromBackend(false);
+      }
+
       if (!currentUser) {
         showLoginModal();
       } else {
         renderAll();
         if (currentUser.role === "teacher") {
-          syncDataFromBackend(false);
           loadStudentFilesFromBackend(state.selectedStudentId);
           refreshChatMessages(false);
         } else if (currentUser.role === "student") {
