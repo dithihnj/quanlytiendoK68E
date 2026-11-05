@@ -66,8 +66,13 @@ async function sendEmailDispatch({ to, subject, html, settings }) {
         const info = await transporter.sendMail({
           from: `"Hệ Thống Quản Lý Đồ Án K68" <${senderEmail}>`,
           to: to,
+          replyTo: senderEmail,
           subject: subject,
-          html: html
+          text: `${subject}\n\nBáo cáo tiến độ đồ án tốt nghiệp Khóa K68.\nĐịa chỉ nhận: ${to}\nXem chi tiết tại: https://quanlytiendok68e.vercel.app/`,
+          html: html,
+          headers: {
+            'X-Entity-Ref-ID': `${Date.now()}-${Math.random().toString(36).substring(2, 8)}`
+          }
         });
 
         return { success: true, provider: 'gmail_direct', messageId: info.messageId };
