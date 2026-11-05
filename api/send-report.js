@@ -52,16 +52,19 @@ async function sendEmailDispatch({ to, subject, html, settings }) {
       }
 
       if (nodemailer) {
+        // Tài khoản Gmail dùng để phát thư (mặc định tkdark3010@gmail.com - tài khoản có App Password)
+        const senderEmail = env.GMAIL_SENDER_EMAIL || settings.GMAIL_SENDER_EMAIL || 'tkdark3010@gmail.com';
+
         const transporter = nodemailer.createTransport({
           service: 'gmail',
           auth: {
-            user: to,
+            user: senderEmail,
             pass: gmailPass
           }
         });
 
         const info = await transporter.sendMail({
-          from: `"Hệ Thống Quản Lý Đồ Án K68" <${to}>`,
+          from: `"Hệ Thống Quản Lý Đồ Án K68" <${senderEmail}>`,
           to: to,
           subject: subject,
           html: html
@@ -134,7 +137,8 @@ module.exports = async function handler(req, res) {
   try {
     const settings = await getSupabaseSettings();
     const env = getEnv();
-    const teacherEmail = settings.TEACHER_EMAIL || env.TEACHER_EMAIL || DEFAULT_TEACHER_EMAIL;
+    const payload = (req.method === 'POST' && req.body) ? req.body : {};
+    const teacherEmail = payload.teacherEmail || settings.TEACHER_EMAIL || env.TEACHER_EMAIL || DEFAULT_TEACHER_EMAIL;
     const nowStr = new Date().toLocaleString('vi-VN', { timeZone: 'Asia/Ho_Chi_Minh' });
 
     // =========================================================================
@@ -264,7 +268,6 @@ module.exports = async function handler(req, res) {
     // =========================================================================
     // CASE 2: KÍCH HOẠT TỪ GIAO DIỆN WEB (POST Request)
     // =========================================================================
-    const payload = req.body || {};
     const reqType = payload.type || 'progress_report';
 
     // -------------------------------------------------------------------------
