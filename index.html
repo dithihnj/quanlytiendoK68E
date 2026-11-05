@@ -681,24 +681,60 @@
           </p>
         </div>
 
-        <div>
+        <!-- CÁCH 1: GMAIL APP PASSWORD (100% VÀO HỘP THƯ CHÍNH) -->
+        <div class="p-3.5 bg-emerald-50/80 rounded-2xl border border-emerald-200">
           <div class="flex items-center justify-between mb-1.5">
-            <label class="block text-xs font-bold text-slate-700 uppercase tracking-wider">
-              <span>🔑 Mã Khóa Gửi Thư Tự Động (Resend API Key)</span>
+            <label class="block text-xs font-bold text-emerald-950 uppercase tracking-wider flex items-center gap-1.5">
+              <span>⭐ Cách 1 (Khuyên dùng): Mật khẩu ứng dụng Gmail</span>
             </label>
-            <a href="https://resend.com/api-keys" target="_blank" rel="noopener noreferrer" class="text-[11px] text-purple-600 font-semibold hover:underline flex items-center gap-1">
-              <span>Lấy mã miễn phí (30s)</span> &nearr;
+            <a href="https://myaccount.google.com/apppasswords" target="_blank" rel="noopener noreferrer" class="text-[11px] text-emerald-700 font-bold hover:underline flex items-center gap-0.5">
+              <span>Lấy mã 16 chữ cái (20s)</span> &nearr;
             </a>
           </div>
           <input 
             type="password" 
-            id="settingResendApiKeyInput" 
-            placeholder="re_123456789... (Hoặc để trống nếu đã cài trên Vercel)" 
-            class="w-full px-4 py-3 text-sm rounded-xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-purple-500 bg-slate-50 focus:bg-white font-mono transition"
+            id="settingGmailAppPasswordInput" 
+            placeholder="abcd efgh ijkl mnop (Mật khẩu ứng dụng 16 ký tự)" 
+            class="w-full px-4 py-2.5 text-sm rounded-xl border border-emerald-200 focus:outline-none focus:ring-2 focus:ring-emerald-500 bg-white font-mono transition"
           >
-          <p class="text-[11px] text-slate-400 mt-1">
-            Đăng nhập <a href="https://resend.com" target="_blank" rel="noopener noreferrer" class="text-purple-600 underline font-medium">resend.com</a> bằng GitHub &rarr; Bấm "Create API Key" &rarr; Dán mã vào đây để kích hoạt gửi trực tiếp không giới hạn!
+          <p class="text-[11px] text-emerald-800/90 mt-1">
+            <strong>Ưu điểm tuyệt đối:</strong> 100% thư vào thẳng <strong>Hộp Thư Chính (Primary)</strong>, không bao giờ bị coi là Spam vì do chính máy chủ Google gửi.
           </p>
+        </div>
+
+        <!-- CÁCH 2: BREVO API KEY -->
+        <div>
+          <div class="flex items-center justify-between mb-1.5">
+            <label class="block text-xs font-bold text-slate-700 uppercase tracking-wider">
+              <span>Hoặc Cách 2: Mã Brevo API Key</span>
+            </label>
+            <a href="https://app.brevo.com/settings/keys/api" target="_blank" rel="noopener noreferrer" class="text-[11px] text-blue-600 font-bold hover:underline flex items-center gap-1">
+              <span>Lấy mã Brevo</span> &nearr;
+            </a>
+          </div>
+          <input 
+            type="password" 
+            id="settingBrevoApiKeyInput" 
+            placeholder="xkeysib-... (Dán mã Brevo API Key vào đây)" 
+            class="w-full px-4 py-2.5 text-sm rounded-xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-purple-500 bg-slate-50 focus:bg-white font-mono transition"
+          >
+          <p class="text-[11px] text-slate-500 mt-1">
+            Đăng nhập <a href="https://app.brevo.com/settings/keys/api" target="_blank" rel="noopener noreferrer" class="text-blue-600 underline font-semibold">brevo.com</a> ➔ Vào <strong>SMTP &amp; API</strong> ➔ <strong>Generate a new API key</strong> ➔ Dán mã bắt đầu bằng <code class="bg-slate-100 px-1 py-0.5 rounded text-blue-700 font-bold">xkeysib-...</code> vào đây.
+          </p>
+        </div>
+
+        <div class="pt-0.5">
+          <details class="text-xs text-slate-500">
+            <summary class="cursor-pointer hover:text-slate-800 font-medium">Hoặc dùng Resend API Key (Tùy chọn)</summary>
+            <div class="mt-2 space-y-1">
+              <input 
+                type="password" 
+                id="settingResendApiKeyInput" 
+                placeholder="re_... (Nếu bạn thích dùng Resend)" 
+                class="w-full px-3 py-2 text-xs rounded-lg border border-slate-200 bg-slate-50 font-mono"
+              >
+            </div>
+          </details>
         </div>
 
         <div class="p-4 bg-purple-50/60 rounded-2xl border border-purple-200 flex items-center justify-between gap-4">
@@ -2788,20 +2824,32 @@
 
     function openTeacherSettingsModal() {
       const emailInput = document.getElementById("settingTeacherEmailInput");
-      const apiKeyInput = document.getElementById("settingResendApiKeyInput");
+      const gmailPassInput = document.getElementById("settingGmailAppPasswordInput");
+      const brevoInput = document.getElementById("settingBrevoApiKeyInput");
+      const resendInput = document.getElementById("settingResendApiKeyInput");
       const toggle = document.getElementById("settingNotifyToggle");
 
       if (emailInput) emailInput.value = state.teacherEmail || "tkdark3010@gmail.com";
-      if (apiKeyInput) apiKeyInput.value = state.resendApiKey || localStorage.getItem("RESEND_API_KEY") || "";
+      if (gmailPassInput) gmailPassInput.value = state.gmailAppPassword || localStorage.getItem("GMAIL_APP_PASSWORD") || "";
+      if (brevoInput) brevoInput.value = state.brevoApiKey || localStorage.getItem("BREVO_API_KEY") || "";
+      if (resendInput) resendInput.value = state.resendApiKey || localStorage.getItem("RESEND_API_KEY") || "";
       if (toggle) toggle.checked = state.emailNotifyEnabled !== false;
 
       // Đọc thêm từ Supabase nếu có
       if (supabaseClient) {
-        supabaseClient.from('system_settings').select('*').in('key', ['RESEND_API_KEY', 'TEACHER_EMAIL']).then(({ data }) => {
+        supabaseClient.from('system_settings').select('*').in('key', ['GMAIL_APP_PASSWORD', 'BREVO_API_KEY', 'RESEND_API_KEY', 'TEACHER_EMAIL']).then(({ data }) => {
           if (data) {
             data.forEach(item => {
-              if (item.key === 'RESEND_API_KEY' && apiKeyInput && !apiKeyInput.value) {
-                apiKeyInput.value = item.value;
+              if (item.key === 'GMAIL_APP_PASSWORD' && gmailPassInput && !gmailPassInput.value) {
+                gmailPassInput.value = item.value;
+                state.gmailAppPassword = item.value;
+              }
+              if (item.key === 'BREVO_API_KEY' && brevoInput && !brevoInput.value) {
+                brevoInput.value = item.value;
+                state.brevoApiKey = item.value;
+              }
+              if (item.key === 'RESEND_API_KEY' && resendInput && !resendInput.value) {
+                resendInput.value = item.value;
                 state.resendApiKey = item.value;
               }
               if (item.key === 'TEACHER_EMAIL' && emailInput) {
@@ -2822,15 +2870,27 @@
 
     function handleSaveTeacherSettings() {
       const email = document.getElementById("settingTeacherEmailInput").value.trim() || "tkdark3010@gmail.com";
-      const apiKeyInput = document.getElementById("settingResendApiKeyInput");
-      const apiKey = apiKeyInput ? apiKeyInput.value.trim() : "";
+      const gmailPassInput = document.getElementById("settingGmailAppPasswordInput");
+      const brevoInput = document.getElementById("settingBrevoApiKeyInput");
+      const resendInput = document.getElementById("settingResendApiKeyInput");
+      const gmailPass = gmailPassInput ? gmailPassInput.value.trim() : "";
+      const brevoKey = brevoInput ? brevoInput.value.trim() : "";
+      const resendKey = resendInput ? resendInput.value.trim() : "";
       const notifyEnabled = document.getElementById("settingNotifyToggle").checked;
 
       state.teacherEmail = email;
       state.emailNotifyEnabled = notifyEnabled;
-      if (apiKey) {
-        state.resendApiKey = apiKey;
-        localStorage.setItem("RESEND_API_KEY", apiKey);
+      if (gmailPass) {
+        state.gmailAppPassword = gmailPass;
+        localStorage.setItem("GMAIL_APP_PASSWORD", gmailPass);
+      }
+      if (brevoKey) {
+        state.brevoApiKey = brevoKey;
+        localStorage.setItem("BREVO_API_KEY", brevoKey);
+      }
+      if (resendKey) {
+        state.resendApiKey = resendKey;
+        localStorage.setItem("RESEND_API_KEY", resendKey);
       }
       saveState();
 
@@ -2839,14 +2899,20 @@
           { key: 'TEACHER_EMAIL', value: email, updated_at: new Date().toISOString() },
           { key: 'EMAIL_AUTO_NOTIFY', value: notifyEnabled ? 'true' : 'false', updated_at: new Date().toISOString() }
         ];
-        if (apiKey) {
-          updates.push({ key: 'RESEND_API_KEY', value: apiKey, updated_at: new Date().toISOString() });
+        if (gmailPass) {
+          updates.push({ key: 'GMAIL_APP_PASSWORD', value: gmailPass, updated_at: new Date().toISOString() });
+        }
+        if (brevoKey) {
+          updates.push({ key: 'BREVO_API_KEY', value: brevoKey, updated_at: new Date().toISOString() });
+        }
+        if (resendKey) {
+          updates.push({ key: 'RESEND_API_KEY', value: resendKey, updated_at: new Date().toISOString() });
         }
         supabaseClient.from('system_settings').upsert(updates, { onConflict: 'key' }).then(() => {});
       }
 
       closeTeacherSettingsModal();
-      showToast("Đã lưu cài đặt!", "Đã cập nhật email nhận báo cáo và cấu hình gửi thư tự động.");
+      showToast("Đã lưu cài đặt!", "Đã cập nhật email nhận báo cáo và cấu hình gửi thư vào Hộp thư chính.");
     }
 
     // ==============================================================
@@ -3138,7 +3204,7 @@
           closeSendReportModal();
         } else if (res && res.need_key) {
           openTeacherSettingsModal();
-          showToast("Cần cài đặt Resend API Key", "Vui lòng nhập mã Resend API Key để kích hoạt gửi email trực tiếp vào Gmail của bạn.", true);
+          showToast("Cần nhập Brevo API Key", "Vui lòng nhập mã Brevo API Key (bắt đầu bằng xkeysib-...) để kích hoạt gửi email trực tiếp vào Gmail của bạn.", true);
         } else {
           showToast("Thông báo gửi", (res && res.message) || "Đã tiếp nhận yêu cầu gửi báo cáo.", false);
           closeSendReportModal();
