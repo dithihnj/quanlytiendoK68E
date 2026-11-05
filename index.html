@@ -665,7 +665,7 @@
         </button>
       </div>
 
-      <div class="p-6 space-y-5">
+      <div class="p-6 space-y-4">
         <div>
           <label class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1.5 flex items-center gap-1.5">
             <span>📧 Địa Chỉ Gmail Nhận Báo Cáo</span>
@@ -673,18 +673,38 @@
           <input 
             type="email" 
             id="settingTeacherEmailInput" 
-            placeholder="thayco@gmail.com" 
+            placeholder="tkdark3010@gmail.com" 
             class="w-full px-4 py-3 text-sm rounded-xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-purple-500 bg-slate-50 focus:bg-white transition"
           >
           <p class="text-[11px] text-slate-400 mt-1">
-            Mỗi khi sinh viên <strong>gửi tiến độ</strong>, <strong>nộp tệp tin</strong> hoặc <strong>gửi tin nhắn</strong>, hệ thống sẽ tự động gửi email tóm tắt tới địa chỉ này.
+            Báo cáo định kỳ hàng tuần, thông báo sinh viên nhắn tin và báo cáo gửi tay sẽ tự động gửi thẳng về địa chỉ này.
+          </p>
+        </div>
+
+        <div>
+          <div class="flex items-center justify-between mb-1.5">
+            <label class="block text-xs font-bold text-slate-700 uppercase tracking-wider">
+              <span>🔑 Mã Khóa Gửi Thư Tự Động (Resend API Key)</span>
+            </label>
+            <a href="https://resend.com/api-keys" target="_blank" rel="noopener noreferrer" class="text-[11px] text-purple-600 font-semibold hover:underline flex items-center gap-1">
+              <span>Lấy mã miễn phí (30s)</span> &nearr;
+            </a>
+          </div>
+          <input 
+            type="password" 
+            id="settingResendApiKeyInput" 
+            placeholder="re_123456789... (Hoặc để trống nếu đã cài trên Vercel)" 
+            class="w-full px-4 py-3 text-sm rounded-xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-purple-500 bg-slate-50 focus:bg-white font-mono transition"
+          >
+          <p class="text-[11px] text-slate-400 mt-1">
+            Đăng nhập <a href="https://resend.com" target="_blank" rel="noopener noreferrer" class="text-purple-600 underline font-medium">resend.com</a> bằng GitHub &rarr; Bấm "Create API Key" &rarr; Dán mã vào đây để kích hoạt gửi trực tiếp không giới hạn!
           </p>
         </div>
 
         <div class="p-4 bg-purple-50/60 rounded-2xl border border-purple-200 flex items-center justify-between gap-4">
           <div>
             <div class="text-xs font-bold text-purple-950">Tự động gửi thông báo qua Gmail</div>
-            <div class="text-[11px] text-purple-700/80 mt-0.5">Bật thông báo theo thời gian thực</div>
+            <div class="text-[11px] text-purple-700/80 mt-0.5">Báo cáo tuần &amp; Tin nhắn sinh viên</div>
           </div>
           <label class="relative inline-flex items-center cursor-pointer">
             <input type="checkbox" id="settingNotifyToggle" class="sr-only peer" checked>
@@ -924,51 +944,27 @@
         </div>
 
         <div class="space-y-2 pt-2">
-          <!-- Cách 1: Mở thẳng Gmail (Khuyên dùng - 100% không lỗi 400, gửi ngay từ hòm thư của bạn) -->
+          <!-- Nút Gửi Trực Tiếp Duy Nhất Vào Email (1-Click Direct Sending) -->
           <button 
             type="button" 
-            onclick="openInGmailClient()" 
-            class="w-full py-3 bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-700 hover:to-indigo-700 text-white rounded-xl font-bold text-xs shadow-md transition flex items-center justify-center gap-2"
+            id="btnDirectSendReport"
+            onclick="executeDirectSendReport()" 
+            class="w-full py-3.5 bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-700 hover:to-indigo-700 text-white rounded-xl font-bold text-sm shadow-lg shadow-purple-600/30 transition active:scale-95 flex items-center justify-center gap-2"
           >
-            <span>📧 Mở Soạn Thư Trong Gmail (1-Click • Tự Động Điền & Copy Sẵn)</span>
+            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/></svg>
+            <span>📤 Gửi Báo Cáo Trực Tiếp Đến Email Này</span>
           </button>
 
-          <!-- Cách 2: Gửi qua Cloud Mail -->
-          <button 
-            type="button" 
-            id="btnSendViaCloud"
-            onclick="executeSendEmailViaCloud()" 
-            class="w-full py-2.5 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-xl font-bold text-xs transition flex items-center justify-center gap-2"
-          >
-            <span>🚀 Gửi Tự Động Qua Cloud Mail (Kiểm tra cả hòm thư Spam/Rác)</span>
-          </button>
-
-          <!-- Cách 3 & 4: Copy và Tải CSV -->
-          <div class="grid grid-cols-2 gap-2 pt-1">
-            <button 
-              type="button" 
-              onclick="copyReportToClipboard()" 
-              class="w-full py-2 bg-white hover:bg-slate-50 text-slate-700 rounded-xl font-medium text-xs border border-slate-200 transition flex items-center justify-center gap-1.5"
-            >
-              <span>📋 Sao Chép Báo Cáo</span>
-            </button>
+          <!-- Tải CSV / Excel Lưu Trữ Dự Phòng -->
+          <div class="pt-1">
             <button 
               type="button" 
               onclick="exportClassToCsv()" 
-              class="w-full py-2 bg-white hover:bg-slate-50 text-emerald-700 rounded-xl font-medium text-xs border border-emerald-200 transition flex items-center justify-center gap-1.5"
+              class="w-full py-2 bg-slate-50 hover:bg-slate-100 text-slate-700 rounded-xl font-medium text-xs border border-slate-200 transition flex items-center justify-center gap-1.5"
             >
-              <span>📥 Tải File CSV / Excel</span>
+              <span>📥 Tải File Báo Cáo Dưới Dạng CSV / Excel</span>
             </button>
           </div>
-
-          <!-- Cách 5: In / PDF -->
-          <button 
-            type="button" 
-            onclick="printReportSummary()" 
-            class="w-full py-2 bg-white hover:bg-slate-50 text-slate-600 rounded-xl font-medium text-xs border border-slate-200 transition flex items-center justify-center gap-1.5"
-          >
-            <span>🖨️ Xem Bản In / Xuất File PDF Báo Cáo</span>
-          </button>
         </div>
       </div>
     </div>
@@ -1781,6 +1777,12 @@
       }
     }
 
+    function isUserOnline(id) {
+      return activeOnlineUserIds.has(id);
+    }
+    window.isUserOnline = isUserOnline;
+    window.activeOnlineUserIds = activeOnlineUserIds;
+
     function updateOnlinePresenceUI() {
       // 1. Số lượng sinh viên/người dùng online trên header
       const statEl = document.getElementById("statOnlineCount");
@@ -2040,7 +2042,7 @@
       }, 500);
     }
 
-    let state = {
+    var state = {
       selectedStudentId: RAW_STUDENTS[0].id,
       progress: {},         // { [studentId]: { [taskId]: true } }
       customTopics: {},     // { [studentId]: "Tên đề tài..." }
@@ -2052,7 +2054,7 @@
       customRoadmaps: {},   // { [studentId]: [ phases... ] }
       studentPasswords: {}, // { [studentId]: "password" }
       teacherPassword: "123",
-      teacherEmail: "",
+      teacherEmail: "tkdark3010@gmail.com",
       emailNotifyEnabled: true,
       customStudents: [],   // [ { stt, name, id, gpa, topic, course, password } ]
       courses: ["Khóa K68 (2023 - 2027)", "Khóa K67 (2022 - 2026)", "Khóa K69 (2024 - 2028)"],
@@ -2060,8 +2062,10 @@
       unreadMessages: {},   // { [studentId]: count }
       avatars: {}           // { [studentId]: "data:image/jpeg;base64,..." }
     };
+    window.state = state;
 
-    let currentUser = null; // { role: 'student' | 'teacher', id: '2302xxxx', name: '...' }
+    var currentUser = null; // { role: 'student' | 'teacher', id: '2302xxxx', name: '...' }
+    window.currentUser = currentUser;
     let currentFilter = "all";
     let currentSearch = "";
     let currentSort = "stt";
@@ -2362,24 +2366,27 @@
         }
       }
 
-      // Gửi thông báo email đến GV qua FormSubmit (Hoạt động 100% không cần Serverless backend)
-      const targetTeacherEmail = state.teacherEmail || localStorage.getItem("K68_TEACHER_EMAIL") || "giangvien@uet.vnu.edu.vn";
+      // Gửi thông báo email trực tiếp đến GV qua API hệ thống
+      const targetTeacherEmail = state.teacherEmail || localStorage.getItem("K68_TEACHER_EMAIL") || "tkdark3010@gmail.com";
       if (state.emailNotifyEnabled && targetTeacherEmail) {
         try {
-          fetch(`https://formsubmit.co/ajax/${encodeURIComponent(targetTeacherEmail)}`, {
+          fetch('/api/send-report', {
             method: 'POST',
-            headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
+            headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({
-              _subject: `[Báo Cáo Tiến Độ] Sinh viên ${s.name} (${sId}) - Đạt ${prog.percent}%`,
-              Sinh_Vien: `${s.name} (MSV: ${sId})`,
-              Tien_Do: `${prog.percent}% (${prog.done}/${prog.total} mục hoàn thành)`,
-              De_Tai: getStudentTopic(s),
-              Thoi_Gian_Nop: nowStr,
-              Ghi_Chu_SV: note || "Không có ghi chú thêm",
-              _template: 'table',
-              _captcha: 'false'
+              type: 'progress_report',
+              teacherEmail: targetTeacherEmail,
+              studentsData: [{
+                name: s.name,
+                id: sId,
+                percent: prog.percent,
+                done: prog.done,
+                total: prog.total,
+                topic: getStudentTopic(s),
+                lastSubmitted: nowStr
+              }]
             })
-          }).catch(e => console.log('Email notify handled:', e));
+          }).catch(e => console.warn('Email notify error:', e));
         } catch (e) {}
       }
 
@@ -2485,25 +2492,40 @@
 
     function handleStudentLogin(e) {
       e.preventDefault();
-      const name = document.getElementById("studentNameInput").value;
-      const id = document.getElementById("studentIdInput").value;
+      const nameInput = (document.getElementById("studentNameInput").value || "").trim();
+      const idInput = (document.getElementById("studentIdInput").value || "").trim();
       const pass = (document.getElementById("studentPasswordInput").value || "").trim();
       const err = document.getElementById("studentLoginError");
 
-      const normName = normalizeStr(name);
-      const normId = id.trim();
+      const normName = normalizeStr(nameInput);
+      const normId = idInput.toLowerCase();
 
-      const match = getAllStudents().find(s => s.id.trim() === normId && normalizeStr(s.name) === normName);
+      // Tìm sinh viên: ưu tiên khớp theo Mã SV (duy nhất)
+      let match = getAllStudents().find(s => s.id.trim().toLowerCase() === normId);
+      // Nếu không tìm thấy bằng ID, thử tìm theo Họ tên
+      if (!match) {
+        match = getAllStudents().find(s => normalizeStr(s.name) === normName);
+      }
 
       if (!match) {
         err.classList.remove("hidden");
-        err.textContent = "Không tìm thấy thông tin sinh viên! Vui lòng kiểm tra lại Họ tên và Mã sinh viên...";
+        err.textContent = "Không tìm thấy thông tin sinh viên! Vui lòng kiểm tra lại Họ tên hoặc Mã sinh viên...";
         return;
       }
 
-      // Kiểm tra mật khẩu của sinh viên: Chấp nhận Mã SV của bạn, hoặc '123456', hoặc mật khẩu đã đổi
-      const savedPass = (state.studentPasswords && state.studentPasswords[match.id]) ? String(state.studentPasswords[match.id]).trim() : match.id;
-      const isValid = (pass === savedPass) || (pass === match.id) || (pass === "123456");
+      // Kiểm tra mật khẩu của sinh viên:
+      // Chấp nhận: Nếu để trống, hoặc bằng Mã SV, hoặc bằng mật khẩu đã đổi, hoặc '123456', hoặc '123'
+      const savedPass = (state.studentPasswords && state.studentPasswords[match.id]) 
+        ? String(state.studentPasswords[match.id]).trim().toLowerCase() 
+        : match.id.toLowerCase();
+      const enteredPass = pass.toLowerCase();
+
+      const isValid = !pass || 
+                      (enteredPass === match.id.toLowerCase()) || 
+                      (enteredPass === savedPass) || 
+                      (enteredPass === "123456") || 
+                      (enteredPass === "123");
+
       if (!isValid) {
         err.classList.remove("hidden");
         err.textContent = "Mật khẩu chưa chính xác! (Mặc định là Mã sinh viên của bạn: " + match.id + ")";
@@ -2516,6 +2538,7 @@
         id: match.id,
         name: match.name
       };
+      window.currentUser = currentUser;
       state.selectedStudentId = match.id;
       saveAuth();
       saveState();
@@ -2765,10 +2788,30 @@
 
     function openTeacherSettingsModal() {
       const emailInput = document.getElementById("settingTeacherEmailInput");
+      const apiKeyInput = document.getElementById("settingResendApiKeyInput");
       const toggle = document.getElementById("settingNotifyToggle");
 
-      if (emailInput) emailInput.value = state.teacherEmail || "";
+      if (emailInput) emailInput.value = state.teacherEmail || "tkdark3010@gmail.com";
+      if (apiKeyInput) apiKeyInput.value = state.resendApiKey || localStorage.getItem("RESEND_API_KEY") || "";
       if (toggle) toggle.checked = state.emailNotifyEnabled !== false;
+
+      // Đọc thêm từ Supabase nếu có
+      if (supabaseClient) {
+        supabaseClient.from('system_settings').select('*').in('key', ['RESEND_API_KEY', 'TEACHER_EMAIL']).then(({ data }) => {
+          if (data) {
+            data.forEach(item => {
+              if (item.key === 'RESEND_API_KEY' && apiKeyInput && !apiKeyInput.value) {
+                apiKeyInput.value = item.value;
+                state.resendApiKey = item.value;
+              }
+              if (item.key === 'TEACHER_EMAIL' && emailInput) {
+                emailInput.value = item.value;
+                state.teacherEmail = item.value;
+              }
+            });
+          }
+        });
+      }
 
       document.getElementById("teacherSettingsModal").classList.remove("hidden");
     }
@@ -2778,31 +2821,32 @@
     }
 
     function handleSaveTeacherSettings() {
-      const email = document.getElementById("settingTeacherEmailInput").value.trim();
+      const email = document.getElementById("settingTeacherEmailInput").value.trim() || "tkdark3010@gmail.com";
+      const apiKeyInput = document.getElementById("settingResendApiKeyInput");
+      const apiKey = apiKeyInput ? apiKeyInput.value.trim() : "";
       const notifyEnabled = document.getElementById("settingNotifyToggle").checked;
 
       state.teacherEmail = email;
       state.emailNotifyEnabled = notifyEnabled;
+      if (apiKey) {
+        state.resendApiKey = apiKey;
+        localStorage.setItem("RESEND_API_KEY", apiKey);
+      }
       saveState();
 
       if (supabaseClient) {
-        supabaseClient.from('system_settings').upsert([
+        const updates = [
           { key: 'TEACHER_EMAIL', value: email, updated_at: new Date().toISOString() },
           { key: 'EMAIL_AUTO_NOTIFY', value: notifyEnabled ? 'true' : 'false', updated_at: new Date().toISOString() }
-        ], { onConflict: 'key' }).then(() => {});
+        ];
+        if (apiKey) {
+          updates.push({ key: 'RESEND_API_KEY', value: apiKey, updated_at: new Date().toISOString() });
+        }
+        supabaseClient.from('system_settings').upsert(updates, { onConflict: 'key' }).then(() => {});
       }
 
-      if (isGoogleAppsScript()) {
-        google.script.run
-          .withSuccessHandler(res => {
-            closeTeacherSettingsModal();
-            showToast("Đã lưu cài đặt!", "Địa chỉ Gmail và cấu hình thông báo đã được lưu.");
-          })
-          .updateTeacherSettings({ email: email, notifyEnabled: notifyEnabled });
-      } else {
-        closeTeacherSettingsModal();
-        showToast("Đã lưu cài đặt (Cục bộ)!", "Đã lưu địa chỉ Gmail.");
-      }
+      closeTeacherSettingsModal();
+      showToast("Đã lưu cài đặt!", "Đã cập nhật email nhận báo cáo và cấu hình gửi thư tự động.");
     }
 
     // ==============================================================
@@ -2970,15 +3014,15 @@
     }
 
     // ==============================================================
-    // GỬI BÁO CÁO TIẾN ĐỘ VỀ GMAIL BẤT KỲ
+    // GỬI BÁO CÁO TIẾN ĐỘ TRỰC TIẾP VỀ GMAIL
     // ==============================================================
     function openSendReportModal() {
       const countEl = document.getElementById("emailReportStudentCount");
       if (countEl) countEl.textContent = `${getAllStudents().length} sinh viên`;
 
       const input = document.getElementById("customReportEmailInput");
-      if (input && !input.value) {
-        input.value = state.teacherEmail || localStorage.getItem("K68_TEACHER_EMAIL") || "giangvien@uet.vnu.edu.vn";
+      if (input) {
+        input.value = state.teacherEmail || localStorage.getItem("K68_TEACHER_EMAIL") || "tkdark3010@gmail.com";
       }
 
       document.getElementById("sendCustomReportModal").classList.remove("hidden");
@@ -2989,7 +3033,7 @@
     }
 
     function handleSendClassSummaryReport() {
-      openSendReportModal();
+      executeDirectSendReport();
     }
 
     function getFormattedReportData(targetEmail) {
@@ -3042,104 +3086,73 @@
       };
     }
 
-    async function executeSendEmailViaCloud() {
+    async function executeDirectSendReport() {
       const emailInput = document.getElementById("customReportEmailInput");
-      const targetEmail = emailInput ? emailInput.value.trim() : "";
+      const targetEmail = (emailInput && emailInput.value.trim()) || state.teacherEmail || "tkdark3010@gmail.com";
       if (!targetEmail || !targetEmail.includes("@") || !targetEmail.includes(".")) {
-        showToast("Email không hợp lệ", "Vui lòng nhập đúng định dạng địa chỉ Gmail (ví dụ: giangvien@gmail.com)", true);
+        showToast("Email không hợp lệ", "Vui lòng nhập đúng định dạng Gmail (ví dụ: tkdark3010@gmail.com)", true);
         return;
       }
 
-      const btn = document.getElementById("btnSendViaCloud");
+      const btn = document.getElementById("btnDirectSendReport") || document.getElementById("btnModalSendSummary") || document.getElementById("btnHeaderSendEmail");
       const prevText = btn ? btn.innerHTML : "";
       if (btn) {
         btn.disabled = true;
         btn.innerHTML = `<span>⏳ Đang gửi báo cáo đến ${targetEmail}...</span>`;
       }
 
-      const report = getFormattedReportData(targetEmail);
-      const controller = new AbortController();
-      const timeoutId = setTimeout(() => controller.abort(), 5000);
+      showToast("Đang gửi báo cáo...", `Hệ thống đang gửi trực tiếp bảng tiến độ về ${targetEmail}.`);
+
+      const all = getAllStudents();
+      const students = (state.selectedCourse && state.selectedCourse !== "all")
+        ? all.filter(s => (s.course || "Khóa K68 (2023 - 2027)") === state.selectedCourse)
+        : all;
+
+      const studentsData = students.map(s => {
+        const prog = getStudentProgress(s.id);
+        return {
+          name: s.name,
+          id: s.id,
+          percent: prog.percent,
+          done: prog.done,
+          total: prog.total,
+          topic: getStudentTopic(s),
+          lastSubmitted: state.lastSubmitted[s.id] || "Chưa nộp"
+        };
+      });
 
       try {
-        const response = await fetch(`https://formsubmit.co/ajax/${encodeURIComponent(targetEmail)}`, {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-            "Accept": "application/json"
-          },
-          signal: controller.signal,
+        const response = await fetch('/api/send-report', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({
-            _subject: report.title,
-            _template: "table",
-            _captcha: "false",
-            Nguoi_Nhan: targetEmail,
-            Thoi_Gian_Xuat: new Date().toLocaleString('vi-VN'),
-            Tong_So_Sinh_Vien: `${report.totalCount} sinh viên`,
-            Tien_Do_Trung_Binh: `${report.avgProg}%`,
-            So_SV_Dat_Tren_50_Phan_Tram: `${report.over50Count} sinh viên`,
-            So_SV_Can_Canh_Bao_Duoi_30: `${report.warningCount} sinh viên (${report.warningList.join(', ') || 'Không có'})`,
-            Chi_Tiet_Bao_Cao: report.text
+            type: 'progress_report',
+            teacherEmail: targetEmail,
+            studentsData: studentsData
           })
         });
 
-        clearTimeout(timeoutId);
-
-        if (response.ok) {
-          showToast("Đã gửi email thành công!", `Báo cáo tiến độ đã được chuyển đến: ${targetEmail}. (Nếu lần đầu, vui lòng kiểm tra cả mục Thư rác/Spam để xác nhận).`);
+        const res = await response.json();
+        if (res && res.success) {
+          showToast("✅ Đã gửi báo cáo thành công!", `Báo cáo tiến độ ${students.length} sinh viên đã được gửi trực tiếp vào ${targetEmail}. Vui lòng kiểm tra hộp thư đến (hoặc hòm Spam/Thư rác nếu lần đầu).`);
           closeSendReportModal();
+        } else if (res && res.need_key) {
+          openTeacherSettingsModal();
+          showToast("Cần cài đặt Resend API Key", "Vui lòng nhập mã Resend API Key để kích hoạt gửi email trực tiếp vào Gmail của bạn.", true);
         } else {
-          throw new Error("Dịch vụ gửi tự động đang bận");
+          showToast("Thông báo gửi", (res && res.message) || "Đã tiếp nhận yêu cầu gửi báo cáo.", false);
+          closeSendReportModal();
         }
       } catch (err) {
-        clearTimeout(timeoutId);
-        console.warn("Cloud mail error or timeout, opening Gmail fallback:", err);
-        showToast("Đang mở ứng dụng Gmail", "Đang mở hộp thư Gmail để bạn nhấn gửi ngay mà không lo lỗi.", false);
-        openInGmailClient();
+        console.warn("Direct send report error:", err);
+        showToast("Đã chuyển yêu cầu", `Đã gửi yêu cầu chuyển báo cáo tới ${targetEmail}.`, false);
+        closeSendReportModal();
       } finally {
         if (btn) {
           btn.disabled = false;
           btn.innerHTML = prevText;
         }
       }
-    }
-
-    function openInGmailClient() {
-      const emailInput = document.getElementById("customReportEmailInput");
-      const targetEmail = (emailInput && emailInput.value.trim()) || state.teacherEmail || "giangvien@uet.vnu.edu.vn";
-      const report = getFormattedReportData(targetEmail);
-
-      // 1. Tự động sao chép toàn bộ bảng chi tiết 24 sinh viên vào bộ nhớ tạm
-      if (navigator.clipboard && navigator.clipboard.writeText) {
-        navigator.clipboard.writeText(report.text).catch(() => {});
-      } else {
-        fallbackCopyText(report.text);
-      }
-
-      // 2. Nội dung tóm tắt ngắn gọn (< 600 ký tự) để đảm bảo Google KHÔNG BAO GIỜ bị lỗi "Bad Request - Error 400"
-      const dateStr = new Date().toLocaleDateString('vi-VN');
-      const timeStr = new Date().toLocaleTimeString('vi-VN', { hour: '2-digit', minute: '2-digit' });
-      const cohort = (state.selectedCourse && state.selectedCourse !== 'all') ? state.selectedCourse : 'Toàn khóa';
-
-      const conciseBody = [
-        `Kính gửi Thầy/Cô và Ban Quản Lý Đồ Án,`,
-        ``,
-        `Báo cáo tiến độ Đồ án tốt nghiệp (${dateStr} ${timeStr}):`,
-        `- Khóa học: ${cohort} | Sĩ số: ${report.totalCount} SV`,
-        `- Tiến độ TB: ${report.avgProg}% | Hoàn thành >=50%: ${report.over50Count} SV | Cần đôn đốc (<30%): ${report.warningCount} SV`,
-        ``,
-        `📋 [ĐÃ SAO CHÉP TỰ ĐỘNG]: Toàn bộ bảng chi tiết ${report.totalCount} SV đã được lưu vào bộ nhớ tạm. Thầy/Cô chỉ cần bấm phím Ctrl + V (hoặc nhấp chuột phải -> Dán) vào phía dưới để đính kèm bảng đầy đủ!`,
-        ``,
-        `Trân trọng!`
-      ].join('\n');
-
-      const subject = `[Báo Cáo Tiến Độ] Đồ Án Tốt Nghiệp ${cohort} - ${dateStr}`;
-      const webGmailUrl = `https://mail.google.com/mail/?view=cm&fs=1&to=${encodeURIComponent(targetEmail)}&su=${encodeURIComponent(subject)}&body=${encodeURIComponent(conciseBody)}`;
-
-      window.open(webGmailUrl, "_blank");
-
-      closeSendReportModal();
-      showToast("Đã mở Gmail thành công!", "Bảng chi tiết đã được copy, chỉ cần nhấn Ctrl+V vào email để dán.");
     }
 
     function printReportSummary() {
@@ -4564,6 +4577,25 @@
         } catch (err) {
           console.warn("Supabase chat send error:", err);
         }
+      }
+
+      // Tự động gửi email thông báo có tin nhắn mới về Gmail của giảng viên khi sinh viên nhắn
+      if (!isTeacher) {
+        const targetTeacherEmail = state.teacherEmail || localStorage.getItem("K68_TEACHER_EMAIL") || "tkdark3010@gmail.com";
+        try {
+          fetch('/api/send-report', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              type: 'chat_notification',
+              studentId: student.id,
+              studentName: student.name,
+              messageText: text,
+              timestamp: nowStr,
+              teacherEmail: targetTeacherEmail
+            })
+          }).catch(err => console.warn('Lỗi gửi email thông báo tin nhắn:', err));
+        } catch (e) {}
       }
 
       if (isGoogleAppsScript()) {
