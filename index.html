@@ -8,6 +8,8 @@
   <script src="https://www.gstatic.com/antigravity/web/dev/tailwindcss.min.js"></script>
   <!-- Supabase Cloud SDK for Realtime & Database -->
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <!-- SheetJS (xlsx) for Excel & CSV Import -->
+  <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
   <style>
     :root {
       --primary: #2563eb;
@@ -849,6 +851,88 @@
     </div>
   </div>
 
+  <!-- ==================== MODAL NHẬP DANH SÁCH TỪ EXCEL ==================== -->
+  <div id="importExcelModal" class="fixed inset-0 z-50 bg-slate-900/60 backdrop-blur-xs flex items-center justify-center p-4 hidden">
+    <div class="bg-white rounded-3xl max-w-2xl w-full max-h-[92vh] shadow-2xl border border-slate-200 flex flex-col overflow-hidden transform transition-all">
+      <div class="p-5 bg-gradient-to-r from-emerald-600 to-teal-700 text-white flex items-center justify-between flex-shrink-0">
+        <div class="flex items-center gap-3">
+          <div class="w-10 h-10 rounded-xl bg-white/20 flex items-center justify-center text-xl shadow-xs">
+            📊
+          </div>
+          <div>
+            <h3 class="text-base font-bold text-white">Nhập Danh Sách Sinh Viên Từ Excel / CSV</h3>
+            <p class="text-xs text-emerald-100">Tự động nhận diện cột, thêm sinh viên &amp; tự tạo khóa học mới</p>
+          </div>
+        </div>
+        <button onclick="closeImportExcelModal()" class="text-emerald-200 hover:text-white p-1 rounded-lg text-lg">✕</button>
+      </div>
+
+      <div class="p-6 overflow-y-auto space-y-4">
+        <!-- Khu vực kéo thả / chọn file -->
+        <div>
+          <label class="block text-xs font-bold text-slate-700 uppercase mb-1.5">Chọn file Excel (.xlsx, .xls) hoặc CSV *</label>
+          <div class="border-2 border-dashed border-emerald-300 hover:border-emerald-500 rounded-2xl p-5 text-center cursor-pointer transition bg-emerald-50/40 hover:bg-emerald-50" onclick="document.getElementById('excelFileInput').click()">
+            <input type="file" id="excelFileInput" accept=".xlsx,.xls,.csv" onchange="handleExcelFileSelected(event)" class="hidden">
+            <div class="flex flex-col items-center justify-center space-y-1">
+              <span class="text-3xl">📥</span>
+              <div class="text-xs font-bold text-emerald-900" id="excelFileNameLabel">Bấm vào đây để chọn file (.xlsx, .xls, .csv)</div>
+              <div class="text-[11px] text-slate-500">Tự động nhận diện: Họ tên, Mã SV, Khóa học/Lớp, Hướng đề tài, GPA...</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Khóa học mặc định -->
+        <div>
+          <label class="block text-xs font-bold text-slate-700 uppercase mb-1">Khóa học áp dụng (nếu file Excel không có cột Khóa)</label>
+          <div class="flex gap-2">
+            <select id="importFallbackCourseSelect" class="flex-1 px-3.5 py-2 text-xs rounded-xl border border-slate-200 bg-slate-50 focus:bg-white font-medium">
+              <!-- Populated from courses -->
+            </select>
+            <input type="text" id="importCustomCourseInput" placeholder="Hoặc nhập tên khóa mới..." class="flex-1 px-3.5 py-2 text-xs rounded-xl border border-slate-200 bg-slate-50 focus:bg-white text-xs">
+          </div>
+          <p class="text-[11px] text-slate-400 mt-1">💡 Nếu file Excel có cột <b>Khóa học</b> hoặc <b>Lớp</b>, hệ thống sẽ tự động thêm các khóa tương ứng vào bộ lọc.</p>
+        </div>
+
+        <!-- Xem trước danh sách đã đọc -->
+        <div id="excelPreviewSection" class="hidden">
+          <div class="flex items-center justify-between mb-2">
+            <h4 class="text-xs font-bold text-slate-800 uppercase flex items-center gap-1.5">
+              <span>📋 Xem trước dữ liệu</span>
+              <span id="excelPreviewCount" class="text-emerald-700 bg-emerald-100 px-2 py-0.5 rounded-full text-[11px]">0 sinh viên</span>
+            </h4>
+            <span id="excelDetectedCoursesBadge" class="text-[11px] text-indigo-700 bg-indigo-50 border border-indigo-200 px-2 py-0.5 rounded-full font-medium"></span>
+          </div>
+
+          <div class="max-h-56 overflow-y-auto border border-slate-200 rounded-xl">
+            <table class="w-full text-left text-xs border-collapse">
+              <thead class="bg-slate-50 border-b border-slate-200 sticky top-0 text-slate-600 font-bold">
+                <tr>
+                  <th class="p-2">STT</th>
+                  <th class="p-2">Họ và tên</th>
+                  <th class="p-2">Mã SV</th>
+                  <th class="p-2">Khóa học</th>
+                  <th class="p-2">Hướng đề tài</th>
+                  <th class="p-2">GPA</th>
+                </tr>
+              </thead>
+              <tbody id="excelPreviewTableBody" class="divide-y divide-slate-100">
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+        <div id="excelImportError" class="p-3 bg-rose-50 border border-rose-200 text-rose-700 text-xs rounded-xl hidden"></div>
+      </div>
+
+      <div class="p-4 bg-slate-50 border-t border-slate-100 flex items-center justify-end gap-2 flex-shrink-0">
+        <button type="button" onclick="closeImportExcelModal()" class="px-4 py-2 rounded-xl border border-slate-200 text-slate-600 text-xs font-bold hover:bg-slate-100 transition">Hủy</button>
+        <button type="button" id="btnConfirmImportExcel" onclick="handleConfirmImportExcel()" disabled class="px-5 py-2 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold transition disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-1.5 shadow-sm">
+          <span>✓ Xác Nhận Nhập &amp; Tạo Khóa</span>
+        </button>
+      </div>
+    </div>
+  </div>
+
   <!-- ==================== 3. MODAL BIỂU ĐỒ TIẾN ĐỘ & CẢNH BÁO ==================== -->
   <div id="classChartModal" class="fixed inset-0 z-50 bg-slate-950/75 backdrop-blur-xs flex items-center justify-center p-4 hidden">
     <div class="bg-white rounded-3xl max-w-4xl w-full max-h-[92vh] shadow-2xl border border-slate-200 flex flex-col overflow-hidden">
@@ -1105,11 +1189,6 @@
             <span class="text-slate-500">Đã đạt &ge;50%:</span>
             <strong id="statOver50" class="text-purple-600 ml-1">0</strong>
           </div>
-          <div class="bg-emerald-50/80 px-3 py-1.5 rounded-lg border border-emerald-200 flex items-center gap-1.5">
-            <span class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
-            <span class="text-emerald-800 font-medium">Online:</span>
-            <strong id="statOnlineCount" class="text-emerald-700 ml-0.5 font-black">0</strong>
-          </div>
         </div>
 
         <div class="flex items-center gap-2 text-xs flex-wrap">
@@ -1133,6 +1212,10 @@
             <svg class="w-3.5 h-3.5 text-emerald-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>
             Xuất Excel
           </button>
+          <button onclick="openImportExcelModal()" class="px-3 py-1.5 bg-emerald-50 hover:bg-emerald-100 text-emerald-700 font-bold rounded-lg transition flex items-center gap-1.5 border border-emerald-200 shadow-2xs" title="Nhập danh sách sinh viên & khóa học từ file Excel/CSV">
+            <svg class="w-3.5 h-3.5 text-emerald-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12"/></svg>
+            <span>Nhập Excel</span>
+          </button>
         </div>
       </div>
     </header>
@@ -1152,11 +1235,17 @@
               </select>
             </div>
             <div class="flex items-center gap-1 flex-shrink-0">
-              <button onclick="openAddCourseModal()" class="p-1 px-2 text-[11px] font-bold rounded-lg bg-indigo-50 hover:bg-indigo-100 text-indigo-700 transition" title="Thêm khóa học mới">
+              <button onclick="openAddCourseModal()" class="p-1 px-1.5 text-[11px] font-bold rounded-lg bg-indigo-50 hover:bg-indigo-100 text-indigo-700 transition" title="Thêm khóa học mới">
                 + Khóa
               </button>
-              <button onclick="openAddStudentModal()" class="p-1 px-2 text-[11px] font-bold rounded-lg bg-blue-50 hover:bg-blue-100 text-blue-700 transition" title="Thêm sinh viên mới">
-                + Sinh viên
+              <button onclick="handleDeleteCurrentCoursePrompt()" class="p-1 px-1.5 text-[11px] font-bold rounded-lg bg-rose-50 hover:bg-rose-100 text-rose-600 transition" title="Xóa khóa học đang chọn">
+                🗑️
+              </button>
+              <button onclick="openAddStudentModal()" class="p-1 px-1.5 text-[11px] font-bold rounded-lg bg-blue-50 hover:bg-blue-100 text-blue-700 transition" title="Thêm sinh viên mới">
+                + SV
+              </button>
+              <button onclick="openImportExcelModal()" class="p-1 px-1.5 text-[11px] font-bold rounded-lg bg-emerald-50 hover:bg-emerald-100 text-emerald-700 transition" title="Nhập danh sách từ file Excel/CSV">
+                📥 Excel
               </button>
             </div>
           </div>
@@ -1214,17 +1303,14 @@
           <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-6">
             <div class="flex items-start gap-4">
               <div class="relative group flex-shrink-0">
-                <div id="detailAvatar" class="w-16 h-16 rounded-2xl bg-gradient-to-tr from-blue-600 to-indigo-600 text-white font-extrabold text-xl flex items-center justify-center shadow-md overflow-hidden border-2 border-white ring-2 ring-slate-100">
+                <div id="detailAvatar" class="w-16 h-16 sm:w-20 sm:h-20 rounded-full bg-gradient-to-tr from-blue-600 to-indigo-600 text-white font-extrabold text-xl sm:text-2xl flex items-center justify-center shadow-md overflow-hidden border-2 border-white ring-2 ring-slate-100">
                   TB
                 </div>
-                <!-- Chấm xanh trực tuyến rực rỡ phong cách Messenger -->
-                <span id="detail_online_dot" class="absolute -top-1 -right-1 flex h-4 w-4 hidden" title="Đang trực tuyến">
-                  <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
-                  <span class="relative inline-flex rounded-full h-4 w-4 bg-emerald-500 ring-2 ring-white"></span>
-                </span>
+                <!-- Chấm xanh trực tuyến chuẩn Meta Messenger góc dưới bên phải -->
+                <span id="detail_online_dot" class="absolute bottom-0 right-0 h-4 w-4 rounded-full bg-emerald-500 ring-2 ring-white shadow-xs hidden" title="Đang trực tuyến"></span>
                 <!-- Nút đổi ảnh đại diện sinh viên -->
-                <button type="button" onclick="triggerAvatarUpload()" class="absolute -bottom-1 -right-1 p-1 bg-slate-900/80 hover:bg-slate-900 text-white rounded-lg text-[10px] shadow-sm transition opacity-80 group-hover:opacity-100 flex items-center gap-0.5 px-1.5 cursor-pointer" title="Nhấp để tải ảnh đại diện lên">
-                  <span>📷</span><span class="text-[9px] font-semibold hidden sm:inline">Đổi ảnh</span>
+                <button type="button" onclick="triggerAvatarUpload()" class="absolute -top-1 -right-1 p-1 bg-slate-900/80 hover:bg-slate-900 text-white rounded-full text-[10px] shadow-sm transition opacity-80 group-hover:opacity-100 flex items-center gap-0.5 px-1.5 cursor-pointer" title="Nhấp để tải ảnh đại diện lên">
+                  <span>📷</span>
                 </button>
               </div>
               <div>
@@ -1233,6 +1319,10 @@
                   <span id="detailGpa" class="text-xs px-2 py-0.5 rounded-full bg-blue-100 text-blue-700 font-bold">GPA: 2.98</span>
                   <span id="detailId" class="text-xs px-2 py-0.5 rounded-full bg-slate-200 text-slate-700 font-semibold font-mono">MSV: 23020452</span>
                   <span id="detailRoleTag" class="text-xs px-2 py-0.5 rounded-full font-bold bg-emerald-100 text-emerald-800">✓ Đồ án của bạn</span>
+                  <button id="btnDeleteStudent" onclick="handleDeleteStudentPrompt()" class="text-xs px-2.5 py-1 rounded-lg bg-rose-50 text-rose-600 hover:bg-rose-100 font-bold border border-rose-200 transition flex items-center gap-1 hidden" title="Xóa sinh viên này khỏi hệ thống">
+                    <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/></svg>
+                    <span>Xóa SV</span>
+                  </button>
                 </div>
                 <div class="mt-2 text-xs sm:text-sm text-slate-600 flex items-start gap-1.5">
                   <span class="font-bold text-slate-700 flex-shrink-0">Hướng đề tài:</span>
@@ -1418,10 +1508,10 @@
       <div class="p-4 bg-gradient-to-r from-slate-900 via-indigo-950 to-slate-900 text-white flex items-center justify-between shadow-md">
         <div class="flex items-center gap-3">
           <div class="relative">
-            <div id="chatPartnerAvatar" class="w-10 h-10 rounded-xl bg-blue-600 text-white font-bold flex items-center justify-center text-sm shadow-sm">
+            <div id="chatPartnerAvatar" class="w-10 h-10 rounded-full bg-blue-600 text-white font-bold flex items-center justify-center text-sm shadow-sm overflow-hidden border border-white/20">
               GV
             </div>
-            <span class="absolute -bottom-0.5 -right-0.5 w-3 h-3 bg-emerald-500 border-2 border-slate-900 rounded-full"></span>
+            <span id="chat_partner_online_dot" class="absolute bottom-0 right-0 w-3 h-3 bg-emerald-500 border-2 border-slate-900 rounded-full"></span>
           </div>
           <div>
             <div id="chatPartnerName" class="text-sm font-bold text-white truncate max-w-[210px]">Thầy/Cô Hướng Dẫn</div>
@@ -1508,10 +1598,12 @@
       { stt: 24, name: "Nguyễn Văn Huy", id: "23020471", gpa: 2.23, topic: "Kiểm toán năng lượng", course: "Khóa K68 (2023 - 2027)" }
     ];
 
-    // Hàm lấy danh sách toàn bộ sinh viên (Gồm 24 SV K68 mặc định + các SV được Giảng viên thêm mới)
+    // Hàm lấy danh sách toàn bộ sinh viên (Gồm 24 SV K68 mặc định + các SV được Giảng viên thêm mới/nhập từ Excel, loại bỏ các SV đã bị xóa)
     function getAllStudents() {
       const custom = (state && state.customStudents && Array.isArray(state.customStudents)) ? state.customStudents : [];
-      return [...RAW_STUDENTS, ...custom];
+      const deleted = (state && Array.isArray(state.deletedStudentIds)) ? state.deletedStudentIds : [];
+      const combined = [...RAW_STUDENTS, ...custom];
+      return combined.filter(s => s && s.id && !deleted.includes(s.id));
     }
 
     // 2. STANDARD THESIS PHASES & CHECKLIST ITEMS (24 TASKS TOTAL)
@@ -1745,7 +1837,7 @@
     // GIÁM SÁT CHẤM XANH TRỰC TUYẾN (SUPABASE REALTIME PRESENCE)
     // ==============================================================
     async function trackUserPresence() {
-      if (!currentUser) return;
+      if (!currentUser || !currentUser.id) return;
       activeOnlineUserIds.add(currentUser.id);
       updateOnlinePresenceUI();
 
@@ -1760,13 +1852,21 @@
         } catch (e) {
           console.warn("Track presence error:", e);
         }
+      } else {
+        initOnlinePresence();
       }
     }
 
     function initOnlinePresence() {
       if (!supabaseClient) return;
+      if (!currentUser || !currentUser.id) return; // Chỉ theo dõi khi đã đăng nhập
       try {
-        const userKey = currentUser ? currentUser.id : ('guest_' + Math.random().toString(36).substring(2, 7));
+        if (presenceChannel) {
+          try { supabaseClient.removeChannel(presenceChannel); } catch (e) {}
+          presenceChannel = null;
+        }
+
+        const userKey = currentUser.id;
         presenceChannel = supabaseClient.channel('k68_online_presence', {
           config: { presence: { key: userKey } }
         });
@@ -1776,20 +1876,24 @@
             const presenceState = presenceChannel.presenceState();
             activeOnlineUserIds.clear();
             Object.keys(presenceState).forEach(k => {
-              activeOnlineUserIds.add(k);
+              if (k && !k.startsWith('guest_')) {
+                activeOnlineUserIds.add(k);
+              }
               const items = presenceState[k] || [];
               items.forEach(it => {
-                if (it.id) activeOnlineUserIds.add(it.id);
+                if (it.id && !it.id.startsWith('guest_')) activeOnlineUserIds.add(it.id);
               });
             });
-            if (currentUser && currentUser.id) activeOnlineUserIds.add(currentUser.id);
+            if (currentUser && currentUser.id && !currentUser.id.startsWith('guest_')) {
+              activeOnlineUserIds.add(currentUser.id);
+            }
             updateOnlinePresenceUI();
           })
           .on('presence', { event: 'join' }, ({ key, newPresences }) => {
-            activeOnlineUserIds.add(key);
+            if (key && !key.startsWith('guest_')) activeOnlineUserIds.add(key);
             if (newPresences && Array.isArray(newPresences)) {
               newPresences.forEach(p => {
-                if (p.id) activeOnlineUserIds.add(p.id);
+                if (p.id && !p.id.startsWith('guest_')) activeOnlineUserIds.add(p.id);
               });
             }
             updateOnlinePresenceUI();
@@ -1813,6 +1917,12 @@
       }
     }
 
+    window.addEventListener('beforeunload', () => {
+      if (presenceChannel) {
+        try { presenceChannel.untrack(); } catch (e) {}
+      }
+    });
+
     function isUserOnline(id) {
       return activeOnlineUserIds.has(id);
     }
@@ -1820,13 +1930,7 @@
     window.activeOnlineUserIds = activeOnlineUserIds;
 
     function updateOnlinePresenceUI() {
-      // 1. Số lượng sinh viên/người dùng online trên header
-      const statEl = document.getElementById("statOnlineCount");
-      if (statEl) {
-        statEl.textContent = activeOnlineUserIds.size;
-      }
-
-      // 2. Chấm xanh cho từng sinh viên trong danh sách bên trái
+      // 1. Chấm xanh cho từng sinh viên trong danh sách bên trái (phong cách Meta Messenger)
       getAllStudents().forEach(s => {
         const isOnline = activeOnlineUserIds.has(s.id);
         const dot = document.getElementById(`online_dot_${s.id}`);
@@ -1839,7 +1943,7 @@
         }
       });
 
-      // 3. Chấm xanh trên avatar chi tiết sinh viên
+      // 2. Chấm xanh trên avatar chi tiết sinh viên
       const curStudent = getActiveChatStudent();
       if (curStudent) {
         const isCurOnline = activeOnlineUserIds.has(curStudent.id);
@@ -1852,13 +1956,23 @@
         if (detailBadge) {
           if (isCurOnline) {
             detailBadge.className = "inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-emerald-50 text-emerald-700 border border-emerald-200 font-semibold";
-            detailBadge.innerHTML = `<span class="w-2 h-2 rounded-full bg-emerald-500 animate-ping"></span><span>Đang trực tuyến (Online)</span>`;
+            detailBadge.innerHTML = `<span class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span><span>Đang trực tuyến (Online)</span>`;
           } else {
             const lastAcc = state.lastAccess[curStudent.id] || "Vừa xong";
             detailBadge.className = "inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-slate-100 text-slate-600 border border-slate-200 font-medium";
             detailBadge.innerHTML = `<svg class="w-3.5 h-3.5 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/></svg><span>Truy cập gần nhất: <span>${lastAcc}</span></span>`;
           }
         }
+      }
+
+      // 3. Chấm xanh trong cửa sổ Chat
+      const partnerDot = document.getElementById("chat_partner_online_dot");
+      if (partnerDot && curStudent) {
+        const isPartnerOnline = (currentUser && currentUser.role === "teacher") 
+          ? activeOnlineUserIds.has(curStudent.id) 
+          : activeOnlineUserIds.has("GVHD");
+        if (isPartnerOnline) partnerDot.classList.remove("hidden");
+        else partnerDot.classList.add("hidden");
       }
     }
 
@@ -2245,21 +2359,24 @@
                 state.avatars[s.id] = s.avatar_url;
               }
 
-              // Tự động nhận diện sinh viên mới được thêm từ Supabase
-              const isDefault = RAW_STUDENTS.some(raw => raw.id === s.id);
-              if (!isDefault) {
-                if (!state.customStudents) state.customStudents = [];
-                const alreadyCustom = state.customStudents.some(c => c.id === s.id);
-                if (!alreadyCustom) {
-                  state.customStudents.push({
-                    stt: s.stt || (RAW_STUDENTS.length + state.customStudents.length + 1),
-                    name: s.name,
-                    id: s.id,
-                    gpa: s.gpa ? parseFloat(s.gpa) : 2.5,
-                    course: s.course || "Khóa K68 (2023 - 2027)",
-                    topic: s.topic || "Chưa đăng ký chính thức",
-                    password: s.password || s.id
-                  });
+              // Tự động nhận diện sinh viên mới được thêm từ Supabase (bỏ qua nếu đã bị xóa)
+              const isDeleted = state.deletedStudentIds && state.deletedStudentIds.includes(s.id);
+              if (!isDeleted) {
+                const isDefault = RAW_STUDENTS.some(raw => raw.id === s.id);
+                if (!isDefault) {
+                  if (!state.customStudents) state.customStudents = [];
+                  const alreadyCustom = state.customStudents.some(c => c.id === s.id);
+                  if (!alreadyCustom) {
+                    state.customStudents.push({
+                      stt: s.stt || (RAW_STUDENTS.length + state.customStudents.length + 1),
+                      name: s.name,
+                      id: s.id,
+                      gpa: s.gpa ? parseFloat(s.gpa) : 2.5,
+                      course: s.course || "Khóa K68 (2023 - 2027)",
+                      topic: s.topic || "Chưa đăng ký chính thức",
+                      password: s.password || s.id
+                    });
+                  }
                 }
               }
             });
@@ -2272,12 +2389,25 @@
               if (st.key === 'TEACHER_PASSWORD') state.teacherPassword = st.value;
               if (st.key === 'TEACHER_EMAIL') state.teacherEmail = st.value;
               if (st.key === 'EMAIL_AUTO_NOTIFY') state.emailNotifyEnabled = st.value === 'true';
+              if (st.key === 'COURSES_LIST' && st.value) {
+                try {
+                  const cArr = JSON.parse(st.value);
+                  if (Array.isArray(cArr) && cArr.length > 0) state.courses = cArr;
+                } catch (e) {}
+              }
+              if (st.key === 'DELETED_STUDENT_IDS' && st.value) {
+                try {
+                  const dArr = JSON.parse(st.value);
+                  if (Array.isArray(dArr)) state.deletedStudentIds = dArr;
+                } catch (e) {}
+              }
               if (st.key && st.key.startsWith('AVATAR_')) {
                 const sid = st.key.replace('AVATAR_', '');
                 if (!state.avatars) state.avatars = {};
                 state.avatars[sid] = st.value;
               }
             });
+            populateCourseDropdowns();
           }
 
           saveState();
@@ -2605,6 +2735,15 @@
     }
 
     function handleLogout() {
+      if (presenceChannel && supabaseClient) {
+        try {
+          presenceChannel.untrack();
+          supabaseClient.removeChannel(presenceChannel);
+        } catch (e) {}
+        presenceChannel = null;
+      }
+      activeOnlineUserIds.clear();
+      updateOnlinePresenceUI();
       currentUser = null;
       saveAuth();
       switchLoginTab('student');
@@ -2960,11 +3099,390 @@
       state.courses.push(name);
       state.selectedCourse = name;
       saveState();
+
+      if (supabaseClient) {
+        supabaseClient.from('system_settings').upsert({
+          key: 'COURSES_LIST',
+          value: JSON.stringify(state.courses),
+          updated_at: new Date().toISOString()
+        }, { onConflict: 'key' }).then(() => {});
+      }
+
       populateCourseDropdowns();
       closeAddCourseModal();
       renderStudentList();
       renderClassStats();
       showToast("Đã thêm khóa học mới!", `Đã tạo ${name}. Hệ thống đang hiển thị sinh viên của khóa này.`);
+    }
+
+    // ==============================================================
+    // XÓA KHÓA HỌC HIỆN TẠI
+    // ==============================================================
+    function handleDeleteCurrentCoursePrompt() {
+      const current = state.selectedCourse;
+      if (!current || current === 'all') {
+        showToast("Chọn khóa cần xóa", "Vui lòng chọn một khóa học cụ thể trong danh sách dropdown bên cạnh trước khi bấm xóa.", true);
+        return;
+      }
+
+      const all = getAllStudents();
+      const studentsInCourse = all.filter(s => (s.course || "Khóa K68 (2023 - 2027)") === current);
+      const count = studentsInCourse.length;
+
+      const msg = `Bạn có chắc chắn muốn xóa khóa học "${current}" không?\n` +
+        (count > 0 ? `⚠️ Có ${count} sinh viên đang thuộc khóa này. Các sinh viên sẽ được chuyển về khóa mặc định.` : "Khóa học này chưa có sinh viên nào.");
+
+      if (!confirm(msg)) return;
+
+      state.courses = getCoursesList().filter(c => c !== current);
+      if (state.courses.length === 0) {
+        state.courses = ["Khóa K68 (2023 - 2027)"];
+      }
+
+      const fallbackCourse = state.courses[0];
+      if (state.customStudents) {
+        state.customStudents.forEach(s => {
+          if (s.course === current) s.course = fallbackCourse;
+        });
+      }
+
+      if (supabaseClient) {
+        supabaseClient.from('system_settings').upsert({
+          key: 'COURSES_LIST',
+          value: JSON.stringify(state.courses),
+          updated_at: new Date().toISOString()
+        }, { onConflict: 'key' }).then(() => {});
+      }
+
+      state.selectedCourse = "all";
+      saveState();
+      populateCourseDropdowns();
+      renderStudentList();
+      renderClassStats();
+      showToast("Đã xóa khóa học", `Đã gỡ bỏ "${current}" khỏi hệ thống.`);
+    }
+
+    // ==============================================================
+    // XÓA SINH VIÊN KHỎI HỆ THỐNG
+    // ==============================================================
+    async function handleDeleteStudentPrompt(targetId) {
+      const sId = targetId || state.selectedStudentId;
+      const all = getAllStudents();
+      const student = all.find(s => s.id === sId);
+      if (!student) return;
+
+      if (!confirm(`Bạn có chắc chắn muốn XÓA sinh viên "${student.name}" (MSV: ${student.id}) khỏi hệ thống?\n\nToàn bộ dữ liệu tiến độ và tệp nộp của sinh viên này sẽ bị xóa.`)) {
+        return;
+      }
+
+      if (!state.deletedStudentIds) state.deletedStudentIds = [];
+      if (!state.deletedStudentIds.includes(sId)) {
+        state.deletedStudentIds.push(sId);
+      }
+
+      if (state.customStudents) {
+        state.customStudents = state.customStudents.filter(s => s.id !== sId);
+      }
+
+      // Xóa bộ nhớ cục bộ
+      delete state.progress[sId];
+      delete state.lastSubmitted[sId];
+      delete state.notes[sId];
+      delete state.customTopics[sId];
+      delete state.avatars[sId];
+      delete state.studentPasswords[sId];
+
+      // Đồng bộ xóa trên Supabase
+      if (supabaseClient) {
+        try {
+          await Promise.all([
+            supabaseClient.from('students').delete().eq('id', sId),
+            supabaseClient.from('student_progress').delete().eq('student_id', sId),
+            supabaseClient.from('chat_messages').delete().or(`student_id.eq.${sId}`),
+            supabaseClient.from('student_files').delete().eq('student_id', sId),
+            supabaseClient.from('system_settings').upsert({
+              key: 'DELETED_STUDENT_IDS',
+              value: JSON.stringify(state.deletedStudentIds),
+              updated_at: new Date().toISOString()
+            }, { onConflict: 'key' })
+          ]);
+        } catch (e) {
+          console.warn("Supabase delete student error:", e);
+        }
+      }
+
+      saveState();
+      populateLoginDatalist();
+
+      const remaining = getAllStudents();
+      state.selectedStudentId = remaining.length > 0 ? remaining[0].id : null;
+      renderAll();
+      showToast("Đã xóa sinh viên", `Đã xóa sinh viên ${student.name} (${sId}) khỏi hệ thống.`);
+    }
+
+    // ==============================================================
+    // NHẬP DANH SÁCH TỪ EXCEL / CSV & TỰ TẠO KHÓA HỌC
+    // ==============================================================
+    let pendingImportStudents = [];
+    let pendingImportCourses = new Set();
+
+    function openImportExcelModal() {
+      pendingImportStudents = [];
+      pendingImportCourses.clear();
+      const fileInput = document.getElementById("excelFileInput");
+      if (fileInput) fileInput.value = "";
+      const label = document.getElementById("excelFileNameLabel");
+      if (label) label.textContent = "Bấm vào đây để chọn file (.xlsx, .xls, .csv)";
+      const prevSec = document.getElementById("excelPreviewSection");
+      if (prevSec) prevSec.classList.add("hidden");
+      const err = document.getElementById("excelImportError");
+      if (err) err.classList.add("hidden");
+      const btn = document.getElementById("btnConfirmImportExcel");
+      if (btn) btn.disabled = true;
+
+      const select = document.getElementById("importFallbackCourseSelect");
+      if (select) {
+        const list = getCoursesList();
+        select.innerHTML = list.map(c => `<option value="${c}">${c}</option>`).join('');
+        if (state.selectedCourse && state.selectedCourse !== 'all') {
+          select.value = state.selectedCourse;
+        }
+      }
+      const customInput = document.getElementById("importCustomCourseInput");
+      if (customInput) customInput.value = "";
+
+      document.getElementById("importExcelModal").classList.remove("hidden");
+    }
+
+    function closeImportExcelModal() {
+      document.getElementById("importExcelModal").classList.add("hidden");
+    }
+
+    function normalizeHeaderKey(str) {
+      if (!str) return '';
+      return str.toString().toLowerCase()
+        .normalize('NFD').replace(/[\u0300-\u036f]/g, '')
+        .replace(/[^a-z0-9]/g, '');
+    }
+
+    function handleExcelFileSelected(event) {
+      const file = event.target.files && event.target.files[0];
+      if (!file) return;
+
+      const label = document.getElementById("excelFileNameLabel");
+      if (label) label.textContent = `📄 ${file.name} (${(file.size / 1024).toFixed(1)} KB)`;
+
+      const errEl = document.getElementById("excelImportError");
+      if (errEl) errEl.classList.add("hidden");
+
+      const reader = new FileReader();
+      reader.onload = function(e) {
+        try {
+          if (typeof XLSX === 'undefined') {
+            throw new Error("Thư viện SheetJS chưa sẵn sàng. Vui lòng tải lại trang hoặc kiểm tra kết nối mạng!");
+          }
+          const data = new Uint8Array(e.target.result);
+          const workbook = XLSX.read(data, { type: 'array' });
+          const firstSheetName = workbook.SheetNames[0];
+          const worksheet = workbook.Sheets[firstSheetName];
+          const rawRows = XLSX.utils.sheet_to_json(worksheet, { header: 1, defval: '' });
+
+          if (!rawRows || rawRows.length < 2) {
+            throw new Error("File Excel không có dữ liệu hoặc không đủ dòng!");
+          }
+
+          let headerIdx = -1;
+          for (let r = 0; r < Math.min(rawRows.length, 12); r++) {
+            const rowStr = rawRows[r].map(c => normalizeHeaderKey(c)).join(' ');
+            if ((rowStr.includes('ten') || rowStr.includes('name')) && (rowStr.includes('msv') || rowStr.includes('masv') || rowStr.includes('id') || rowStr.includes('mssv') || rowStr.includes('stt'))) {
+              headerIdx = r;
+              break;
+            }
+          }
+          if (headerIdx === -1) headerIdx = 0;
+
+          const headers = rawRows[headerIdx].map(c => normalizeHeaderKey(c));
+          
+          let colName = -1, colId = -1, colCourse = -1, colTopic = -1, colGpa = -1, colPass = -1;
+          headers.forEach((h, idx) => {
+            if (colName === -1 && (h.includes('hoten') || h.includes('tensinhvien') || h.includes('ten') || h.includes('fullname') || h.includes('name'))) colName = idx;
+            if (colId === -1 && (h.includes('masv') || h.includes('mssv') || h.includes('msv') || h.includes('studentid') || h === 'id')) colId = idx;
+            if (colCourse === -1 && (h.includes('khoahoc') || h.includes('khoa') || h.includes('lop') || h.includes('course'))) colCourse = idx;
+            if (colTopic === -1 && (h.includes('detai') || h.includes('huong') || h.includes('topic'))) colTopic = idx;
+            if (colGpa === -1 && (h.includes('gpa') || h.includes('diem'))) colGpa = idx;
+            if (colPass === -1 && (h.includes('matkhau') || h.includes('pass'))) colPass = idx;
+          });
+
+          if (colName === -1 || colId === -1) {
+            if (headers.length >= 2) {
+              colName = 1; colId = 2;
+            } else {
+              throw new Error("Không tìm thấy cột Họ tên và Mã sinh viên trong file Excel! Tiêu đề cột cần chứa 'Họ và tên' và 'Mã SV'.");
+            }
+          }
+
+          const fallbackSelect = document.getElementById("importFallbackCourseSelect");
+          const fallbackInput = document.getElementById("importCustomCourseInput");
+          const fallbackCourse = (fallbackInput && fallbackInput.value.trim()) || (fallbackSelect ? fallbackSelect.value : "Khóa K68 (2023 - 2027)");
+
+          pendingImportStudents = [];
+          pendingImportCourses.clear();
+
+          for (let r = headerIdx + 1; r < rawRows.length; r++) {
+            const row = rawRows[r];
+            if (!row || row.length === 0) continue;
+            const name = (row[colName] || '').toString().trim();
+            const id = (row[colId] || '').toString().trim();
+            if (!name || !id) continue;
+
+            let course = (colCourse !== -1 && row[colCourse]) ? row[colCourse].toString().trim() : '';
+            if (!course) course = fallbackCourse;
+
+            let topic = (colTopic !== -1 && row[colTopic]) ? row[colTopic].toString().trim() : 'Chưa đăng ký chính thức';
+            let gpa = (colGpa !== -1 && row[colGpa]) ? parseFloat(row[colGpa]) : 2.50;
+            if (isNaN(gpa)) gpa = 2.50;
+            let pass = (colPass !== -1 && row[colPass]) ? row[colPass].toString().trim() : id;
+
+            pendingImportCourses.add(course);
+            pendingImportStudents.push({
+              stt: pendingImportStudents.length + 1,
+              name: name,
+              id: id,
+              course: course,
+              topic: topic,
+              gpa: gpa,
+              password: pass
+            });
+          }
+
+          if (pendingImportStudents.length === 0) {
+            throw new Error("Không trích xuất được dòng sinh viên hợp lệ nào từ file Excel!");
+          }
+
+          const countEl = document.getElementById("excelPreviewCount");
+          if (countEl) countEl.textContent = `${pendingImportStudents.length} sinh viên`;
+
+          const coursesArr = Array.from(pendingImportCourses);
+          const coursesBadge = document.getElementById("excelDetectedCoursesBadge");
+          if (coursesBadge) {
+            coursesBadge.textContent = `📚 Khóa: ${coursesArr.join(", ")}`;
+          }
+
+          const tbody = document.getElementById("excelPreviewTableBody");
+          if (tbody) {
+            tbody.innerHTML = pendingImportStudents.slice(0, 15).map((s, idx) => `
+              <tr class="hover:bg-slate-50">
+                <td class="p-2 text-slate-500">${idx + 1}</td>
+                <td class="p-2 font-bold text-slate-800">${s.name}</td>
+                <td class="p-2 font-mono text-blue-600">${s.id}</td>
+                <td class="p-2 text-indigo-700">${s.course}</td>
+                <td class="p-2 text-slate-600 truncate max-w-[150px]">${s.topic}</td>
+                <td class="p-2 font-bold text-emerald-600">${s.gpa.toFixed(2)}</td>
+              </tr>
+            `).join('') + (pendingImportStudents.length > 15 ? `<tr><td colspan="6" class="p-2 text-center text-slate-400 italic">... và còn ${pendingImportStudents.length - 15} sinh viên khác</td></tr>` : '');
+          }
+
+          document.getElementById("excelPreviewSection").classList.remove("hidden");
+          document.getElementById("btnConfirmImportExcel").disabled = false;
+
+        } catch (err) {
+          console.warn("Excel read error:", err);
+          if (errEl) {
+            errEl.classList.remove("hidden");
+            errEl.textContent = err.message || "Lỗi đọc file Excel!";
+          }
+          document.getElementById("btnConfirmImportExcel").disabled = true;
+        }
+      };
+      reader.readAsArrayBuffer(file);
+    }
+
+    async function handleConfirmImportExcel() {
+      if (!pendingImportStudents || pendingImportStudents.length === 0) return;
+
+      const btn = document.getElementById("btnConfirmImportExcel");
+      const prevHtml = btn ? btn.innerHTML : "";
+      if (btn) {
+        btn.disabled = true;
+        btn.innerHTML = `<span>⏳ Đang nhập ${pendingImportStudents.length} SV...</span>`;
+      }
+
+      try {
+        const currentCourses = getCoursesList();
+        pendingImportCourses.forEach(c => {
+          if (c && !currentCourses.includes(c)) {
+            state.courses.push(c);
+          }
+        });
+
+        if (!state.customStudents) state.customStudents = [];
+        if (!state.deletedStudentIds) state.deletedStudentIds = [];
+
+        const newIds = pendingImportStudents.map(s => s.id);
+        state.deletedStudentIds = state.deletedStudentIds.filter(dId => !newIds.includes(dId));
+
+        pendingImportStudents.forEach(newS => {
+          const existingIdx = state.customStudents.findIndex(cs => cs.id === newS.id);
+          if (existingIdx !== -1) {
+            state.customStudents[existingIdx] = { ...state.customStudents[existingIdx], ...newS };
+          } else {
+            state.customStudents.push(newS);
+          }
+          state.studentPasswords[newS.id] = newS.password;
+          if (newS.topic) state.customTopics[newS.id] = newS.topic;
+        });
+
+        if (supabaseClient) {
+          try {
+            const studentUpserts = pendingImportStudents.map(s => ({
+              id: s.id,
+              stt: s.stt,
+              name: s.name,
+              gpa: s.gpa,
+              topic: s.topic,
+              password: s.password
+            }));
+            await supabaseClient.from('students').upsert(studentUpserts, { onConflict: 'id' });
+
+            const progressUpserts = pendingImportStudents.map(s => ({
+              student_id: s.id,
+              percent: 0,
+              done_count: 0,
+              total_count: 24,
+              checked_tasks: {},
+              updated_at: new Date().toISOString()
+            }));
+            await supabaseClient.from('student_progress').upsert(progressUpserts, { onConflict: 'student_id' });
+
+            await supabaseClient.from('system_settings').upsert([
+              { key: 'COURSES_LIST', value: JSON.stringify(state.courses), updated_at: new Date().toISOString() },
+              { key: 'DELETED_STUDENT_IDS', value: JSON.stringify(state.deletedStudentIds), updated_at: new Date().toISOString() }
+            ], { onConflict: 'key' });
+          } catch (errSup) {
+            console.warn("Supabase import upsert warning:", errSup);
+          }
+        }
+
+        const firstImportCourse = Array.from(pendingImportCourses)[0];
+        if (firstImportCourse) {
+          state.selectedCourse = firstImportCourse;
+        }
+
+        saveState();
+        populateCourseDropdowns();
+        populateLoginDatalist();
+        closeImportExcelModal();
+        renderAll();
+
+        showToast("🎉 Nhập Excel thành công!", `Đã thêm ${pendingImportStudents.length} sinh viên và tự động tạo khóa học.`);
+      } catch (e) {
+        showToast("Lỗi nhập dữ liệu", e.message || "Đã xảy ra lỗi khi lưu sinh viên", true);
+      } finally {
+        if (btn) {
+          btn.disabled = false;
+          btn.innerHTML = prevHtml;
+        }
+      }
     }
 
     function openAddStudentModal() {
@@ -3979,8 +4497,10 @@
         headerSub.textContent = "Theo dõi và quản lý toàn bộ 24 sinh viên khóa 2302";
         // Hide student submit button when viewing as teacher
         submitArea.classList.add("hidden");
+        const btnDeleteStudent = document.getElementById("btnDeleteStudent");
         if (btnHeaderSettings) btnHeaderSettings.classList.remove("hidden");
         if (btnResetStudentPass) btnResetStudentPass.classList.remove("hidden");
+        if (btnDeleteStudent) btnDeleteStudent.classList.remove("hidden");
       } else {
         // Student view: 1 Column ONLY, focused purely on the student's personal thesis
         leftDir.classList.add("hidden");
@@ -3989,8 +4509,10 @@
         headerTitle.textContent = "Hồ Sơ Đồ Án Cá Nhân";
         headerSub.textContent = "Không gian cá nhân: Chỉ hiển thị và quản lý tiến độ đồ án của riêng bạn";
         submitArea.classList.remove("hidden");
+        const btnDeleteStudent = document.getElementById("btnDeleteStudent");
         if (btnHeaderSettings) btnHeaderSettings.classList.add("hidden");
         if (btnResetStudentPass) btnResetStudentPass.classList.add("hidden");
+        if (btnDeleteStudent) btnDeleteStudent.classList.add("hidden");
       }
     }
 
@@ -4114,14 +4636,11 @@
         card.innerHTML = `
           <div class="flex items-center gap-3">
             <div class="relative flex-shrink-0">
-              <div class="w-10 h-10 rounded-xl overflow-hidden shadow-xs border border-slate-200/80 flex items-center justify-center ${hasAvatar ? 'bg-white' : (isActive ? 'bg-purple-600 text-white' : 'bg-slate-100 text-slate-700 font-bold')}">
+              <div class="w-10 h-10 rounded-full overflow-hidden shadow-xs border border-slate-200/80 flex items-center justify-center ${hasAvatar ? 'bg-white' : (isActive ? 'bg-purple-600 text-white' : 'bg-slate-100 text-slate-700 font-bold')}">
                 ${hasAvatar ? `<img src="${state.avatars[s.id]}" class="w-full h-full object-cover" alt="${s.name}">` : `<span class="text-xs font-bold">${initials}</span>`}
               </div>
-              <!-- Chấm xanh trực tuyến rực rỡ phong cách Messenger -->
-              <span id="online_dot_${s.id}" class="absolute -top-1 -right-1 flex h-3.5 w-3.5 ${isOnline ? '' : 'hidden'}" title="Đang trực tuyến">
-                <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
-                <span class="relative inline-flex rounded-full h-3.5 w-3.5 bg-emerald-500 ring-2 ring-white"></span>
-              </span>
+              <!-- Chấm xanh trực tuyến chuẩn Meta Messenger góc dưới bên phải -->
+              <span id="online_dot_${s.id}" class="absolute bottom-0 right-0 h-3 w-3 rounded-full bg-emerald-500 ring-2 ring-white shadow-xs ${isOnline ? '' : 'hidden'}" title="Đang trực tuyến"></span>
             </div>
             <div class="flex-1 min-w-0">
               <div class="flex items-center justify-between gap-1">
