@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Hệ Thống Quản Lý Đồ Án Tốt Nghiệp </title>
+  <title>Hệ Thống Quản Lý Đồ Án Tốt Nghiệp</title>
   <!-- Tailwind CSS via allowlisted gstatic -->
   <script src="https://www.gstatic.com/antigravity/web/dev/tailwindcss.min.js"></script>
   <!-- Supabase Cloud SDK for Realtime & Database -->
@@ -127,13 +127,13 @@
             class="inline-flex items-center gap-2 px-3 py-1 rounded-full text-xs font-semibold bg-blue-500/20 text-blue-300 border border-blue-400/30 mb-3 backdrop-blur-sm cursor-pointer hover:bg-blue-500/30 transition select-none"
           >
             <span class="w-2 h-2 rounded-full bg-emerald-400 animate-ping"></span>
-            <span>Khoa Kỹ Thuật Năng Lượng &amp; HTĐ • K68 (2023 - 2027)</span>
+            <span>Ngành Kỹ Thuật Năng Lượng &amp;</span>
           </div>
           <h3 class="text-xl sm:text-2xl font-black tracking-tight text-white leading-snug">
             Hệ Thống Giám Sát Đồ Án Tốt Nghiệp
           </h3>
           <p class="text-xs text-slate-400 mt-1">
-            Theo dõi tiến độ &amp; Quản lý đề tài tốt nghiệp sinh viên Khóa K68 (2023 - 2027)
+            Theo dõi tiến độ &amp; Quản lý đề tài tốt nghiệp sinh viên 
           </p>
         </div>
 
@@ -1318,7 +1318,7 @@
                   <h2 id="detailName" class="text-xl sm:text-2xl font-bold text-slate-900">Trần Gia Bình</h2>
                   <span id="detailGpa" class="text-xs px-2 py-0.5 rounded-full bg-blue-100 text-blue-700 font-bold">GPA: 2.98</span>
                   <span id="detailId" class="text-xs px-2 py-0.5 rounded-full bg-slate-200 text-slate-700 font-semibold font-mono">MSV: 23020452</span>
-                  <span id="detailRoleTag" class="text-xs px-2 py-0.5 rounded-full font-bold bg-emerald-100 text-emerald-800">✓ Đồ án của bạn</span>
+                  <span id="detailRoleTag" class="text-xs px-2 py-0.5 rounded-full font-bold bg-emerald-100 text-emerald-800 hidden">✓ Đồ án của bạn</span>
                   <button id="btnDeleteStudent" onclick="handleDeleteStudentPrompt()" class="text-xs px-2.5 py-1 rounded-lg bg-rose-50 text-rose-600 hover:bg-rose-100 font-bold border border-rose-200 transition flex items-center gap-1 hidden" title="Xóa sinh viên này khỏi hệ thống">
                     <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/></svg>
                     <span>Xóa SV</span>
@@ -4498,9 +4498,11 @@
         // Hide student submit button when viewing as teacher
         submitArea.classList.add("hidden");
         const btnDeleteStudent = document.getElementById("btnDeleteStudent");
+        const detailRoleTag = document.getElementById("detailRoleTag");
         if (btnHeaderSettings) btnHeaderSettings.classList.remove("hidden");
         if (btnResetStudentPass) btnResetStudentPass.classList.remove("hidden");
         if (btnDeleteStudent) btnDeleteStudent.classList.remove("hidden");
+        if (detailRoleTag) detailRoleTag.classList.add("hidden");
       } else {
         // Student view: 1 Column ONLY, focused purely on the student's personal thesis
         leftDir.classList.add("hidden");
@@ -4510,9 +4512,11 @@
         headerSub.textContent = "Không gian cá nhân: Chỉ hiển thị và quản lý tiến độ đồ án của riêng bạn";
         submitArea.classList.remove("hidden");
         const btnDeleteStudent = document.getElementById("btnDeleteStudent");
+        const detailRoleTag = document.getElementById("detailRoleTag");
         if (btnHeaderSettings) btnHeaderSettings.classList.add("hidden");
         if (btnResetStudentPass) btnResetStudentPass.classList.add("hidden");
         if (btnDeleteStudent) btnDeleteStudent.classList.add("hidden");
+        if (detailRoleTag) detailRoleTag.classList.remove("hidden");
       }
     }
 
