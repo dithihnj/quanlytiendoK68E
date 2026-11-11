@@ -3485,7 +3485,7 @@
       }
     }
 
-    // Tự động lưu tiến độ vào Supabase sau khi tích chọn (Debounce 500ms)
+    // Tự động lưu tiến độ vào Supabase siêu tốc (Debounce 120ms - mượt mà như Messenger)
     let progressSaveTimeout = null;
     function debouncedSaveStudentProgress(sId) {
       if (!supabaseClient) return;
@@ -3505,7 +3505,7 @@
         } catch (e) {
           console.warn("Auto save progress to Supabase error:", e);
         }
-      }, 500);
+      }, 120);
     }
 
     var state = {
@@ -9528,17 +9528,30 @@
 
     function startSmartAutoSync() {
       if (liveAutoSyncTimer) clearInterval(liveAutoSyncTimer);
-      // Chạy ngay sau 1.5 giây
-      setTimeout(smartLiveAutoSync, 1500);
-      // Tự động quét và nạp tin nhắn mới mỗi 2.5 giây (hoàn toàn không cần F5)
-      liveAutoSyncTimer = setInterval(smartLiveAutoSync, 2500);
+      // Chạy ngay sau 800ms
+      setTimeout(smartLiveAutoSync, 800);
 
-      // Định kỳ mỗi 7 giây tự động đồng bộ sinh viên mới đăng ký, tiến độ, thông báo mới
+      // Tần suất siêu tốc 1.2s khi đang mở tab (mượt mà như Messenger)
+      let currentInterval = 1200;
+      liveAutoSyncTimer = setInterval(smartLiveAutoSync, currentInterval);
+
+      // Tiết kiệm băng thông & kết nối cho hàng nghìn sinh viên khi chuyển tab
+      document.addEventListener("visibilitychange", () => {
+        clearInterval(liveAutoSyncTimer);
+        if (document.hidden) {
+          liveAutoSyncTimer = setInterval(smartLiveAutoSync, 10000); // 10s khi ẩn tab
+        } else {
+          smartLiveAutoSync();
+          liveAutoSyncTimer = setInterval(smartLiveAutoSync, 1200); // 1.2s khi xem tab
+        }
+      });
+
+      // Định kỳ mỗi 6 giây tự động đồng bộ sinh viên mới đăng ký, tiến độ, thông báo mới
       setInterval(() => {
-        if (typeof syncDataFromBackend === "function") {
+        if (!document.hidden && typeof syncDataFromBackend === "function") {
           syncDataFromBackend(false);
         }
-      }, 7000);
+      }, 6000);
     }
     window.startSmartAutoSync = startSmartAutoSync;
 
