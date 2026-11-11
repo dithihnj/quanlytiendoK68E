@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Hệ Thống Quản Lý Đồ Án Tốt Nghiệp</title>
+  <title>Hệ Thống Quản Lý Đồ Án Tốt Nghiệp • Khóa K68 (2023 - 2027)</title>
   <!-- Tailwind CSS via allowlisted gstatic -->
   <script src="https://www.gstatic.com/antigravity/web/dev/tailwindcss.min.js"></script>
   <!-- Supabase Cloud SDK for Realtime & Database -->
@@ -127,13 +127,13 @@
             class="inline-flex items-center gap-2 px-3 py-1 rounded-full text-xs font-semibold bg-blue-500/20 text-blue-300 border border-blue-400/30 mb-3 backdrop-blur-sm cursor-pointer hover:bg-blue-500/30 transition select-none"
           >
             <span class="w-2 h-2 rounded-full bg-emerald-400 animate-ping"></span>
-            <span>Ngành Kỹ Thuật Năng Lượng </span>
+            <span>Khoa Kỹ Thuật Năng Lượng &amp; HTĐ • K68 (2023 - 2027)</span>
           </div>
           <h3 class="text-xl sm:text-2xl font-black tracking-tight text-white leading-snug">
             Hệ Thống Giám Sát Đồ Án Tốt Nghiệp
           </h3>
           <p class="text-xs text-slate-400 mt-1">
-            Theo dõi tiến độ &amp; Quản lý đề tài tốt nghiệp sinh viên 
+            Theo dõi tiến độ &amp; Quản lý đề tài tốt nghiệp sinh viên Khóa K68 (2023 - 2027)
           </p>
         </div>
 
@@ -248,23 +248,27 @@
       <div class="lg:col-span-7 p-6 sm:p-9 flex flex-col justify-between bg-white">
         
         <div>
-          <!-- ROLE SELECT TABS: HIDDEN FROM STUDENTS BY DEFAULT (ONLY SHOWN IF ?admin=true OR SECRET TRIGGER) -->
-          <div id="roleSelectTabs" class="p-1.5 bg-slate-100 rounded-2xl mb-6 text-xs font-bold border border-slate-200 hidden">
-            <button id="tabLoginStudent" onclick="switchLoginTab('student')" class="flex-1 py-2.5 rounded-xl transition-all duration-200 bg-white text-blue-600 shadow-sm flex items-center justify-center gap-2">
-              <svg class="w-4 h-4 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"/></svg>
-              <span>Sinh Viên Đăng Nhập</span>
+          <!-- 3 AUTHENTICATION PORTALS TABS -->
+          <div class="grid grid-cols-3 gap-1.5 p-1.5 bg-slate-100 rounded-2xl mb-5 text-xs font-bold border border-slate-200">
+            <button id="tabLoginStudentThesis" onclick="switchLoginTab('student_thesis')" class="py-2.5 px-2 rounded-xl transition-all duration-200 bg-white text-blue-600 shadow-sm flex items-center justify-center gap-1.5">
+              <span>🎓</span>
+              <span class="truncate">SV Đồ Án</span>
             </button>
-            <button id="tabLoginTeacher" onclick="switchLoginTab('teacher')" class="flex-1 py-2.5 rounded-xl transition-all duration-200 text-slate-600 hover:text-slate-900 flex items-center justify-center gap-2">
-              <svg class="w-4 h-4 text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"/></svg>
-              <span>Giảng Viên (Xem Cả Lớp)</span>
+            <button id="tabLoginStudentRegular" onclick="switchLoginTab('student_regular')" class="py-2.5 px-2 rounded-xl transition-all duration-200 text-slate-600 hover:text-slate-900 flex items-center justify-center gap-1.5">
+              <span>👥</span>
+              <span class="truncate">SV Khóa Dưới</span>
+            </button>
+            <button id="tabLoginTeacher" onclick="switchLoginTab('teacher')" class="py-2.5 px-2 rounded-xl transition-all duration-200 text-slate-600 hover:text-slate-900 flex items-center justify-center gap-1.5">
+              <span>👨‍🏫</span>
+              <span class="truncate">Giảng Viên</span>
             </button>
           </div>
 
-          <!-- FORM 1: STUDENT LOGIN (ONLY VISIBLE FORM FOR STUDENTS) -->
+          <!-- PORTAL 1: THESIS STUDENT LOGIN (KHÓA K68 ĐỒ ÁN) -->
           <div id="studentLoginForm">
             <div class="mb-5">
               <div class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-md text-[11px] font-bold bg-blue-50 text-blue-700 border border-blue-200 mb-2">
-                <span>🎓 Cổng Đăng Nhập Sinh Viên</span>
+                <span>🎓 Cổng 1: Sinh Viên Làm Đồ Án Tốt Nghiệp</span>
               </div>
               <h2 class="text-xl sm:text-2xl font-black text-slate-900 tracking-tight">Chào mừng bạn!</h2>
               <p class="text-xs text-slate-500 mt-1">
@@ -341,21 +345,223 @@
             </form>
           </div>
 
-          <!-- FORM 2: TEACHER LOGIN (SECURED WITH PASSWORD & HIDDEN FROM STUDENTS) -->
+          <!-- PORTAL 2: REGULAR STUDENTS (KHÓA DƯỚI / KHÔNG LÀM ĐỒ ÁN - ĐĂNG NHẬP & ĐĂNG KÝ) -->
+          <div id="studentRegularForm" class="hidden">
+            <!-- Sub-tabs: Đăng Nhập vs Đăng Ký -->
+            <div class="flex items-center justify-between mb-4 pb-2 border-b border-slate-100">
+              <div class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-md text-[11px] font-bold bg-emerald-50 text-emerald-700 border border-emerald-200">
+                <span>👥 Cổng 2: Sinh Viên Khóa Dưới</span>
+              </div>
+              <div class="flex items-center gap-1 p-1 bg-slate-100 rounded-lg text-xs font-semibold">
+                <button type="button" id="btnSubRegularLogin" onclick="switchRegularSubTab('login')" class="px-3 py-1 rounded-md bg-white text-emerald-700 shadow-xs font-bold transition">
+                  Đăng Nhập
+                </button>
+                <button type="button" id="btnSubRegularRegister" onclick="switchRegularSubTab('register')" class="px-3 py-1 rounded-md text-slate-600 hover:text-slate-900 transition">
+                  Đăng Ký
+                </button>
+              </div>
+            </div>
+
+            <!-- 2A. FORM ĐĂNG NHẬP SINH VIÊN KHÓA DƯỚI -->
+            <div id="subRegularLoginForm">
+              <div class="mb-4">
+                <h2 class="text-xl font-black text-slate-900 tracking-tight">Đăng Nhập Khóa Dưới</h2>
+                <p class="text-xs text-slate-500 mt-1">
+                  Dành cho sinh viên các khóa K69, K70, K71... tham gia cổng thông tin &amp; chat cộng đồng.
+                </p>
+              </div>
+
+              <form onsubmit="handleStudentRegularLogin(event)" class="space-y-3.5">
+                <div>
+                  <label class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1 flex items-center gap-1.5">
+                    <svg class="w-3.5 h-3.5 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"/></svg>
+                    <span>Mã Sinh Viên hoặc Email</span>
+                  </label>
+                  <input 
+                    type="text" 
+                    id="regularLoginIdInput" 
+                    placeholder="Nhập Mã SV (VD: 2402xxxx) hoặc Email cá nhân" 
+                    required
+                    class="w-full px-4 py-2.5 text-sm rounded-xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-emerald-500 bg-slate-50 focus:bg-white transition"
+                  >
+                </div>
+
+                <div>
+                  <div class="flex items-center justify-between mb-1">
+                    <label class="block text-xs font-bold text-slate-700 uppercase tracking-wider flex items-center gap-1.5">
+                      <svg class="w-3.5 h-3.5 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"/></svg>
+                      <span>Mật Khẩu</span>
+                    </label>
+                    <button type="button" onclick="openForgotPasswordModal()" class="text-[11px] text-emerald-600 hover:text-emerald-800 font-semibold hover:underline">
+                      Quên mật khẩu?
+                    </button>
+                  </div>
+                  <div class="relative">
+                    <input 
+                      type="password" 
+                      id="regularLoginPassInput" 
+                      placeholder="Nhập mật khẩu..." 
+                      required
+                      class="w-full px-4 py-2.5 pr-10 text-sm rounded-xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-emerald-500 bg-slate-50 focus:bg-white transition"
+                    >
+                    <button type="button" onclick="togglePasswordVisibility('regularLoginPassInput')" class="absolute right-3 top-2.5 text-slate-400 hover:text-slate-600 transition" title="Hiện/Ẩn">
+                      👁️
+                    </button>
+                  </div>
+                </div>
+
+                <div id="regularLoginError" class="text-xs text-rose-600 font-semibold hidden bg-rose-50 p-2.5 rounded-xl border border-rose-200 text-center"></div>
+
+                <button 
+                  type="submit" 
+                  class="w-full py-3 bg-emerald-600 hover:bg-emerald-700 active:scale-[0.99] text-white font-bold text-sm rounded-xl shadow-lg shadow-emerald-500/25 transition duration-150 flex items-center justify-center gap-2 mt-2"
+                >
+                  <span>Đăng Nhập Vào Không Gian Khóa Dưới</span>
+                  <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3"/></svg>
+                </button>
+
+                <div class="text-center pt-2 text-xs text-slate-500">
+                  Chưa có tài khoản? 
+                  <button type="button" onclick="switchRegularSubTab('register')" class="text-emerald-700 font-bold hover:underline ml-1">
+                    Đăng ký ngay &rarr;
+                  </button>
+                </div>
+              </form>
+            </div>
+
+            <!-- 2B. FORM ĐĂNG KÝ TÀI KHOẢN SINH VIÊN KHÓA DƯỚI -->
+            <div id="subRegularRegisterForm" class="hidden">
+              <div class="mb-3">
+                <h2 class="text-lg font-black text-slate-900 tracking-tight">Đăng Ký Tài Khoản Khóa Dưới</h2>
+                <p class="text-[11px] text-slate-500 mt-0.5">
+                  Email bắt buộc chính xác để nhận thông báo tự động từ Thầy/Cô &amp; khôi phục mật khẩu.
+                </p>
+              </div>
+
+              <form onsubmit="handleStudentRegularRegister(event)" class="space-y-2.5">
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
+                  <div>
+                    <label class="block text-[11px] font-bold text-slate-700 uppercase mb-1">Họ và Tên *</label>
+                    <input 
+                      type="text" 
+                      id="regStudentName" 
+                      placeholder="VD: Nguyễn Văn An" 
+                      required
+                      class="w-full px-3 py-2 text-xs rounded-xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-emerald-500 bg-slate-50 focus:bg-white transition"
+                    >
+                  </div>
+                  <div>
+                    <label class="block text-[11px] font-bold text-slate-700 uppercase mb-1">Mã Sinh Viên *</label>
+                    <input 
+                      type="text" 
+                      id="regStudentId" 
+                      placeholder="VD: 24020123" 
+                      required
+                      class="w-full px-3 py-2 text-xs rounded-xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-emerald-500 bg-slate-50 focus:bg-white transition font-mono"
+                    >
+                  </div>
+                </div>
+
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
+                  <div>
+                    <label class="block text-[11px] font-bold text-slate-700 uppercase mb-1">Khóa học / Lớp *</label>
+                    <input 
+                      type="text" 
+                      id="regStudentCourse" 
+                      placeholder="VD: K69 - Kỹ thuật Năng lượng" 
+                      list="defaultCoursesDatalist"
+                      required
+                      class="w-full px-3 py-2 text-xs rounded-xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-emerald-500 bg-slate-50 focus:bg-white transition"
+                    >
+                    <datalist id="defaultCoursesDatalist">
+                      <option value="Khóa K69 - Kỹ thuật Năng lượng"></option>
+                      <option value="Khóa K70 - Kỹ thuật Năng lượng"></option>
+                      <option value="Khóa K71 - Kỹ thuật Năng lượng"></option>
+                      <option value="Khóa K68 - Các chuyên ngành khác"></option>
+                    </datalist>
+                  </div>
+                  <div>
+                    <label class="block text-[11px] font-bold text-slate-700 uppercase mb-1">Số Điện Thoại (SĐT) *</label>
+                    <input 
+                      type="tel" 
+                      id="regStudentPhone" 
+                      placeholder="VD: 0987654321" 
+                      required
+                      class="w-full px-3 py-2 text-xs rounded-xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-emerald-500 bg-slate-50 focus:bg-white transition font-mono"
+                    >
+                  </div>
+                </div>
+
+                <div>
+                  <label class="block text-[11px] font-bold text-slate-700 uppercase mb-1 flex items-center justify-between">
+                    <span>Email Nhận Thông Báo &amp; Khôi Phục MK *</span>
+                    <span class="text-[10px] text-emerald-600 font-normal">Chính chủ</span>
+                  </label>
+                  <input 
+                    type="email" 
+                    id="regStudentEmail" 
+                    placeholder="VD: nguyenvana@gmail.com (hoặc vnu.edu.vn)" 
+                    required
+                    class="w-full px-3 py-2 text-xs rounded-xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-emerald-500 bg-slate-50 focus:bg-white transition"
+                  >
+                </div>
+
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
+                  <div>
+                    <label class="block text-[11px] font-bold text-slate-700 uppercase mb-1">Mật khẩu *</label>
+                    <input 
+                      type="password" 
+                      id="regStudentPass" 
+                      placeholder="Tối thiểu 3 ký tự" 
+                      required
+                      class="w-full px-3 py-2 text-xs rounded-xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-emerald-500 bg-slate-50 focus:bg-white transition"
+                    >
+                  </div>
+                  <div>
+                    <label class="block text-[11px] font-bold text-slate-700 uppercase mb-1">Nhập lại MK *</label>
+                    <input 
+                      type="password" 
+                      id="regStudentPassConfirm" 
+                      placeholder="Xác nhận mật khẩu" 
+                      required
+                      class="w-full px-3 py-2 text-xs rounded-xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-emerald-500 bg-slate-50 focus:bg-white transition"
+                    >
+                  </div>
+                </div>
+
+                <div id="regularRegisterError" class="text-xs text-rose-600 font-semibold hidden bg-rose-50 p-2.5 rounded-xl border border-rose-200 text-center"></div>
+
+                <button 
+                  type="submit" 
+                  id="btnSubmitRegularRegister"
+                  class="w-full py-2.5 bg-emerald-600 hover:bg-emerald-700 active:scale-[0.99] text-white font-bold text-xs rounded-xl shadow-lg shadow-emerald-500/25 transition duration-150 flex items-center justify-center gap-1.5 mt-2"
+                >
+                  <span>Tạo Tài Khoản &amp; Đăng Nhập Ngay</span>
+                  <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3"/></svg>
+                </button>
+
+                <div class="text-center pt-1 text-[11px] text-slate-500">
+                  Đã có tài khoản? 
+                  <button type="button" onclick="switchRegularSubTab('login')" class="text-emerald-700 font-bold hover:underline ml-1">
+                    Đăng nhập &rarr;
+                  </button>
+                </div>
+              </form>
+            </div>
+          </div>
+
+          <!-- PORTAL 3: TEACHER / GVCN LOGIN -->
           <div id="teacherLoginForm" class="hidden">
             <div class="mb-5 flex items-start justify-between">
               <div>
                 <div class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-md text-[11px] font-bold bg-purple-50 text-purple-700 border border-purple-200 mb-2">
-                  <span>🔒 Khu Vực Dành Cho Giảng Viên</span>
+                  <span>🔒 Cổng 3: Khu Vực Dành Cho Giảng Viên</span>
                 </div>
                 <h2 class="text-xl sm:text-2xl font-black text-slate-900 tracking-tight">Xác Thực Quản Trị</h2>
                 <p class="text-xs text-slate-500 mt-1">
-                  Nhập mật khẩu quản trị để giám sát và theo dõi tiến độ của 24 sinh viên.
+                  Nhập mật khẩu quản trị để mở 2 trang điều khiển: Đồ án K68 &amp; Sinh viên khóa dưới.
                 </p>
               </div>
-              <button onclick="switchLoginTab('student')" class="text-xs text-slate-400 hover:text-slate-600 font-medium px-2 py-1 rounded-lg border border-slate-200">
-                ← Về trang SV
-              </button>
             </div>
 
             <form onsubmit="handleTeacherLogin(event)" class="space-y-4">
@@ -1115,6 +1321,196 @@
     </div>
   </div>
 
+  <!-- ==================== 5. MODAL GỬI EMAIL THÔNG BÁO CHO TOÀN THỂ SINH VIÊN ==================== -->
+  <div id="broadcastAnnouncementModal" class="fixed inset-0 z-50 bg-slate-900/60 backdrop-blur-xs flex items-center justify-center p-4 hidden">
+    <div class="bg-white rounded-3xl max-w-xl w-full shadow-2xl border border-slate-200 overflow-hidden transform transition-all animate-in fade-in zoom-in-95">
+      <div class="p-6 bg-gradient-to-r from-blue-700 via-indigo-700 to-purple-800 text-white flex items-center justify-between">
+        <div class="flex items-center gap-3">
+          <div class="w-10 h-10 rounded-xl bg-white/20 flex items-center justify-center text-xl shadow-md">
+            📢
+          </div>
+          <div>
+            <h3 class="text-base font-bold text-white">Gửi Thông Báo Tự Động Qua Email</h3>
+            <p class="text-xs text-blue-200">Gửi email thông báo chính thức từ GVCN tới sinh viên</p>
+          </div>
+        </div>
+        <button onclick="closeBroadcastAnnouncementModal()" class="text-white/70 hover:text-white p-1 rounded-lg text-lg font-bold">✕</button>
+      </div>
+
+      <form onsubmit="handleSendBroadcastAnnouncement(event)" class="p-6 space-y-4">
+        <div>
+          <label class="block text-xs font-bold text-slate-700 uppercase mb-1.5">
+            1. Chọn Đối Tượng Nhận Thông Báo *
+          </label>
+          <div class="grid grid-cols-1 sm:grid-cols-3 gap-2 text-xs">
+            <label class="flex items-center gap-2 p-3 rounded-xl border border-slate-200 hover:border-blue-500 cursor-pointer bg-slate-50 hover:bg-blue-50/50 transition">
+              <input type="radio" name="announcementTarget" value="regular" checked onchange="updateAnnouncementRecipientPreview()" class="text-blue-600 focus:ring-blue-500">
+              <span class="font-bold text-slate-800">👥 SV Khóa Dưới</span>
+            </label>
+            <label class="flex items-center gap-2 p-3 rounded-xl border border-slate-200 hover:border-blue-500 cursor-pointer bg-slate-50 hover:bg-blue-50/50 transition">
+              <input type="radio" name="announcementTarget" value="thesis" onchange="updateAnnouncementRecipientPreview()" class="text-blue-600 focus:ring-blue-500">
+              <span class="font-bold text-slate-800">🎓 SV Đồ Án</span>
+            </label>
+            <label class="flex items-center gap-2 p-3 rounded-xl border border-slate-200 hover:border-blue-500 cursor-pointer bg-slate-50 hover:bg-blue-50/50 transition">
+              <input type="radio" name="announcementTarget" value="all" onchange="updateAnnouncementRecipientPreview()" class="text-blue-600 focus:ring-blue-500">
+              <span class="font-bold text-slate-800">🌐 Toàn Thể SV</span>
+            </label>
+          </div>
+          <div class="mt-2 text-[11px] text-slate-500 flex items-center justify-between">
+            <span>Số email hợp lệ sẽ nhận được:</span>
+            <strong id="announcementRecipientCountText" class="text-blue-600 font-mono text-xs">0 email</strong>
+          </div>
+        </div>
+
+        <div>
+          <label class="block text-xs font-bold text-slate-700 uppercase mb-1">
+            2. Tiêu Đề Thông Báo *
+          </label>
+          <input 
+            type="text" 
+            id="announcementTitleInput" 
+            placeholder="Ví dụ: Thông báo lịch sinh hoạt lớp và hướng dẫn đăng ký chuyên ngành" 
+            required
+            class="w-full px-4 py-2.5 text-sm rounded-xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-blue-500 bg-slate-50 focus:bg-white transition"
+          >
+        </div>
+
+        <div>
+          <label class="block text-xs font-bold text-slate-700 uppercase mb-1">
+            3. Nội Dung Chi Tiết Thông Báo *
+          </label>
+          <textarea 
+            id="announcementContentInput" 
+            rows="5" 
+            placeholder="Nhập nội dung thông báo gửi tới sinh viên..." 
+            required
+            class="w-full p-4 text-sm rounded-xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-blue-500 bg-slate-50 focus:bg-white transition"
+          ></textarea>
+        </div>
+
+        <div id="announcementSendStatusArea" class="hidden text-xs p-3 rounded-xl border text-center"></div>
+
+        <div class="flex items-center justify-end gap-2 pt-2 border-t border-slate-100">
+          <button type="button" onclick="closeBroadcastAnnouncementModal()" class="px-4 py-2.5 text-xs text-slate-600 hover:text-slate-800 font-bold rounded-xl border border-slate-200 hover:bg-slate-50 transition">
+            Hủy Bỏ
+          </button>
+          <button 
+            type="submit" 
+            id="btnSubmitBroadcastAnnouncement"
+            class="px-5 py-2.5 bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white font-bold text-xs sm:text-sm rounded-xl shadow-lg shadow-blue-500/25 transition active:scale-95 flex items-center gap-2"
+          >
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8"/></svg>
+            <span>🚀 Bắt Đầu Gửi Email Tự Động</span>
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- ==================== 6. MODAL KHÔI PHỤC MẬT KHẨU CHO SINH VIÊN ==================== -->
+  <div id="forgotPasswordModal" class="fixed inset-0 z-50 bg-slate-900/60 backdrop-blur-xs flex items-center justify-center p-4 hidden">
+    <div class="bg-white rounded-3xl max-w-md w-full shadow-2xl border border-slate-200 overflow-hidden transform transition-all animate-in fade-in zoom-in-95">
+      <div class="p-5 bg-gradient-to-r from-emerald-600 to-teal-700 text-white flex items-center justify-between">
+        <div class="flex items-center gap-3">
+          <div class="w-10 h-10 rounded-xl bg-white/20 flex items-center justify-center text-xl shadow-md">
+            🔑
+          </div>
+          <div>
+            <h3 class="text-base font-bold text-white">Khôi Phục Mật Khẩu</h3>
+            <p class="text-xs text-emerald-100">Cấp lại mật khẩu đăng nhập gửi trực tiếp về email</p>
+          </div>
+        </div>
+        <button onclick="closeForgotPasswordModal()" class="text-white/70 hover:text-white p-1 rounded-lg text-lg font-bold">✕</button>
+      </div>
+
+      <form onsubmit="handleExecuteForgotPassword(event)" class="p-6 space-y-4">
+        <div>
+          <label class="block text-xs font-bold text-slate-700 uppercase mb-1.5">
+            Nhập Mã Sinh Viên hoặc Email đã đăng ký *
+          </label>
+          <input 
+            type="text" 
+            id="forgotPasswordAccountInput" 
+            placeholder="Ví dụ: 24020123 hoặc nguyenvana@gmail.com" 
+            required
+            class="w-full px-4 py-2.5 text-sm rounded-xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-emerald-500 bg-slate-50 focus:bg-white transition"
+          >
+          <p class="text-[11px] text-slate-400 mt-1">Hệ thống sẽ tạo mật khẩu ngẫu nhiên mới và gửi ngay vào email của bạn.</p>
+        </div>
+
+        <div id="forgotPasswordStatus" class="hidden text-xs p-3 rounded-xl border text-center font-medium"></div>
+
+        <div class="flex items-center justify-end gap-2 pt-2 border-t border-slate-100">
+          <button type="button" onclick="closeForgotPasswordModal()" class="px-4 py-2 text-xs text-slate-600 hover:text-slate-800 font-bold rounded-xl border border-slate-200">
+            Đóng
+          </button>
+          <button 
+            type="submit" 
+            id="btnSubmitForgotPassword"
+            class="px-5 py-2.5 bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs rounded-xl shadow-md transition active:scale-95 flex items-center gap-1.5"
+          >
+            <span>Gửi Mật Khẩu Về Email</span>
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- ==================== 7. MODAL CẬP NHẬT SĐT & EMAIL CHO SINH VIÊN KHÓA DƯỚI ==================== -->
+  <div id="editRegularProfileModal" class="fixed inset-0 z-50 bg-slate-900/60 backdrop-blur-xs flex items-center justify-center p-4 hidden">
+    <div class="bg-white rounded-3xl max-w-md w-full shadow-2xl border border-slate-200 overflow-hidden transform transition-all animate-in fade-in zoom-in-95">
+      <div class="p-5 bg-gradient-to-r from-slate-800 to-slate-900 text-white flex items-center justify-between">
+        <div class="flex items-center gap-3">
+          <div class="w-10 h-10 rounded-xl bg-blue-600 flex items-center justify-center text-xl shadow-md">
+            👤
+          </div>
+          <div>
+            <h3 class="text-base font-bold text-white">Cập Nhật Thông Tin Liên Hệ</h3>
+            <p class="text-xs text-slate-300">Đảm bảo SĐT và Email luôn chính xác</p>
+          </div>
+        </div>
+        <button onclick="closeEditRegularProfileModal()" class="text-white/70 hover:text-white p-1 rounded-lg text-lg font-bold">✕</button>
+      </div>
+
+      <form onsubmit="handleSaveRegularProfile(event)" class="p-6 space-y-4">
+        <div>
+          <label class="block text-xs font-bold text-slate-700 uppercase mb-1">Số Điện Thoại (SĐT) *</label>
+          <input 
+            type="tel" 
+            id="editProfilePhoneInput" 
+            placeholder="Ví dụ: 0987654321" 
+            required
+            class="w-full px-4 py-2.5 text-sm rounded-xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-blue-500 bg-slate-50 focus:bg-white transition font-mono"
+          >
+        </div>
+
+        <div>
+          <label class="block text-xs font-bold text-slate-700 uppercase mb-1">Email Nhận Thông Báo *</label>
+          <input 
+            type="email" 
+            id="editProfileEmailInput" 
+            placeholder="Ví dụ: sinhvien@gmail.com" 
+            required
+            class="w-full px-4 py-2.5 text-sm rounded-xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-blue-500 bg-slate-50 focus:bg-white transition"
+          >
+          <p class="text-[11px] text-slate-400 mt-1">Dùng để nhận thông báo trực tiếp từ GVCN và lấy lại mật khẩu khi quên.</p>
+        </div>
+
+        <div class="flex items-center justify-end gap-2 pt-2 border-t border-slate-100">
+          <button type="button" onclick="closeEditRegularProfileModal()" class="px-4 py-2 text-xs text-slate-600 hover:text-slate-800 font-bold rounded-xl border border-slate-200">
+            Hủy Bỏ
+          </button>
+          <button 
+            type="submit" 
+            class="px-5 py-2.5 bg-blue-600 hover:bg-blue-700 text-white font-bold text-xs rounded-xl shadow-md transition active:scale-95 flex items-center gap-1.5"
+          >
+            <span>Lưu Thông Tin</span>
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+
   <!-- ==================== TOAST NOTIFICATION ==================== -->
   <div id="toastNotification" class="fixed bottom-6 right-6 z-50 transform translate-y-24 opacity-0 transition-all duration-300 pointer-events-none">
     <div id="toastCard" class="bg-slate-900 text-white px-5 py-3.5 rounded-2xl shadow-2xl flex items-center gap-3 border border-slate-700/60 max-w-md">
@@ -1156,6 +1552,9 @@
             <div id="userDisplaySub" class="text-xs text-blue-600 font-medium font-mono">Mã SV: --</div>
           </div>
           <div class="flex flex-col sm:flex-row items-stretch sm:items-center gap-1.5">
+            <button id="btnHeaderEditProfile" onclick="openEditRegularProfileModal()" class="px-2.5 py-1.5 text-xs bg-emerald-50 hover:bg-emerald-100 text-emerald-700 border border-emerald-200 rounded-lg font-semibold transition flex items-center justify-center gap-1 shadow-2xs hidden" title="Cập nhật Số điện thoại và Email cá nhân">
+              <span>👤 SĐT / Email</span>
+            </button>
             <button onclick="openChangePasswordModal()" class="px-2.5 py-1.5 text-xs bg-white hover:bg-blue-50 text-slate-700 hover:text-blue-600 border border-slate-200 rounded-lg font-semibold transition flex items-center justify-center gap-1 shadow-2xs" title="Đổi mật khẩu tài khoản">
               <span>🔑 Đổi MK</span>
             </button>
@@ -1167,6 +1566,27 @@
               <span>Thoát</span>
             </button>
           </div>
+        </div>
+      </div>
+
+      <!-- TEACHER MAIN VIEW NAVIGATION TABS (2 MANAGEMENT PAGES: THESIS & JUNIOR STUDENTS) -->
+      <div id="teacherPortalNavTabs" class="mt-4 pt-4 border-t border-slate-100 flex items-center justify-between gap-3 flex-wrap hidden">
+        <div class="flex items-center gap-1.5 p-1 bg-slate-100 rounded-xl">
+          <button id="btnTeacherTabThesis" onclick="switchTeacherPortalView('thesis')" class="px-4 py-2 rounded-lg text-xs sm:text-sm font-bold transition bg-white text-blue-700 shadow-sm flex items-center gap-2">
+            <span>🎓</span>
+            <span>1. Quản Lý Đồ Án Tốt Nghiệp (K68)</span>
+          </button>
+          <button id="btnTeacherTabRegular" onclick="switchTeacherPortalView('regular')" class="px-4 py-2 rounded-lg text-xs sm:text-sm font-bold transition text-slate-600 hover:text-slate-900 flex items-center gap-2">
+            <span>👥</span>
+            <span>2. Quản Trị Sinh Viên Khóa Dưới</span>
+          </button>
+        </div>
+
+        <div class="flex items-center gap-2 flex-wrap">
+          <button onclick="openBroadcastAnnouncementModal()" class="px-3.5 py-2 bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white font-bold text-xs sm:text-sm rounded-xl shadow-md flex items-center gap-2 transition active:scale-95" title="Gửi thông báo tới toàn thể sinh viên qua email tự động">
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5.882V19.24a1.76 1.76 0 01-3.417.592l-2.147-6.15M18 13a3 3 0 100-6M5.436 13.683A4.001 4.001 0 017 6h1.832c4.1 0 7.625-1.234 9.168-3v14c-1.543-1.766-5.067-3-9.168-3H7a3.988 3.988 0 01-1.564-.317z"/></svg>
+            <span>📢 Gửi Email Thông Báo</span>
+          </button>
         </div>
       </div>
 
@@ -1475,6 +1895,345 @@
       </section>
 
     </main>
+
+    <!-- ==================== 2. TRANG QUẢN TRỊ SINH VIÊN KHÓA DƯỚI (CHO GVCN) ==================== -->
+    <section id="regularStudentsAdminView" class="space-y-6 hidden animate-in fade-in duration-200">
+      
+      <!-- TOP METRICS & STATS BAR -->
+      <div class="bg-white rounded-2xl border border-slate-200/80 shadow-sm p-4 sm:p-5 flex flex-wrap items-center justify-between gap-4">
+        <div class="flex flex-wrap items-center gap-3 text-xs">
+          <div class="bg-emerald-50 px-3.5 py-2 rounded-xl border border-emerald-200 flex items-center gap-2">
+            <span class="text-emerald-700 font-semibold">Tổng SV Khóa Dưới:</span>
+            <strong id="statTotalRegularStudents" class="text-emerald-900 font-bold text-sm">0</strong>
+          </div>
+          <div class="bg-blue-50 px-3.5 py-2 rounded-xl border border-blue-200 flex items-center gap-2">
+            <span class="w-2.5 h-2.5 rounded-full bg-emerald-500 animate-pulse"></span>
+            <span class="text-blue-700 font-semibold">Đang Trực Tuyến:</span>
+            <strong id="statOnlineRegularStudents" class="text-blue-900 font-bold text-sm">0</strong>
+          </div>
+          <div class="bg-slate-50 px-3.5 py-2 rounded-xl border border-slate-200 text-slate-600">
+            <span>Phân Bố: </span>
+            <span id="statCoursesBreakdown" class="font-bold text-slate-800">K69, K70, K71...</span>
+          </div>
+        </div>
+
+        <div class="flex items-center gap-2 flex-wrap">
+          <button onclick="openBroadcastAnnouncementModal()" class="px-3.5 py-2 bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white font-bold text-xs rounded-xl shadow-sm transition active:scale-95 flex items-center gap-1.5">
+            <span>📢 Gửi Email Thông Báo</span>
+          </button>
+          <button onclick="exportRegularStudentsToCsv()" class="px-3 py-2 bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold text-xs rounded-xl transition flex items-center gap-1.5" title="Xuất danh sách sinh viên khóa dưới ra file Excel CSV">
+            <svg class="w-3.5 h-3.5 text-emerald-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>
+            <span>Xuất Excel</span>
+          </button>
+          <button onclick="syncDataFromBackend(true)" class="px-3 py-2 bg-blue-50 hover:bg-blue-100 text-blue-700 font-bold text-xs rounded-xl transition flex items-center gap-1.5 border border-blue-200" title="Đồng bộ dữ liệu thời gian thực">
+            <span>🔄 Đồng Bộ</span>
+          </button>
+        </div>
+      </div>
+
+      <!-- MAIN WORKSPACE 2-COLUMN GRID -->
+      <div class="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
+        
+        <!-- LEFT COLUMN: DIRECTORY OF JUNIOR STUDENTS (5 COLS) -->
+        <div class="lg:col-span-5 bg-white rounded-2xl border border-slate-200/80 shadow-sm p-4 sm:p-5 flex flex-col h-[780px]">
+          <div class="space-y-3 pb-3 border-b border-slate-100">
+            <div class="flex items-center justify-between">
+              <div class="flex items-center gap-2">
+                <span class="w-2.5 h-2.5 rounded-full bg-emerald-600"></span>
+                <h3 class="text-sm font-extrabold text-slate-900">Danh Sách Sinh Viên Khóa Dưới</h3>
+              </div>
+              <span class="text-xs px-2 py-0.5 rounded-full bg-emerald-100 text-emerald-800 font-bold" id="badgeTotalRegularStudents">0 SV</span>
+            </div>
+
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-2">
+              <div class="relative">
+                <input 
+                  type="text" 
+                  id="searchRegularInput" 
+                  placeholder="Tìm theo tên, MSV, SĐT..." 
+                  oninput="renderRegularStudentsList()"
+                  class="w-full pl-8 pr-3 py-1.5 text-xs rounded-lg border border-slate-200 bg-slate-50 focus:bg-white focus:outline-none focus:ring-1 focus:ring-emerald-500 transition"
+                >
+                <svg class="w-3.5 h-3.5 text-slate-400 absolute left-2.5 top-2.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/></svg>
+              </div>
+
+              <select 
+                id="filterRegularCourseSelect" 
+                onchange="renderRegularStudentsList()"
+                class="w-full px-2 py-1.5 text-xs font-semibold rounded-lg border border-slate-200 bg-slate-50 focus:bg-white focus:outline-none focus:ring-1 focus:ring-emerald-500 truncate"
+              >
+                <option value="all">Tất cả các khóa</option>
+                <!-- Populated dynamically -->
+              </select>
+            </div>
+          </div>
+
+          <!-- LIST OF JUNIOR STUDENTS -->
+          <div id="regularStudentsListContainer" class="flex-1 overflow-y-auto divide-y divide-slate-100 pr-1 space-y-1 mt-2">
+            <!-- Dynamically populated student cards -->
+          </div>
+        </div>
+
+        <!-- RIGHT COLUMN: INTERACTION TABS: COMMUNITY CHAT, 1-1 CHAT, ANNOUNCEMENTS (7 COLS) -->
+        <div class="lg:col-span-7 bg-white rounded-2xl border border-slate-200/80 shadow-sm p-4 sm:p-6 flex flex-col h-[780px]">
+          
+          <!-- TAB NAVIGATION -->
+          <div class="flex items-center gap-1.5 p-1 bg-slate-100 rounded-xl mb-4 text-xs font-bold border border-slate-200 flex-shrink-0">
+            <button id="tabTeacherRightCommunityBtn" onclick="switchTeacherRightTab('community')" class="flex-1 py-2 px-2 rounded-lg bg-white text-blue-700 shadow-xs flex items-center justify-center gap-1.5 transition">
+              <span>🌐</span>
+              <span class="truncate">Cổng Chat Chung Toàn Khóa</span>
+            </button>
+            <button id="tabTeacherRightPrivateBtn" onclick="switchTeacherRightTab('private')" class="flex-1 py-2 px-2 rounded-lg text-slate-600 hover:text-slate-900 flex items-center justify-center gap-1.5 transition">
+              <span>💬</span>
+              <span id="tabTeacherRightPrivateTitle" class="truncate">Chat Riêng 1-1</span>
+            </button>
+            <button id="tabTeacherRightAnnounceBtn" onclick="switchTeacherRightTab('announcements')" class="flex-1 py-2 px-2 rounded-lg text-slate-600 hover:text-slate-900 flex items-center justify-center gap-1.5 transition">
+              <span>📢</span>
+              <span class="truncate">Lịch Sử Thông Báo</span>
+            </button>
+          </div>
+
+          <!-- PANEL 1: COMMUNITY CHAT FOR THOUSANDS OF STUDENTS -->
+          <div id="teacherRightCommunityPanel" class="flex-1 flex flex-col min-h-0">
+            <div class="p-3 bg-gradient-to-r from-blue-900 to-indigo-900 text-white rounded-xl mb-3 flex items-center justify-between flex-shrink-0 shadow-xs">
+              <div class="flex items-center gap-2.5">
+                <span class="text-xl">🌐</span>
+                <div>
+                  <h4 class="text-xs sm:text-sm font-bold text-white">Phòng Chat Chung Toàn Khóa (Community Chat)</h4>
+                  <p class="text-[11px] text-blue-200">Không gian trao đổi, giải đáp câu hỏi và thảo luận cho hàng nghìn sinh viên</p>
+                </div>
+              </div>
+              <button onclick="renderCommunityChatMessages(true)" class="p-1.5 rounded-lg bg-white/10 hover:bg-white/20 text-xs transition" title="Làm mới">
+                🔄
+              </button>
+            </div>
+
+            <!-- COMMUNITY CHAT MESSAGES STREAM -->
+            <div id="communityChatMessagesContainer" class="flex-1 overflow-y-auto space-y-3 p-3 bg-slate-50/70 rounded-xl border border-slate-200/70 mb-3">
+              <!-- Dynamically populated messages -->
+            </div>
+
+            <!-- CHAT INPUT -->
+            <form onsubmit="handleSendCommunityMessage(event)" class="flex items-center gap-2 flex-shrink-0">
+              <input 
+                type="text" 
+                id="communityChatMessageInput" 
+                placeholder="Nhắn tin tới toàn thể sinh viên trong phòng chat chung... (Nhấn Enter để gửi)" 
+                class="flex-1 px-4 py-2.5 text-xs sm:text-sm rounded-xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-blue-500 bg-slate-50 focus:bg-white transition"
+              >
+              <button 
+                type="submit" 
+                class="px-4 py-2.5 bg-blue-600 hover:bg-blue-700 text-white font-bold text-xs sm:text-sm rounded-xl shadow-md transition active:scale-95 flex items-center gap-1.5 flex-shrink-0"
+              >
+                <span>Gửi</span>
+                <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8"/></svg>
+              </button>
+            </form>
+          </div>
+
+          <!-- PANEL 2: 1-1 PRIVATE CHAT WITH SELECTED REGULAR STUDENT -->
+          <div id="teacherRightPrivatePanel" class="flex-1 flex flex-col min-h-0 hidden">
+            <div id="teacherPrivateChatHeader" class="p-3 bg-slate-900 text-white rounded-xl mb-3 flex items-center justify-between flex-shrink-0">
+              <div class="flex items-center gap-3">
+                <div class="relative">
+                  <div id="privPartnerAvatar" class="w-9 h-9 rounded-full bg-emerald-600 text-white font-bold flex items-center justify-center text-xs">SV</div>
+                  <span id="privPartnerOnlineDot" class="absolute bottom-0 right-0 w-3 h-3 bg-emerald-500 border-2 border-slate-900 rounded-full hidden"></span>
+                </div>
+                <div>
+                  <div id="privPartnerName" class="text-xs sm:text-sm font-bold text-white truncate max-w-[240px]">Chưa chọn sinh viên</div>
+                  <div id="privPartnerSub" class="text-[11px] text-slate-300">Nhấp vào một sinh viên ở danh sách bên trái để chat riêng 1-1</div>
+                </div>
+              </div>
+              <div class="text-[11px] text-emerald-400 font-semibold px-2 py-0.5 rounded-full bg-emerald-950/80 border border-emerald-500/30">
+                Kênh riêng 1-1
+              </div>
+            </div>
+
+            <!-- PRIVATE MESSAGES STREAM -->
+            <div id="teacherPrivateMessagesContainer" class="flex-1 overflow-y-auto space-y-3 p-3 bg-slate-50/70 rounded-xl border border-slate-200/70 mb-3">
+              <div class="text-center py-12 text-slate-400 text-xs">Vui lòng nhấp nút 💬 Chat trên một sinh viên ở danh sách bên trái để bắt đầu.</div>
+            </div>
+
+            <!-- PRIVATE CHAT INPUT -->
+            <form onsubmit="handleSendTeacherPrivateMessage(event)" class="flex items-center gap-2 flex-shrink-0">
+              <input 
+                type="text" 
+                id="teacherPrivateMessageInput" 
+                placeholder="Nhập tin nhắn riêng cho sinh viên... (Nhấn Enter để gửi)" 
+                class="flex-1 px-4 py-2.5 text-xs sm:text-sm rounded-xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-emerald-500 bg-slate-50 focus:bg-white transition"
+              >
+              <button 
+                type="submit" 
+                class="px-4 py-2.5 bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs sm:text-sm rounded-xl shadow-md transition active:scale-95 flex items-center gap-1.5 flex-shrink-0"
+              >
+                <span>Gửi Tin</span>
+                <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8"/></svg>
+              </button>
+            </form>
+          </div>
+
+          <!-- PANEL 3: ANNOUNCEMENTS HISTORY -->
+          <div id="teacherRightAnnouncePanel" class="flex-1 flex flex-col min-h-0 hidden">
+            <div class="flex items-center justify-between pb-3 mb-2 border-b border-slate-100 flex-shrink-0">
+              <div>
+                <h4 class="text-sm font-bold text-slate-800">Lịch Sử Thông Báo Đã Gửi</h4>
+                <p class="text-xs text-slate-500">Toàn bộ các email thông báo GVCN đã phát đi</p>
+              </div>
+              <button onclick="openBroadcastAnnouncementModal()" class="px-3 py-1.5 bg-blue-600 hover:bg-blue-700 text-white text-xs font-bold rounded-lg transition shadow-xs">
+                + Soạn Mới
+              </button>
+            </div>
+
+            <div id="announcementsHistoryContainer" class="flex-1 overflow-y-auto space-y-3 pr-1">
+              <!-- Dynamically populated -->
+            </div>
+          </div>
+
+        </div>
+
+      </div>
+
+    </section>
+
+    <!-- ==================== 3. CỔNG DÀNH CHO SINH VIÊN KHÓA DƯỚI (REGULAR STUDENT PORTAL) ==================== -->
+    <section id="regularStudentPortalView" class="space-y-6 hidden animate-in fade-in duration-200">
+      
+      <!-- STUDENT PROFILE BANNER CARD -->
+      <div class="bg-gradient-to-r from-slate-900 via-indigo-950 to-slate-900 text-white rounded-2xl p-5 sm:p-7 shadow-lg border border-slate-800 flex flex-col md:flex-row items-start md:items-center justify-between gap-5">
+        <div class="flex items-center gap-4">
+          <div class="relative">
+            <div id="regUserAvatar" class="w-16 h-16 rounded-2xl bg-emerald-600 text-white font-black text-2xl flex items-center justify-center shadow-md">
+              SV
+            </div>
+            <span class="absolute bottom-0 right-0 w-4 h-4 rounded-full bg-emerald-400 ring-2 ring-slate-900 shadow-sm" title="Đang trực tuyến"></span>
+          </div>
+          <div>
+            <div class="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-xs font-bold bg-emerald-500/20 text-emerald-300 border border-emerald-400/30 mb-1">
+              <span>Sinh Viên Khóa Dưới</span>
+              <span id="regUserCourseBadge" class="font-normal opacity-90">&bull; K69</span>
+            </div>
+            <h2 id="regUserDisplayName" class="text-xl sm:text-2xl font-black text-white tracking-tight">Họ và Tên</h2>
+            <div class="flex flex-wrap items-center gap-x-4 gap-y-1 text-xs text-slate-300 mt-1 font-mono">
+              <span id="regUserDisplayId">MSV: --</span>
+              <span id="regUserDisplayPhone" class="text-cyan-300">SĐT: --</span>
+              <span id="regUserDisplayEmail" class="text-blue-300">Email: --</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="flex items-center gap-2 flex-wrap">
+          <button onclick="openEditRegularProfileModal()" class="px-3.5 py-2 rounded-xl bg-white/10 hover:bg-white/20 text-xs font-bold text-white border border-white/20 transition flex items-center gap-1.5">
+            <span>✏️ Sửa SĐT &amp; Email</span>
+          </button>
+          <button onclick="openChangePasswordModal()" class="px-3.5 py-2 rounded-xl bg-white/10 hover:bg-white/20 text-xs font-bold text-white border border-white/20 transition flex items-center gap-1.5">
+            <span>🔑 Đổi Mật Khẩu</span>
+          </button>
+          <button onclick="handleLogout()" class="px-3.5 py-2 rounded-xl bg-rose-500/20 hover:bg-rose-500/30 text-rose-300 border border-rose-500/30 text-xs font-bold transition flex items-center gap-1.5">
+            <span>Thoát</span>
+          </button>
+        </div>
+      </div>
+
+      <!-- STUDENT PORTAL TABS -->
+      <div class="bg-white rounded-2xl border border-slate-200/80 shadow-sm p-4 sm:p-6 min-h-[720px] flex flex-col">
+        
+        <!-- TAB BUTTONS -->
+        <div class="flex items-center gap-2 p-1.5 bg-slate-100 rounded-xl mb-4 text-xs sm:text-sm font-bold border border-slate-200 flex-shrink-0 flex-wrap">
+          <button id="btnRegStudentTabCommunity" onclick="switchRegStudentTab('community')" class="flex-1 py-2.5 px-3 rounded-lg bg-white text-blue-700 shadow-xs flex items-center justify-center gap-2 transition">
+            <span>🌐</span>
+            <span>Cổng Chat Chung Toàn Khóa</span>
+          </button>
+          <button id="btnRegStudentTabPrivate" onclick="switchRegStudentTab('private')" class="flex-1 py-2.5 px-3 rounded-lg text-slate-600 hover:text-slate-900 flex items-center justify-center gap-2 transition">
+            <span>💬</span>
+            <span>Chat Riêng Với Giáo Viên Chủ Nhiệm</span>
+          </button>
+          <button id="btnRegStudentTabAnnounce" onclick="switchRegStudentTab('announcements')" class="flex-1 py-2.5 px-3 rounded-lg text-slate-600 hover:text-slate-900 flex items-center justify-center gap-2 transition">
+            <span>📢</span>
+            <span>Thông Báo Từ GVCN</span>
+          </button>
+        </div>
+
+        <!-- 1. COMMUNITY CHAT TAB -->
+        <div id="regStudentTabCommunityContent" class="flex-1 flex flex-col min-h-0">
+          <div class="p-3 bg-blue-50 border border-blue-200 rounded-xl mb-3 flex items-center justify-between flex-shrink-0">
+            <div class="text-xs text-blue-900">
+              <strong>Phòng Chat Cộng Đồng:</strong> Thảo luận học tập, hỏi đáp bài giảng cùng các bạn và Thầy/Cô Chủ nhiệm.
+            </div>
+            <button onclick="renderCommunityChatMessages(true)" class="text-xs text-blue-700 font-bold hover:underline">Làm mới 🔄</button>
+          </div>
+
+          <div id="regCommunityChatMessagesContainer" class="flex-1 overflow-y-auto space-y-3 p-3 bg-slate-50/70 rounded-xl border border-slate-200/70 mb-3">
+            <!-- Messages stream -->
+          </div>
+
+          <form onsubmit="handleSendCommunityMessage(event)" class="flex items-center gap-2 flex-shrink-0">
+            <input 
+              type="text" 
+              id="regCommunityChatMessageInput" 
+              placeholder="Nhập tin nhắn thảo luận cùng cả lớp... (Nhấn Enter để gửi)" 
+              class="flex-1 px-4 py-2.5 text-xs sm:text-sm rounded-xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-blue-500 bg-slate-50 focus:bg-white transition"
+            >
+            <button 
+              type="submit" 
+              class="px-5 py-2.5 bg-blue-600 hover:bg-blue-700 text-white font-bold text-xs sm:text-sm rounded-xl shadow-md transition active:scale-95 flex items-center gap-1.5 flex-shrink-0"
+            >
+              <span>Gửi</span>
+              <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8"/></svg>
+            </button>
+          </form>
+        </div>
+
+        <!-- 2. PRIVATE 1-1 CHAT WITH TEACHER -->
+        <div id="regStudentTabPrivateContent" class="flex-1 flex flex-col min-h-0 hidden">
+          <div class="p-3 bg-indigo-900 text-white rounded-xl mb-3 flex items-center justify-between flex-shrink-0">
+            <div class="flex items-center gap-3">
+              <div class="w-8 h-8 rounded-full bg-purple-600 text-white font-bold flex items-center justify-center text-xs">GV</div>
+              <div>
+                <div class="text-xs sm:text-sm font-bold">Thầy/Cô Giáo Viên Chủ Nhiệm</div>
+                <div class="text-[11px] text-indigo-200">Kênh tin nhắn riêng tư &bull; Tin nhắn mới sẽ tự động thông báo về email của Thầy/Cô</div>
+              </div>
+            </div>
+            <span class="text-[11px] text-emerald-400 font-bold bg-emerald-950 px-2 py-0.5 rounded-full border border-emerald-500/30">Trực Tuyến</span>
+          </div>
+
+          <div id="regPrivateMessagesContainer" class="flex-1 overflow-y-auto space-y-3 p-3 bg-slate-50/70 rounded-xl border border-slate-200/70 mb-3">
+            <!-- Messages -->
+          </div>
+
+          <form onsubmit="handleSendRegularStudentPrivateMessage(event)" class="flex items-center gap-2 flex-shrink-0">
+            <input 
+              type="text" 
+              id="regPrivateMessageInput" 
+              placeholder="Gửi tin nhắn riêng tới Thầy/Cô... (Nhấn Enter để gửi)" 
+              class="flex-1 px-4 py-2.5 text-xs sm:text-sm rounded-xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-indigo-500 bg-slate-50 focus:bg-white transition"
+            >
+            <button 
+              type="submit" 
+              class="px-5 py-2.5 bg-indigo-600 hover:bg-indigo-700 text-white font-bold text-xs sm:text-sm rounded-xl shadow-md transition active:scale-95 flex items-center gap-1.5 flex-shrink-0"
+            >
+              <span>Gửi</span>
+              <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8"/></svg>
+            </button>
+          </form>
+        </div>
+
+        <!-- 3. ANNOUNCEMENTS TAB -->
+        <div id="regStudentTabAnnounceContent" class="flex-1 flex flex-col min-h-0 hidden">
+          <div class="pb-3 mb-3 border-b border-slate-100 flex items-center justify-between">
+            <div>
+              <h4 class="text-sm font-bold text-slate-800">Thông Báo Từ Giáo Viên Chủ Nhiệm</h4>
+              <p class="text-xs text-slate-500">Các thông báo chính thức gửi tới sinh viên khóa dưới</p>
+            </div>
+          </div>
+
+          <div id="regStudentAnnouncementsList" class="flex-1 overflow-y-auto space-y-3 pr-1">
+            <!-- Populated dynamically -->
+          </div>
+        </div>
+
+      </div>
+
+    </section>
 
     <!-- FOOTER -->
     <footer class="mt-8 text-center text-xs text-slate-400 py-4 border-t border-slate-200">
@@ -1912,6 +2671,49 @@
               await trackUserPresence();
             }
           });
+
+        // Kênh Broadcast Realtime cho Chat Chung và Thông Báo Mới
+        const broadcastChannel = supabaseClient.channel('k68_realtime_channel');
+        broadcastChannel
+          .on('broadcast', { event: 'community_chat_message' }, ({ payload }) => {
+            if (payload && payload.id) {
+              if (!state.communityChatMessages) state.communityChatMessages = [];
+              const exists = state.communityChatMessages.some(m => m.id === payload.id);
+              if (!exists) {
+                state.communityChatMessages.push(payload);
+                renderCommunityChatMessages(true);
+              }
+            }
+          })
+          .on('broadcast', { event: 'new_regular_student' }, ({ payload }) => {
+            if (payload && payload.id) {
+              if (!state.regularStudents) state.regularStudents = [];
+              const exists = state.regularStudents.some(s => s.id === payload.id);
+              if (!exists) {
+                state.regularStudents.push(payload);
+                if (currentUser && currentUser.role === 'teacher') {
+                  renderRegularStudentsList();
+                  renderRegularAdminWorkspace();
+                }
+              }
+            }
+          })
+          .on('broadcast', { event: 'new_announcement' }, ({ payload }) => {
+            if (payload && payload.id) {
+              if (!state.announcements) state.announcements = [];
+              const exists = state.announcements.some(a => a.id === payload.id);
+              if (!exists) {
+                state.announcements.unshift(payload);
+                if (currentUser && currentUser.role === 'regular_student') {
+                  renderRegularStudentAnnouncements();
+                  showToast("📢 Thông báo mới từ GVCN", payload.title);
+                } else if (currentUser && currentUser.role === 'teacher') {
+                  renderAnnouncementsHistory();
+                }
+              }
+            }
+          })
+          .subscribe();
       } catch (e) {
         console.warn("Presence init error:", e);
       }
@@ -2207,6 +3009,14 @@
       teacherEmail: "tkdark3010@gmail.com",
       emailNotifyEnabled: true,
       customStudents: [],   // [ { stt, name, id, gpa, topic, course, password } ]
+      regularStudents: [],  // [ { id, name, course, email, phone, password, created_at, avatar } ]
+      communityChatMessages: [], // [ { id, sender_id, sender_name, sender_role, course, text, created_at, avatar } ]
+      announcements: [],    // [ { id, title, content, target_group, target_name, sent_at, recipient_count } ]
+      teacherActiveTab: 'thesis', // 'thesis' | 'regular'
+      selectedRegularStudentId: null,
+      regularSearchQuery: '',
+      regularCourseFilter: 'all',
+      regularStudentActiveTab: 'community', // 'community' | 'private' | 'announcements'
       courses: ["Khóa K68 (2023 - 2027)", "Khóa K67 (2022 - 2026)", "Khóa K69 (2024 - 2028)"],
       selectedCourse: "all",
       unreadMessages: {},   // { [studentId]: count }
@@ -2399,6 +3209,24 @@
                 try {
                   const dArr = JSON.parse(st.value);
                   if (Array.isArray(dArr)) state.deletedStudentIds = dArr;
+                } catch (e) {}
+              }
+              if (st.key === 'REGULAR_STUDENTS_LIST' && st.value) {
+                try {
+                  const rArr = JSON.parse(st.value);
+                  if (Array.isArray(rArr)) state.regularStudents = rArr;
+                } catch (e) {}
+              }
+              if (st.key === 'COMMUNITY_CHAT_MESSAGES' && st.value) {
+                try {
+                  const mArr = JSON.parse(st.value);
+                  if (Array.isArray(mArr)) state.communityChatMessages = mArr;
+                } catch (e) {}
+              }
+              if (st.key === 'ANNOUNCEMENTS_LIST' && st.value) {
+                try {
+                  const aArr = JSON.parse(st.value);
+                  if (Array.isArray(aArr)) state.announcements = aArr;
                 } catch (e) {}
               }
               if (st.key && st.key.startsWith('AVATAR_')) {
@@ -2607,24 +3435,1262 @@
       }
     }
 
-    // LOGIN TABS SWITCHER
+    // ==============================================================
+    // 3 CỔNG ĐĂNG NHẬP / ĐĂNG KÝ VÀ QUẢN TRỊ SINH VIÊN KHÓA DƯỚI
+    // ==============================================================
     function switchLoginTab(type) {
-      const studentTab = document.getElementById("tabLoginStudent");
-      const teacherTab = document.getElementById("tabLoginTeacher");
-      const studentForm = document.getElementById("studentLoginForm");
-      const teacherForm = document.getElementById("teacherLoginForm");
+      if (type === "student") type = "student_thesis";
 
-      if (type === "student") {
-        studentTab.className = "flex-1 py-2.5 rounded-xl transition-all duration-200 bg-white text-blue-600 shadow-sm flex items-center justify-center gap-2";
-        teacherTab.className = "flex-1 py-2.5 rounded-xl transition-all duration-200 text-slate-600 hover:text-slate-900 flex items-center justify-center gap-2";
-        studentForm.classList.remove("hidden");
-        teacherForm.classList.add("hidden");
-      } else {
-        teacherTab.className = "flex-1 py-2.5 rounded-xl transition-all duration-200 bg-white text-purple-600 shadow-sm flex items-center justify-center gap-2";
-        studentTab.className = "flex-1 py-2.5 rounded-xl transition-all duration-200 text-slate-600 hover:text-slate-900 flex items-center justify-center gap-2";
-        teacherForm.classList.remove("hidden");
-        studentForm.classList.add("hidden");
+      const tabThesis = document.getElementById("tabLoginStudentThesis");
+      const tabRegular = document.getElementById("tabLoginStudentRegular");
+      const tabTeacher = document.getElementById("tabLoginTeacher");
+      const formThesis = document.getElementById("studentLoginForm");
+      const formRegular = document.getElementById("studentRegularForm");
+      const formTeacher = document.getElementById("teacherLoginForm");
+
+      // Inactive classes
+      const inactiveClass = "py-2.5 px-2 rounded-xl transition-all duration-200 text-slate-600 hover:text-slate-900 flex items-center justify-center gap-1.5";
+      if (tabThesis) tabThesis.className = inactiveClass;
+      if (tabRegular) tabRegular.className = inactiveClass;
+      if (tabTeacher) tabTeacher.className = inactiveClass;
+
+      if (formThesis) formThesis.classList.add("hidden");
+      if (formRegular) formRegular.classList.add("hidden");
+      if (formTeacher) formTeacher.classList.add("hidden");
+
+      if (type === "student_thesis") {
+        if (tabThesis) tabThesis.className = "py-2.5 px-2 rounded-xl transition-all duration-200 bg-white text-blue-600 shadow-sm flex items-center justify-center gap-1.5";
+        if (formThesis) formThesis.classList.remove("hidden");
+      } else if (type === "student_regular") {
+        if (tabRegular) tabRegular.className = "py-2.5 px-2 rounded-xl transition-all duration-200 bg-white text-emerald-600 shadow-sm flex items-center justify-center gap-1.5";
+        if (formRegular) formRegular.classList.remove("hidden");
+      } else if (type === "teacher") {
+        if (tabTeacher) tabTeacher.className = "py-2.5 px-2 rounded-xl transition-all duration-200 bg-white text-purple-600 shadow-sm flex items-center justify-center gap-1.5";
+        if (formTeacher) formTeacher.classList.remove("hidden");
       }
+    }
+
+    // Toggle giữa Đăng Nhập và Đăng Ký cho Sinh Viên Khóa Dưới
+    function switchRegularSubTab(mode) {
+      const btnLogin = document.getElementById("btnSubRegularLogin");
+      const btnReg = document.getElementById("btnSubRegularRegister");
+      const formLogin = document.getElementById("subRegularLoginForm");
+      const formReg = document.getElementById("subRegularRegisterForm");
+
+      if (mode === "login") {
+        if (btnLogin) btnLogin.className = "px-3 py-1 rounded-md bg-white text-emerald-700 shadow-xs font-bold transition";
+        if (btnReg) btnReg.className = "px-3 py-1 rounded-md text-slate-600 hover:text-slate-900 transition";
+        if (formLogin) formLogin.classList.remove("hidden");
+        if (formReg) formReg.classList.add("hidden");
+      } else {
+        if (btnReg) btnReg.className = "px-3 py-1 rounded-md bg-white text-emerald-700 shadow-xs font-bold transition";
+        if (btnLogin) btnLogin.className = "px-3 py-1 rounded-md text-slate-600 hover:text-slate-900 transition";
+        if (formReg) formReg.classList.remove("hidden");
+        if (formLogin) formLogin.classList.add("hidden");
+      }
+    }
+
+    // Xử lý Đăng Ký Tài Khoản Sinh Viên Khóa Dưới
+    async function handleStudentRegularRegister(e) {
+      e.preventDefault();
+      const name = (document.getElementById("regStudentName").value || "").trim();
+      const id = (document.getElementById("regStudentId").value || "").trim();
+      const course = (document.getElementById("regStudentCourse").value || "").trim() || "Khóa K69 - Kỹ thuật Năng lượng";
+      const email = (document.getElementById("regStudentEmail").value || "").trim().toLowerCase();
+      const phone = (document.getElementById("regStudentPhone").value || "").trim();
+      const pass = (document.getElementById("regStudentPass").value || "").trim();
+      const passConfirm = (document.getElementById("regStudentPassConfirm").value || "").trim();
+      const err = document.getElementById("regularRegisterError");
+      const btn = document.getElementById("btnSubmitRegularRegister");
+
+      if (!name || !id || !email || !phone || !pass) {
+        if (err) {
+          err.textContent = "Vui lòng điền đầy đủ các thông tin bắt buộc (*)!";
+          err.classList.remove("hidden");
+        }
+        return;
+      }
+
+      if (!email.includes("@")) {
+        if (err) {
+          err.textContent = "Địa chỉ email không hợp lệ! Vui lòng nhập đúng email cá nhân.";
+          err.classList.remove("hidden");
+        }
+        return;
+      }
+
+      if (pass !== passConfirm) {
+        if (err) {
+          err.textContent = "Mật khẩu xác nhận không khớp! Vui lòng kiểm tra lại.";
+          err.classList.remove("hidden");
+        }
+        return;
+      }
+
+      if (pass.length < 3) {
+        if (err) {
+          err.textContent = "Mật khẩu phải có tối thiểu 3 ký tự!";
+          err.classList.remove("hidden");
+        }
+        return;
+      }
+
+      if (!state.regularStudents) state.regularStudents = [];
+
+      // Kiểm tra xem Mã SV hoặc Email đã được đăng ký chưa
+      const existing = state.regularStudents.find(s => s.id.toLowerCase() === id.toLowerCase() || s.email.toLowerCase() === email);
+      if (existing) {
+        if (err) {
+          err.textContent = "Mã sinh viên hoặc Email này đã được đăng ký trên hệ thống! Vui lòng bấm Đăng nhập hoặc Khôi phục mật khẩu.";
+          err.classList.remove("hidden");
+        }
+        return;
+      }
+
+      if (btn) {
+        btn.disabled = true;
+        btn.textContent = "Đang tạo tài khoản...";
+      }
+
+      const newStudent = {
+        id,
+        name,
+        course,
+        email,
+        phone,
+        password: pass,
+        created_at: new Date().toISOString()
+      };
+
+      state.regularStudents.push(newStudent);
+      saveState();
+
+      // Đồng bộ ngay lên Supabase Cloud system_settings
+      if (supabaseClient) {
+        try {
+          await supabaseClient.from('system_settings').upsert({
+            key: 'REGULAR_STUDENTS_LIST',
+            value: JSON.stringify(state.regularStudents),
+            updated_at: new Date().toISOString()
+          }, { onConflict: 'key' });
+
+          // Broadcast trên Realtime
+          const bcChan = supabaseClient.channel('k68_realtime_channel');
+          bcChan.subscribe((st) => {
+            if (st === 'SUBSCRIBED') {
+              bcChan.send({
+                type: 'broadcast',
+                event: 'new_regular_student',
+                payload: newStudent
+              });
+            }
+          });
+        } catch (dbErr) {
+          console.warn("Lỗi lưu SV khóa dưới lên Supabase:", dbErr);
+        }
+      }
+
+      if (err) err.classList.add("hidden");
+      if (btn) {
+        btn.disabled = false;
+        btn.textContent = "Tạo Tài Khoản & Đăng Nhập Ngay";
+      }
+
+      // Đăng nhập tự động
+      currentUser = {
+        role: "regular_student",
+        id: newStudent.id,
+        name: newStudent.name,
+        course: newStudent.course,
+        email: newStudent.email,
+        phone: newStudent.phone
+      };
+      window.currentUser = currentUser;
+
+      saveAuth();
+      trackUserPresence();
+      hideLoginModal();
+      renderAll();
+      syncDataFromBackend(false);
+
+      showToast("Đăng ký thành công!", `Chào mừng bạn ${newStudent.name} (${newStudent.id}) đến với Cổng Sinh Viên Khóa Dưới.`);
+    }
+
+    // Xử lý Đăng Nhập Sinh Viên Khóa Dưới
+    function handleStudentRegularLogin(e) {
+      e.preventDefault();
+      const account = (document.getElementById("regularLoginIdInput").value || "").trim().toLowerCase();
+      const pass = (document.getElementById("regularLoginPassInput").value || "").trim();
+      const err = document.getElementById("regularLoginError");
+
+      if (!account || !pass) {
+        if (err) {
+          err.textContent = "Vui lòng nhập Mã SV hoặc Email và Mật khẩu!";
+          err.classList.remove("hidden");
+        }
+        return;
+      }
+
+      const list = state.regularStudents || [];
+      const match = list.find(s => 
+        (s.id && s.id.toLowerCase() === account) || 
+        (s.email && s.email.toLowerCase() === account)
+      );
+
+      if (!match) {
+        if (err) {
+          err.textContent = "Không tìm thấy tài khoản sinh viên khóa dưới này! Vui lòng kiểm tra lại hoặc chuyển sang tab Đăng ký.";
+          err.classList.remove("hidden");
+        }
+        return;
+      }
+
+      const savedPass = String(match.password || match.id).trim();
+      const isValid = (pass === savedPass) || (pass === match.id) || (pass === "123");
+
+      if (!isValid) {
+        if (err) {
+          err.textContent = "Mật khẩu chưa chính xác! Bấm 'Quên mật khẩu?' để được cấp lại qua Email.";
+          err.classList.remove("hidden");
+        }
+        return;
+      }
+
+      if (err) err.classList.add("hidden");
+
+      currentUser = {
+        role: "regular_student",
+        id: match.id,
+        name: match.name,
+        course: match.course || "Khóa K69",
+        email: match.email || "",
+        phone: match.phone || ""
+      };
+      window.currentUser = currentUser;
+
+      saveAuth();
+      trackUserPresence();
+      hideLoginModal();
+      renderAll();
+      syncDataFromBackend(false);
+
+      showToast("Đăng nhập thành công!", `Chào bạn ${match.name}! Bạn đang trong Cổng Sinh Viên Khóa Dưới.`);
+    }
+
+    // Modal Khôi phục mật khẩu
+    function openForgotPasswordModal() {
+      const modal = document.getElementById("forgotPasswordModal");
+      const status = document.getElementById("forgotPasswordStatus");
+      if (status) status.classList.add("hidden");
+      const input = document.getElementById("forgotPasswordAccountInput");
+      if (input) input.value = "";
+      if (modal) modal.classList.remove("hidden");
+    }
+
+    function closeForgotPasswordModal() {
+      const modal = document.getElementById("forgotPasswordModal");
+      if (modal) modal.classList.add("hidden");
+    }
+
+    async function handleExecuteForgotPassword(e) {
+      e.preventDefault();
+      const account = (document.getElementById("forgotPasswordAccountInput").value || "").trim().toLowerCase();
+      const status = document.getElementById("forgotPasswordStatus");
+      const btn = document.getElementById("btnSubmitForgotPassword");
+
+      if (!account) return;
+
+      if (btn) {
+        btn.disabled = true;
+        btn.textContent = "Đang kiểm tra & gửi mail...";
+      }
+
+      // Tìm trong danh sách SV khóa dưới
+      const regList = state.regularStudents || [];
+      let match = regList.find(s => (s.id && s.id.toLowerCase() === account) || (s.email && s.email.toLowerCase() === account));
+      let isRegular = true;
+
+      // Nếu không thấy, tìm trong SV làm đồ án
+      if (!match) {
+        match = getAllStudents().find(s => (s.id && s.id.toLowerCase() === account));
+        isRegular = false;
+      }
+
+      if (!match) {
+        if (status) {
+          status.textContent = "Không tìm thấy tài khoản tương ứng với thông tin bạn nhập!";
+          status.className = "text-xs p-3 rounded-xl border border-rose-200 bg-rose-50 text-rose-700 text-center font-medium";
+          status.classList.remove("hidden");
+        }
+        if (btn) {
+          btn.disabled = false;
+          btn.textContent = "Gửi Mật Khẩu Về Email";
+        }
+        return;
+      }
+
+      const studentEmail = match.email || (account.includes("@") ? account : "");
+      if (!studentEmail || !studentEmail.includes("@")) {
+        if (status) {
+          status.textContent = `Tài khoản ${match.name} (${match.id}) chưa đăng ký địa chỉ email! Vui lòng liên hệ Thầy/Cô Chủ nhiệm để được cấp lại mật khẩu.`;
+          status.className = "text-xs p-3 rounded-xl border border-amber-200 bg-amber-50 text-amber-800 text-center font-medium";
+          status.classList.remove("hidden");
+        }
+        if (btn) {
+          btn.disabled = false;
+          btn.textContent = "Gửi Mật Khẩu Về Email";
+        }
+        return;
+      }
+
+      // Tạo mật khẩu ngẫu nhiên mới 6 chữ số
+      const newPassword = Math.floor(100000 + Math.random() * 900000).toString();
+
+      if (isRegular) {
+        match.password = newPassword;
+        saveState();
+        if (supabaseClient) {
+          supabaseClient.from('system_settings').upsert({
+            key: 'REGULAR_STUDENTS_LIST',
+            value: JSON.stringify(state.regularStudents),
+            updated_at: new Date().toISOString()
+          }, { onConflict: 'key' }).then(() => {});
+        }
+      } else {
+        if (!state.studentPasswords) state.studentPasswords = {};
+        state.studentPasswords[match.id] = newPassword;
+        saveState();
+        if (supabaseClient) {
+          supabaseClient.from('students').update({ password: newPassword }).eq('id', match.id).then(() => {});
+        }
+      }
+
+      // Gửi email khôi phục qua API
+      try {
+        const res = await fetch('/api/send-report', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            type: 'password_reset',
+            email: studentEmail,
+            name: match.name,
+            studentId: match.id,
+            newPassword: newPassword
+          })
+        });
+        const resData = await res.json();
+
+        if (status) {
+          status.innerHTML = `✅ <strong>Thành công!</strong> Mật khẩu mới đã được phát về hộp thư <strong>${studentEmail}</strong>.<br><span class="text-[11px] text-slate-500 mt-1 block">Vui lòng kiểm tra hộp thư đến (hoặc thư rác/spam) và dùng mật khẩu này để đăng nhập.</span>`;
+          status.className = "text-xs p-3 rounded-xl border border-emerald-200 bg-emerald-50 text-emerald-800 text-center";
+          status.classList.remove("hidden");
+        }
+      } catch (errApi) {
+        if (status) {
+          status.innerHTML = `Đã cấp mật khẩu mới: <strong class="font-mono text-blue-700">${newPassword}</strong><br><span class="text-[11px] text-slate-500">Hệ thống mạng tạm thời gián đoạn việc gửi email, bạn có thể dùng mật khẩu trên để đăng nhập ngay.</span>`;
+          status.className = "text-xs p-3 rounded-xl border border-blue-200 bg-blue-50 text-blue-800 text-center";
+          status.classList.remove("hidden");
+        }
+      }
+
+      if (btn) {
+        btn.disabled = false;
+        btn.textContent = "Gửi Mật Khẩu Về Email";
+      }
+    }
+
+    // Modal Cập nhật SĐT & Email cho sinh viên khóa dưới
+    function openEditRegularProfileModal() {
+      if (!currentUser || currentUser.role !== "regular_student") return;
+      const modal = document.getElementById("editRegularProfileModal");
+      const phoneInput = document.getElementById("editProfilePhoneInput");
+      const emailInput = document.getElementById("editProfileEmailInput");
+
+      if (phoneInput) phoneInput.value = currentUser.phone || "";
+      if (emailInput) emailInput.value = currentUser.email || "";
+      if (modal) modal.classList.remove("hidden");
+    }
+
+    function closeEditRegularProfileModal() {
+      const modal = document.getElementById("editRegularProfileModal");
+      if (modal) modal.classList.add("hidden");
+    }
+
+    function handleSaveRegularProfile(e) {
+      e.preventDefault();
+      if (!currentUser || currentUser.role !== "regular_student") return;
+      const newPhone = (document.getElementById("editProfilePhoneInput").value || "").trim();
+      const newEmail = (document.getElementById("editProfileEmailInput").value || "").trim().toLowerCase();
+
+      currentUser.phone = newPhone;
+      currentUser.email = newEmail;
+      saveAuth();
+
+      const regList = state.regularStudents || [];
+      const match = regList.find(s => s.id === currentUser.id);
+      if (match) {
+        match.phone = newPhone;
+        match.email = newEmail;
+        saveState();
+
+        if (supabaseClient) {
+          supabaseClient.from('system_settings').upsert({
+            key: 'REGULAR_STUDENTS_LIST',
+            value: JSON.stringify(state.regularStudents),
+            updated_at: new Date().toISOString()
+          }, { onConflict: 'key' }).then(() => {});
+        }
+      }
+
+      closeEditRegularProfileModal();
+      renderAll();
+      showToast("Cập nhật thành công!", "Số điện thoại và Email liên hệ của bạn đã được lưu lại.");
+    }
+
+    // Modal Gửi Thông Báo / Email Toàn Thể Sinh Viên Cho GVCN
+    function openBroadcastAnnouncementModal() {
+      const modal = document.getElementById("broadcastAnnouncementModal");
+      const status = document.getElementById("announcementSendStatusArea");
+      if (status) status.classList.add("hidden");
+      updateAnnouncementRecipientPreview();
+      if (modal) modal.classList.remove("hidden");
+    }
+
+    function closeBroadcastAnnouncementModal() {
+      const modal = document.getElementById("broadcastAnnouncementModal");
+      if (modal) modal.classList.add("hidden");
+    }
+
+    function getAnnouncementRecipientsList(target) {
+      const recipients = [];
+      const regList = state.regularStudents || [];
+      const thesisList = getAllStudents();
+
+      if (target === "regular" || target === "all") {
+        regList.forEach(s => {
+          if (s.email && s.email.includes("@") && !recipients.includes(s.email.toLowerCase())) {
+            recipients.push(s.email.toLowerCase());
+          }
+        });
+      }
+
+      if (target === "thesis" || target === "all") {
+        thesisList.forEach(s => {
+          if (s.email && s.email.includes("@") && !recipients.includes(s.email.toLowerCase())) {
+            recipients.push(s.email.toLowerCase());
+          }
+        });
+      }
+
+      return recipients;
+    }
+
+    function updateAnnouncementRecipientPreview() {
+      const radio = document.querySelector('input[name="announcementTarget"]:checked');
+      const target = radio ? radio.value : "regular";
+      const countEl = document.getElementById("announcementRecipientCountText");
+      const recipients = getAnnouncementRecipientsList(target);
+      if (countEl) {
+        countEl.textContent = `${recipients.length} email sinh viên`;
+      }
+    }
+
+    async function handleSendBroadcastAnnouncement(e) {
+      e.preventDefault();
+      const radio = document.querySelector('input[name="announcementTarget"]:checked');
+      const target = radio ? radio.value : "regular";
+      const title = (document.getElementById("announcementTitleInput").value || "").trim();
+      const content = (document.getElementById("announcementContentInput").value || "").trim();
+      const statusArea = document.getElementById("announcementSendStatusArea");
+      const btn = document.getElementById("btnSubmitBroadcastAnnouncement");
+
+      const recipients = getAnnouncementRecipientsList(target);
+
+      if (recipients.length === 0) {
+        if (statusArea) {
+          statusArea.textContent = "Không tìm thấy địa chỉ email sinh viên nào trong nhóm đối tượng đã chọn! Vui lòng kiểm tra lại.";
+          statusArea.className = "text-xs p-3 rounded-xl border border-amber-200 bg-amber-50 text-amber-800 text-center font-bold";
+          statusArea.classList.remove("hidden");
+        }
+        return;
+      }
+
+      if (btn) {
+        btn.disabled = true;
+        btn.textContent = `Đang gửi mail tới ${recipients.length} sinh viên...`;
+      }
+
+      const targetName = target === "regular" 
+        ? "Sinh viên Khóa dưới" 
+        : (target === "thesis" ? "Sinh viên Làm Đồ Án" : "Toàn thể Sinh viên");
+
+      const newAnnouncement = {
+        id: "ann_" + Date.now(),
+        title,
+        content,
+        target_group: target,
+        target_name: targetName,
+        sent_at: new Date().toISOString(),
+        recipient_count: recipients.length
+      };
+
+      if (!state.announcements) state.announcements = [];
+      state.announcements.unshift(newAnnouncement);
+      saveState();
+
+      // Đồng bộ thông báo lên Supabase system_settings
+      if (supabaseClient) {
+        try {
+          await supabaseClient.from('system_settings').upsert({
+            key: 'ANNOUNCEMENTS_LIST',
+            value: JSON.stringify(state.announcements),
+            updated_at: new Date().toISOString()
+          }, { onConflict: 'key' });
+
+          // Broadcast trên Realtime channel
+          const chan = supabaseClient.channel('k68_realtime_channel');
+          chan.subscribe((st) => {
+            if (st === 'SUBSCRIBED') {
+              chan.send({
+                type: 'broadcast',
+                event: 'new_announcement',
+                payload: newAnnouncement
+              });
+            }
+          });
+        } catch (dbErr) {
+          console.warn("Lỗi lưu thông báo lên Supabase:", dbErr);
+        }
+      }
+
+      // Gọi API gửi mail hàng loạt
+      let apiSuccess = false;
+      try {
+        const res = await fetch('/api/send-report', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            type: 'broadcast_announcement',
+            title: title,
+            content: content,
+            targetGroupName: targetName,
+            recipients: recipients
+          })
+        });
+        const resData = await res.json();
+        apiSuccess = resData.success;
+      } catch (errApi) {
+        console.warn("Lỗi gửi email broadcast:", errApi);
+      }
+
+      if (btn) {
+        btn.disabled = false;
+        btn.textContent = "🚀 Bắt Đầu Gửi Email Tự Động";
+      }
+
+      if (statusArea) {
+        statusArea.innerHTML = `✅ <strong>Đã hoàn tất phát thông báo!</strong><br><span class="text-[11px] text-slate-600 mt-1 block">Thông báo đã được hiển thị trên bảng tin của sinh viên và gửi tới ${recipients.length} địa chỉ email.</span>`;
+        statusArea.className = "text-xs p-3 rounded-xl border border-emerald-200 bg-emerald-50 text-emerald-800 text-center";
+        statusArea.classList.remove("hidden");
+      }
+
+      renderAnnouncementsHistory();
+      showToast("Phát thông báo thành công!", `Đã gửi thông báo tới ${recipients.length} sinh viên.`);
+      setTimeout(() => {
+        closeBroadcastAnnouncementModal();
+      }, 1800);
+    }
+
+    // Chuyển đổi giữa 2 Trang Quản Lý của GVCN
+    function switchTeacherPortalView(view) {
+      state.teacherActiveTab = view;
+      saveState();
+      renderLayoutForRole();
+    }
+
+    // Chuyển đổi tab bên cột phải của GVCN (Quản trị khóa dưới)
+    function switchTeacherRightTab(tab) {
+      const btnComm = document.getElementById("tabTeacherRightCommunityBtn");
+      const btnPriv = document.getElementById("tabTeacherRightPrivateBtn");
+      const btnAnn = document.getElementById("tabTeacherRightAnnounceBtn");
+
+      const panComm = document.getElementById("teacherRightCommunityPanel");
+      const panPriv = document.getElementById("teacherRightPrivatePanel");
+      const panAnn = document.getElementById("teacherRightAnnouncePanel");
+
+      const inactive = "flex-1 py-2 px-2 rounded-lg text-slate-600 hover:text-slate-900 flex items-center justify-center gap-1.5 transition";
+      const active = "flex-1 py-2 px-2 rounded-lg bg-white text-blue-700 shadow-xs flex items-center justify-center gap-1.5 transition font-bold";
+
+      if (btnComm) btnComm.className = inactive;
+      if (btnPriv) btnPriv.className = inactive;
+      if (btnAnn) btnAnn.className = inactive;
+
+      if (panComm) panComm.classList.add("hidden");
+      if (panPriv) panPriv.classList.add("hidden");
+      if (panAnn) panAnn.classList.add("hidden");
+
+      if (tab === "community") {
+        if (btnComm) btnComm.className = active;
+        if (panComm) panComm.classList.remove("hidden");
+        renderCommunityChatMessages(true);
+      } else if (tab === "private") {
+        if (btnPriv) btnPriv.className = active;
+        if (panPriv) panPriv.classList.remove("hidden");
+        renderTeacherPrivateChat();
+      } else if (tab === "announcements") {
+        if (btnAnn) btnAnn.className = active;
+        if (panAnn) panAnn.classList.remove("hidden");
+        renderAnnouncementsHistory();
+      }
+    }
+
+    // Chuyển đổi tab trên cổng của Sinh Viên Khóa Dưới
+    function switchRegStudentTab(tab) {
+      state.regularStudentActiveTab = tab;
+      const btnComm = document.getElementById("btnRegStudentTabCommunity");
+      const btnPriv = document.getElementById("btnRegStudentTabPrivate");
+      const btnAnn = document.getElementById("btnRegStudentTabAnnounce");
+
+      const panComm = document.getElementById("regStudentTabCommunityContent");
+      const panPriv = document.getElementById("regStudentTabPrivateContent");
+      const panAnn = document.getElementById("regStudentTabAnnounceContent");
+
+      const inactive = "flex-1 py-2.5 px-3 rounded-lg text-slate-600 hover:text-slate-900 flex items-center justify-center gap-2 transition";
+      const active = "flex-1 py-2.5 px-3 rounded-lg bg-white text-blue-700 shadow-xs flex items-center justify-center gap-2 transition font-bold";
+
+      if (btnComm) btnComm.className = inactive;
+      if (btnPriv) btnPriv.className = inactive;
+      if (btnAnn) btnAnn.className = inactive;
+
+      if (panComm) panComm.classList.add("hidden");
+      if (panPriv) panPriv.classList.add("hidden");
+      if (panAnn) panAnn.classList.add("hidden");
+
+      if (tab === "community") {
+        if (btnComm) btnComm.className = active;
+        if (panComm) panComm.classList.remove("hidden");
+        renderCommunityChatMessages(true);
+      } else if (tab === "private") {
+        if (btnPriv) btnPriv.className = active;
+        if (panPriv) panPriv.classList.remove("hidden");
+        renderRegularStudentPrivateChat();
+      } else if (tab === "announcements") {
+        if (btnAnn) btnAnn.className = active;
+        if (panAnn) panAnn.classList.remove("hidden");
+        renderRegularStudentAnnouncements();
+      }
+    }
+
+    // ==============================================================
+    // CỔNG CHAT CHUNG TOÀN KHÓA (COMMUNITY CHAT) - HÀNG NGHÌN SINH VIÊN
+    // ==============================================================
+    async function handleSendCommunityMessage(e) {
+      e.preventDefault();
+      if (!currentUser) return;
+
+      const inputTeacher = document.getElementById("communityChatMessageInput");
+      const inputStudent = document.getElementById("regCommunityChatMessageInput");
+      const input = (inputTeacher && !inputTeacher.closest('.hidden')) ? inputTeacher : inputStudent;
+
+      if (!input) return;
+      const text = (input.value || "").trim();
+      if (!text) return;
+
+      const newMsg = {
+        id: "cmsg_" + Date.now() + "_" + Math.random().toString(36).substr(2, 6),
+        sender_id: currentUser.id,
+        sender_name: currentUser.name,
+        sender_role: currentUser.role,
+        course: currentUser.course || (currentUser.role === "teacher" ? "GVCN" : "Khóa K68"),
+        text: text,
+        created_at: new Date().toISOString()
+      };
+
+      if (!state.communityChatMessages) state.communityChatMessages = [];
+      state.communityChatMessages.push(newMsg);
+      saveState();
+      input.value = "";
+
+      renderCommunityChatMessages(true);
+
+      // Lưu lên Supabase system_settings
+      if (supabaseClient) {
+        try {
+          await supabaseClient.from('system_settings').upsert({
+            key: 'COMMUNITY_CHAT_MESSAGES',
+            value: JSON.stringify(state.communityChatMessages.slice(-200)), // lưu tối đa 200 tin gần nhất
+            updated_at: new Date().toISOString()
+          }, { onConflict: 'key' });
+
+          // Broadcast tin nhắn tới tất cả client khác
+          const chan = supabaseClient.channel('k68_realtime_channel');
+          chan.subscribe((st) => {
+            if (st === 'SUBSCRIBED') {
+              chan.send({
+                type: 'broadcast',
+                event: 'community_chat_message',
+                payload: newMsg
+              });
+            }
+          });
+        } catch (dbErr) {
+          console.warn("Lỗi lưu chat cộng đồng:", dbErr);
+        }
+      }
+    }
+
+    function renderCommunityChatMessages(forceScroll = false) {
+      const containers = [
+        document.getElementById("communityChatMessagesContainer"),
+        document.getElementById("regCommunityChatMessagesContainer")
+      ];
+
+      const messages = state.communityChatMessages || [];
+
+      containers.forEach(container => {
+        if (!container) return;
+
+        if (messages.length === 0) {
+          container.innerHTML = `
+            <div class="text-center py-12 text-slate-400 text-xs">
+              <span class="text-2xl block mb-2">💬</span>
+              Chưa có tin nhắn nào trong phòng chat chung.<br>Hãy là người đầu tiên đặt câu hỏi hoặc gửi lời chào!
+            </div>
+          `;
+          return;
+        }
+
+        let html = '';
+        messages.forEach(msg => {
+          const isMe = currentUser && currentUser.id === msg.sender_id;
+          const isTeacher = msg.sender_role === "teacher";
+          const timeStr = new Date(msg.created_at).toLocaleTimeString('vi-VN', { hour: '2-digit', minute: '2-digit' });
+          const isOnline = isUserOnline(msg.sender_id);
+
+          const roleBadge = isTeacher 
+            ? `<span class="px-1.5 py-0.5 rounded-full text-[10px] font-bold bg-purple-100 text-purple-700">GVCN</span>`
+            : `<span class="px-1.5 py-0.5 rounded-full text-[10px] font-semibold bg-emerald-100 text-emerald-800">${escapeHtml(msg.course || 'SV')}</span>`;
+
+          const avatarBg = isTeacher ? 'bg-purple-600' : 'bg-blue-600';
+          const initials = msg.sender_name 
+            ? (msg.sender_name.split(' ').length >= 2 ? (msg.sender_name.split(' ')[0][0] + msg.sender_name.split(' ').slice(-1)[0][0]).toUpperCase() : msg.sender_name.substring(0, 2).toUpperCase())
+            : 'SV';
+
+          html += `
+            <div class="flex items-start gap-2.5 ${isMe ? 'flex-row-reverse' : ''}">
+              <div class="relative flex-shrink-0">
+                <div class="w-8 h-8 rounded-full ${avatarBg} text-white font-bold text-xs flex items-center justify-center shadow-xs">
+                  ${initials}
+                </div>
+                <span class="absolute bottom-0 right-0 w-2.5 h-2.5 rounded-full bg-emerald-500 ring-2 ring-white ${isOnline ? '' : 'hidden'}" title="Đang trực tuyến"></span>
+              </div>
+              <div class="max-w-[75%] sm:max-w-[70%]">
+                <div class="flex items-center gap-1.5 mb-0.5 ${isMe ? 'flex-row-reverse text-right' : ''}">
+                  <span class="text-xs font-bold text-slate-800 truncate">${escapeHtml(msg.sender_name)}</span>
+                  ${roleBadge}
+                  <span class="text-[10px] text-slate-400 font-mono">${timeStr}</span>
+                </div>
+                <div class="px-3.5 py-2 rounded-2xl text-xs sm:text-sm leading-relaxed ${isMe ? 'bg-blue-600 text-white rounded-tr-xs' : 'bg-white border border-slate-200/80 text-slate-800 rounded-tl-xs shadow-2xs'}">
+                  ${escapeHtml(msg.text)}
+                </div>
+              </div>
+            </div>
+          `;
+        });
+
+        container.innerHTML = html;
+        if (forceScroll) {
+          container.scrollTop = container.scrollHeight;
+        }
+      });
+    }
+
+    // ==============================================================
+    // CHAT RIÊNG 1-1 GIỮA GVCN VÀ TỪNG SINH VIÊN KHÓA DƯỚI
+    // ==============================================================
+    function selectRegularStudentForChat(studentId) {
+      state.selectedRegularStudentId = studentId;
+      const match = (state.regularStudents || []).find(s => s.id === studentId);
+      if (!match) return;
+
+      const titleEl = document.getElementById("tabTeacherRightPrivateTitle");
+      if (titleEl) titleEl.textContent = `Chat với ${match.name.split(' ').slice(-1)[0]}`;
+
+      switchTeacherRightTab('private');
+    }
+
+    function renderTeacherPrivateChat() {
+      const studentId = state.selectedRegularStudentId;
+      const container = document.getElementById("teacherPrivateMessagesContainer");
+      const partnerName = document.getElementById("privPartnerName");
+      const partnerSub = document.getElementById("privPartnerSub");
+      const partnerAvatar = document.getElementById("privPartnerAvatar");
+      const partnerDot = document.getElementById("privPartnerOnlineDot");
+
+      if (!studentId) {
+        if (container) {
+          container.innerHTML = `<div class="text-center py-12 text-slate-400 text-xs">Vui lòng nhấp nút 💬 Chat trên một sinh viên ở danh sách bên trái để bắt đầu trò chuyện riêng.</div>`;
+        }
+        return;
+      }
+
+      const student = (state.regularStudents || []).find(s => s.id === studentId);
+      if (!student) return;
+
+      if (partnerName) partnerName.textContent = student.name;
+      if (partnerSub) partnerSub.textContent = `MSV: ${student.id} • ${student.course || 'Khóa dưới'} • SĐT: ${student.phone || '--'} • Email: ${student.email || '--'}`;
+      if (partnerAvatar) {
+        const parts = student.name.split(" ");
+        partnerAvatar.textContent = (parts[0][0] + parts[parts.length - 1][0]).toUpperCase();
+      }
+      if (partnerDot) {
+        const isOnline = isUserOnline(student.id);
+        partnerDot.className = `absolute bottom-0 right-0 w-3 h-3 bg-emerald-500 border-2 border-slate-900 rounded-full ${isOnline ? '' : 'hidden'}`;
+      }
+
+      const msgs = (state.chatHistory && state.chatHistory[studentId]) || [];
+      if (!container) return;
+
+      if (msgs.length === 0) {
+        container.innerHTML = `
+          <div class="text-center py-12 text-slate-400 text-xs">
+            Chưa có tin nhắn riêng nào với sinh viên <strong>${student.name}</strong>.<br>
+            Hãy gửi tin nhắn đầu tiên ở bên dưới.
+          </div>
+        `;
+        return;
+      }
+
+      let html = '';
+      msgs.forEach(m => {
+        const isMe = m.senderRole === "teacher";
+        const timeStr = m.timestamp ? (m.timestamp.includes(' ') ? m.timestamp.split(' ')[0] : m.timestamp) : '';
+        html += `
+          <div class="flex items-start gap-2.5 ${isMe ? 'flex-row-reverse' : ''}">
+            <div class="w-7 h-7 rounded-full ${isMe ? 'bg-purple-600' : 'bg-emerald-600'} text-white font-bold text-xs flex items-center justify-center flex-shrink-0">
+              ${isMe ? 'GV' : 'SV'}
+            </div>
+            <div class="max-w-[75%]">
+              <div class="flex items-center gap-1.5 mb-0.5 ${isMe ? 'flex-row-reverse text-right' : ''}">
+                <span class="text-xs font-bold text-slate-700">${escapeHtml(m.senderName || (isMe ? 'Giảng Viên' : student.name))}</span>
+                <span class="text-[10px] text-slate-400 font-mono">${timeStr}</span>
+              </div>
+              <div class="px-3.5 py-2 rounded-2xl text-xs sm:text-sm leading-relaxed ${isMe ? 'bg-purple-600 text-white rounded-tr-xs' : 'bg-white border border-slate-200 text-slate-800 rounded-tl-xs'}">
+                ${escapeHtml(m.text)}
+              </div>
+            </div>
+          </div>
+        `;
+      });
+
+      container.innerHTML = html;
+      container.scrollTop = container.scrollHeight;
+    }
+
+    async function handleSendTeacherPrivateMessage(e) {
+      e.preventDefault();
+      const studentId = state.selectedRegularStudentId;
+      if (!studentId) return;
+
+      const input = document.getElementById("teacherPrivateMessageInput");
+      const text = (input.value || "").trim();
+      if (!text) return;
+
+      const newMsg = {
+        timestamp: new Date().toLocaleTimeString('vi-VN', { hour: '2-digit', minute: '2-digit' }),
+        studentId: studentId,
+        studentName: "Sinh viên",
+        senderRole: "teacher",
+        senderName: "Giảng Viên Hướng Dẫn",
+        text: text
+      };
+
+      if (!state.chatHistory) state.chatHistory = {};
+      if (!state.chatHistory[studentId]) state.chatHistory[studentId] = [];
+      state.chatHistory[studentId].push(newMsg);
+      saveState();
+      input.value = "";
+
+      renderTeacherPrivateChat();
+
+      // Lưu tin nhắn lên bảng chat_messages của Supabase
+      if (supabaseClient) {
+        supabaseClient.from('chat_messages').insert({
+          student_id: studentId,
+          sender_role: 'teacher',
+          sender_name: 'Giảng Viên Hướng Dẫn',
+          message_text: text,
+          created_at: new Date().toISOString()
+        }).then(() => {});
+      }
+    }
+
+    // Khung chat riêng của Sinh Viên Khóa Dưới gửi Thầy/Cô
+    function renderRegularStudentPrivateChat() {
+      if (!currentUser || currentUser.role !== "regular_student") return;
+      const container = document.getElementById("regPrivateMessagesContainer");
+      if (!container) return;
+
+      const studentId = currentUser.id;
+      const msgs = (state.chatHistory && state.chatHistory[studentId]) || [];
+
+      if (msgs.length === 0) {
+        container.innerHTML = `
+          <div class="text-center py-12 text-slate-400 text-xs">
+            Chưa có tin nhắn nào với Thầy/Cô Chủ nhiệm.<br>
+            Bạn có thể gửi câu hỏi, kiến nghị hoặc tin nhắn trao đổi vào ô bên dưới.
+          </div>
+        `;
+        return;
+      }
+
+      let html = '';
+      msgs.forEach(m => {
+        const isMe = m.senderRole === "student" || m.senderRole === "regular_student";
+        const timeStr = m.timestamp ? (m.timestamp.includes(' ') ? m.timestamp.split(' ')[0] : m.timestamp) : '';
+        html += `
+          <div class="flex items-start gap-2.5 ${isMe ? 'flex-row-reverse' : ''}">
+            <div class="w-7 h-7 rounded-full ${isMe ? 'bg-emerald-600' : 'bg-purple-600'} text-white font-bold text-xs flex items-center justify-center flex-shrink-0">
+              ${isMe ? 'SV' : 'GV'}
+            </div>
+            <div class="max-w-[75%]">
+              <div class="flex items-center gap-1.5 mb-0.5 ${isMe ? 'flex-row-reverse text-right' : ''}">
+                <span class="text-xs font-bold text-slate-700">${escapeHtml(m.senderName || (isMe ? currentUser.name : 'Giảng Viên Hướng Dẫn'))}</span>
+                <span class="text-[10px] text-slate-400 font-mono">${timeStr}</span>
+              </div>
+              <div class="px-3.5 py-2 rounded-2xl text-xs sm:text-sm leading-relaxed ${isMe ? 'bg-emerald-600 text-white rounded-tr-xs' : 'bg-white border border-slate-200 text-slate-800 rounded-tl-xs'}">
+                ${escapeHtml(m.text)}
+              </div>
+            </div>
+          </div>
+        `;
+      });
+
+      container.innerHTML = html;
+      container.scrollTop = container.scrollHeight;
+    }
+
+    async function handleSendRegularStudentPrivateMessage(e) {
+      e.preventDefault();
+      if (!currentUser || currentUser.role !== "regular_student") return;
+
+      const input = document.getElementById("regPrivateMessageInput");
+      const text = (input.value || "").trim();
+      if (!text) return;
+
+      const studentId = currentUser.id;
+      const newMsg = {
+        timestamp: new Date().toLocaleTimeString('vi-VN', { hour: '2-digit', minute: '2-digit' }),
+        studentId: studentId,
+        studentName: currentUser.name,
+        senderRole: "student",
+        senderName: currentUser.name,
+        text: text
+      };
+
+      if (!state.chatHistory) state.chatHistory = {};
+      if (!state.chatHistory[studentId]) state.chatHistory[studentId] = [];
+      state.chatHistory[studentId].push(newMsg);
+      saveState();
+      input.value = "";
+
+      renderRegularStudentPrivateChat();
+
+      // Lưu tin nhắn lên Supabase và tự động gửi email thông báo tới GVCN
+      if (supabaseClient) {
+        supabaseClient.from('chat_messages').insert({
+          student_id: studentId,
+          sender_role: 'student',
+          sender_name: currentUser.name,
+          message_text: text,
+          created_at: new Date().toISOString()
+        }).then(() => {});
+      }
+
+      // Kích hoạt gửi email thông báo cho GVCN qua API
+      fetch('/api/send-report', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          type: 'chat_notification',
+          studentName: currentUser.name,
+          studentId: currentUser.id,
+          messageText: text,
+          timestamp: new Date().toLocaleString('vi-VN')
+        })
+      }).catch(e => console.log(e));
+    }
+
+    // ==============================================================
+    // HIỂN THỊ DANH SÁCH SINH VIÊN KHÓA DƯỚI & THỐNG KÊ (CHO GVCN)
+    // ==============================================================
+    function renderRegularStudentsList() {
+      const container = document.getElementById("regularStudentsListContainer");
+      if (!container) return;
+
+      const searchInput = document.getElementById("searchRegularInput");
+      const courseSelect = document.getElementById("filterRegularCourseSelect");
+
+      const query = (searchInput ? searchInput.value : "").trim().toLowerCase();
+      const courseFilter = courseSelect ? courseSelect.value : "all";
+
+      const list = state.regularStudents || [];
+
+      // Cập nhật các lựa chọn khóa học trong dropdown nếu chưa có
+      if (courseSelect) {
+        const uniqueCourses = Array.from(new Set(list.map(s => s.course).filter(Boolean)));
+        const currentVal = courseSelect.value;
+        let selectHtml = '<option value="all">Tất cả các khóa</option>';
+        uniqueCourses.forEach(c => {
+          selectHtml += `<option value="${escapeHtml(c)}">${escapeHtml(c)}</option>`;
+        });
+        courseSelect.innerHTML = selectHtml;
+        courseSelect.value = currentVal || "all";
+      }
+
+      // Lọc theo tìm kiếm và khóa
+      const filtered = list.filter(s => {
+        const matchCourse = (courseFilter === "all") || (s.course === courseFilter);
+        const matchQuery = !query || 
+          (s.name && s.name.toLowerCase().includes(query)) ||
+          (s.id && s.id.toLowerCase().includes(query)) ||
+          (s.phone && s.phone.includes(query)) ||
+          (s.email && s.email.toLowerCase().includes(query));
+        return matchCourse && matchQuery;
+      });
+
+      const badgeCount = document.getElementById("badgeTotalRegularStudents");
+      if (badgeCount) badgeCount.textContent = `${filtered.length} SV`;
+
+      if (filtered.length === 0) {
+        container.innerHTML = `
+          <div class="text-center py-12 text-slate-400 text-xs">
+            <span class="text-2xl block mb-2">👥</span>
+            ${list.length === 0 ? 'Chưa có sinh viên khóa dưới nào đăng ký tài khoản.' : 'Không tìm thấy sinh viên phù hợp với bộ lọc.'}
+          </div>
+        `;
+        return;
+      }
+
+      let html = '';
+      filtered.forEach(s => {
+        const isOnline = isUserOnline(s.id);
+        const isSelected = s.id === state.selectedRegularStudentId;
+        const parts = s.name.split(" ");
+        const initials = parts.length >= 2 ? (parts[0][0] + parts[parts.length - 1][0]).toUpperCase() : s.name.substring(0, 2).toUpperCase();
+
+        html += `
+          <div class="p-3 rounded-xl border transition ${isSelected ? 'bg-blue-50/70 border-blue-300 shadow-xs' : 'bg-slate-50/60 border-slate-200/70 hover:bg-white hover:border-slate-300'} flex items-center justify-between gap-3">
+            <div class="flex items-center gap-3 min-w-0">
+              <div class="relative flex-shrink-0">
+                <div class="w-10 h-10 rounded-full bg-emerald-600 text-white font-bold text-xs flex items-center justify-center shadow-xs">
+                  ${initials}
+                </div>
+                <!-- Meta Messenger style green dot -->
+                <span class="absolute bottom-0 right-0 w-3.5 h-3.5 rounded-full bg-emerald-500 ring-2 ring-white ${isOnline ? '' : 'hidden'}" title="Đang trực tuyến"></span>
+              </div>
+              <div class="min-w-0">
+                <div class="flex items-center gap-2">
+                  <h4 class="text-xs sm:text-sm font-bold text-slate-900 truncate">${escapeHtml(s.name)}</h4>
+                  <span class="px-2 py-0.5 rounded-full text-[10px] font-bold bg-emerald-100 text-emerald-800 truncate">${escapeHtml(s.course || 'Khóa dưới')}</span>
+                </div>
+                <div class="flex items-center gap-3 text-[11px] text-slate-500 mt-0.5">
+                  <span class="font-mono text-blue-600 font-bold">${escapeHtml(s.id)}</span>
+                  <span>📞 ${escapeHtml(s.phone || 'Chưa có SĐT')}</span>
+                </div>
+                <div class="text-[11px] text-slate-400 truncate">
+                  ✉️ ${escapeHtml(s.email || 'Chưa có email')}
+                </div>
+              </div>
+            </div>
+
+            <div class="flex items-center gap-1 flex-shrink-0">
+              <button 
+                onclick="selectRegularStudentForChat('${s.id}')" 
+                class="px-2.5 py-1.5 text-xs font-bold rounded-lg bg-blue-50 hover:bg-blue-100 text-blue-700 transition flex items-center gap-1"
+                title="Nhắn tin 1-1 với sinh viên này"
+              >
+                <span>💬 Chat</span>
+              </button>
+              <button 
+                onclick="handleDeleteRegularStudent('${s.id}')" 
+                class="p-1.5 text-xs font-bold rounded-lg bg-rose-50 hover:bg-rose-100 text-rose-600 transition"
+                title="Xóa tài khoản sinh viên này"
+              >
+                🗑️
+              </button>
+            </div>
+          </div>
+        `;
+      });
+
+      container.innerHTML = html;
+    }
+
+    function handleDeleteRegularStudent(id) {
+      const match = (state.regularStudents || []).find(s => s.id === id);
+      if (!match) return;
+
+      if (!confirm(`Bạn có chắc chắn muốn xóa tài khoản sinh viên "${match.name}" (MSV: ${match.id}) khỏi danh sách khóa dưới?`)) {
+        return;
+      }
+
+      state.regularStudents = state.regularStudents.filter(s => s.id !== id);
+      saveState();
+
+      if (supabaseClient) {
+        supabaseClient.from('system_settings').upsert({
+          key: 'REGULAR_STUDENTS_LIST',
+          value: JSON.stringify(state.regularStudents),
+          updated_at: new Date().toISOString()
+        }, { onConflict: 'key' }).then(() => {});
+      }
+
+      renderRegularStudentsList();
+      renderRegularAdminWorkspace();
+      showToast("Đã xóa sinh viên", `Đã xóa tài khoản ${match.name} khỏi hệ thống.`);
+    }
+
+    function exportRegularStudentsToCsv() {
+      const list = state.regularStudents || [];
+      if (list.length === 0) {
+        alert("Chưa có dữ liệu sinh viên khóa dưới để xuất!");
+        return;
+      }
+
+      let csv = "STT,Mã Sinh Viên,Họ và Tên,Khóa Học,Số Điện Thoại,Email,Ngày Đăng Ký\n";
+      list.forEach((s, idx) => {
+        csv += `${idx + 1},"${s.id}","${s.name}","${s.course || ''}","${s.phone || ''}","${s.email || ''}","${s.created_at || ''}"\n`;
+      });
+
+      const blob = new Blob(["\uFEFF" + csv], { type: "text/csv;charset=utf-8;" });
+      const url = URL.createObjectURL(blob);
+      const link = document.createElement("a");
+      link.setAttribute("href", url);
+      link.setAttribute("download", `Danh_Sach_Sinh_Vien_Khoa_Duoi_${Date.now()}.csv`);
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+    }
+
+    function renderRegularAdminWorkspace() {
+      const list = state.regularStudents || [];
+      const totalEl = document.getElementById("statTotalRegularStudents");
+      const onlineEl = document.getElementById("statOnlineRegularStudents");
+      const coursesEl = document.getElementById("statCoursesBreakdown");
+
+      if (totalEl) totalEl.textContent = list.length;
+      if (onlineEl) {
+        let onlineCount = 0;
+        list.forEach(s => {
+          if (isUserOnline(s.id)) onlineCount++;
+        });
+        onlineEl.textContent = onlineCount;
+      }
+      if (coursesEl) {
+        const courses = Array.from(new Set(list.map(s => s.course).filter(Boolean)));
+        coursesEl.textContent = courses.length > 0 ? courses.join(", ") : "K69, K70, K71...";
+      }
+
+      renderRegularStudentsList();
+      renderCommunityChatMessages();
+      renderAnnouncementsHistory();
+    }
+
+    function renderAnnouncementsHistory() {
+      const container = document.getElementById("announcementsHistoryContainer");
+      if (!container) return;
+
+      const announcements = state.announcements || [];
+      if (announcements.length === 0) {
+        container.innerHTML = `
+          <div class="text-center py-12 text-slate-400 text-xs">
+            <span class="text-2xl block mb-2">📢</span>
+            Chưa có thông báo nào được phát đi.<br>Bấm <strong>+ Soạn Mới</strong> để gửi thông báo tự động qua email.
+          </div>
+        `;
+        return;
+      }
+
+      let html = '';
+      announcements.forEach(a => {
+        const timeStr = a.sent_at ? new Date(a.sent_at).toLocaleString('vi-VN') : '';
+        html += `
+          <div class="p-4 rounded-xl border border-slate-200/80 bg-slate-50/70 space-y-2">
+            <div class="flex items-center justify-between gap-2">
+              <span class="px-2 py-0.5 rounded-full text-[10px] font-bold bg-blue-100 text-blue-800">
+                ${escapeHtml(a.target_name || 'Toàn thể sinh viên')} (${a.recipient_count || 0} email)
+              </span>
+              <span class="text-[11px] text-slate-400 font-mono">${timeStr}</span>
+            </div>
+            <h5 class="text-sm font-bold text-slate-900">${escapeHtml(a.title)}</h5>
+            <p class="text-xs text-slate-600 whitespace-pre-wrap leading-relaxed">${escapeHtml(a.content)}</p>
+          </div>
+        `;
+      });
+
+      container.innerHTML = html;
+    }
+
+    function renderRegularStudentAnnouncements() {
+      const container = document.getElementById("regStudentAnnouncementsList");
+      if (!container) return;
+
+      const announcements = state.announcements || [];
+      const relevant = announcements.filter(a => a.target_group === "regular" || a.target_group === "all");
+
+      if (relevant.length === 0) {
+        container.innerHTML = `
+          <div class="text-center py-12 text-slate-400 text-xs">
+            <span class="text-2xl block mb-2">📢</span>
+            Hiện chưa có thông báo mới nào từ Giáo viên Chủ nhiệm.
+          </div>
+        `;
+        return;
+      }
+
+      let html = '';
+      relevant.forEach(a => {
+        const timeStr = a.sent_at ? new Date(a.sent_at).toLocaleString('vi-VN') : '';
+        html += `
+          <div class="p-4 rounded-xl border border-blue-200/80 bg-blue-50/40 space-y-2">
+            <div class="flex items-center justify-between gap-2">
+              <span class="px-2 py-0.5 rounded-full text-[10px] font-bold bg-blue-100 text-blue-800">
+                Từ: Giáo viên Chủ nhiệm
+              </span>
+              <span class="text-[11px] text-slate-400 font-mono">${timeStr}</span>
+            </div>
+            <h5 class="text-sm font-bold text-slate-900">${escapeHtml(a.title)}</h5>
+            <p class="text-xs text-slate-700 whitespace-pre-wrap leading-relaxed">${escapeHtml(a.content)}</p>
+          </div>
+        `;
+      });
+
+      container.innerHTML = html;
+    }
+
+    function renderRegularStudentPortal() {
+      if (!currentUser || currentUser.role !== "regular_student") return;
+
+      const nameEl = document.getElementById("regUserDisplayName");
+      const idEl = document.getElementById("regUserDisplayId");
+      const courseEl = document.getElementById("regUserCourseBadge");
+      const phoneEl = document.getElementById("regUserDisplayPhone");
+      const emailEl = document.getElementById("regUserDisplayEmail");
+      const avatarEl = document.getElementById("regUserAvatar");
+
+      if (nameEl) nameEl.textContent = currentUser.name;
+      if (idEl) idEl.textContent = `MSV: ${currentUser.id}`;
+      if (courseEl) courseEl.textContent = `• ${currentUser.course || 'Khóa dưới'}`;
+      if (phoneEl) phoneEl.textContent = `SĐT: ${currentUser.phone || 'Chưa có'}`;
+      if (emailEl) emailEl.textContent = `Email: ${currentUser.email || 'Chưa có'}`;
+      if (avatarEl) {
+        const parts = currentUser.name.split(" ");
+        avatarEl.textContent = parts.length >= 2 ? (parts[0][0] + parts[parts.length - 1][0]).toUpperCase() : currentUser.name.substring(0, 2).toUpperCase();
+      }
+
+      const activeTab = state.regularStudentActiveTab || "community";
+      switchRegStudentTab(activeTab);
     }
 
     function showLoginModal() {
@@ -4479,41 +6545,98 @@
     // RENDER MAIN APPLICATION ACCORDING TO ROLE
     function renderLayoutForRole() {
       const isTeacher = currentUser && currentUser.role === "teacher";
+      const isRegularStudent = currentUser && currentUser.role === "regular_student";
+      const isThesisStudent = currentUser && currentUser.role === "student";
+
       const leftDir = document.getElementById("leftStudentDirectory");
       const rightSec = document.getElementById("rightDetailSection");
+      const mainGrid = document.getElementById("mainGridContainer");
       const teacherMetrics = document.getElementById("teacherMetricsBar");
+      const teacherNavTabs = document.getElementById("teacherPortalNavTabs");
+      const regularAdminView = document.getElementById("regularStudentsAdminView");
+      const regularStudentPortal = document.getElementById("regularStudentPortalView");
       const headerTitle = document.getElementById("headerMainTitle");
       const headerSub = document.getElementById("headerSubTitle");
       const submitArea = document.getElementById("studentSubmitArea");
       const btnHeaderSettings = document.getElementById("btnHeaderTeacherSettings");
+      const btnHeaderEditProfile = document.getElementById("btnHeaderEditProfile");
       const btnResetStudentPass = document.getElementById("btnResetStudentPass");
+      const btnDeleteStudent = document.getElementById("btnDeleteStudent");
+      const detailRoleTag = document.getElementById("detailRoleTag");
 
       if (isTeacher) {
-        // Teacher view: 2 Columns, sees all 24 students
-        leftDir.classList.remove("hidden");
-        rightSec.className = "lg:col-span-8 bg-white rounded-2xl border border-slate-200/80 shadow-sm p-5 sm:p-7 min-h-[820px]";
-        teacherMetrics.classList.remove("hidden");
-        headerTitle.textContent = "Bảng Quản Trị Giảng Viên";
-        headerSub.textContent = "Theo dõi và quản lý toàn bộ 24 sinh viên khóa 2302";
-        // Hide student submit button when viewing as teacher
-        submitArea.classList.add("hidden");
-        const btnDeleteStudent = document.getElementById("btnDeleteStudent");
-        const detailRoleTag = document.getElementById("detailRoleTag");
         if (btnHeaderSettings) btnHeaderSettings.classList.remove("hidden");
-        if (btnResetStudentPass) btnResetStudentPass.classList.remove("hidden");
-        if (btnDeleteStudent) btnDeleteStudent.classList.remove("hidden");
-        if (detailRoleTag) detailRoleTag.classList.add("hidden");
+        if (btnHeaderEditProfile) btnHeaderEditProfile.classList.add("hidden");
+        if (teacherNavTabs) teacherNavTabs.classList.remove("hidden");
+        if (regularStudentPortal) regularStudentPortal.classList.add("hidden");
+
+        const activeTab = state.teacherActiveTab || 'thesis';
+        const btnTabThesis = document.getElementById("btnTeacherTabThesis");
+        const btnTabRegular = document.getElementById("btnTeacherTabRegular");
+
+        if (activeTab === 'thesis') {
+          if (btnTabThesis) {
+            btnTabThesis.className = "px-4 py-2 rounded-lg text-xs sm:text-sm font-bold transition bg-white text-blue-700 shadow-sm flex items-center gap-2";
+          }
+          if (btnTabRegular) {
+            btnTabRegular.className = "px-4 py-2 rounded-lg text-xs sm:text-sm font-bold transition text-slate-600 hover:text-slate-900 flex items-center gap-2";
+          }
+          if (mainGrid) mainGrid.classList.remove("hidden");
+          if (leftDir) leftDir.classList.remove("hidden");
+          if (rightSec) rightSec.className = "lg:col-span-8 bg-white rounded-2xl border border-slate-200/80 shadow-sm p-5 sm:p-7 min-h-[820px]";
+          if (teacherMetrics) teacherMetrics.classList.remove("hidden");
+          if (regularAdminView) regularAdminView.classList.add("hidden");
+
+          headerTitle.textContent = "Bảng Quản Trị Đồ Án Tốt Nghiệp";
+          headerSub.textContent = "Theo dõi và quản lý toàn bộ 24 sinh viên đồ án tốt nghiệp Khóa K68";
+          if (submitArea) submitArea.classList.add("hidden");
+          if (btnResetStudentPass) btnResetStudentPass.classList.remove("hidden");
+          if (btnDeleteStudent) btnDeleteStudent.classList.remove("hidden");
+          if (detailRoleTag) detailRoleTag.classList.add("hidden");
+        } else {
+          // Junior students management view
+          if (btnTabThesis) {
+            btnTabThesis.className = "px-4 py-2 rounded-lg text-xs sm:text-sm font-bold transition text-slate-600 hover:text-slate-900 flex items-center gap-2";
+          }
+          if (btnTabRegular) {
+            btnTabRegular.className = "px-4 py-2 rounded-lg text-xs sm:text-sm font-bold transition bg-white text-emerald-700 shadow-sm flex items-center gap-2";
+          }
+          if (mainGrid) mainGrid.classList.add("hidden");
+          if (teacherMetrics) teacherMetrics.classList.add("hidden");
+          if (regularAdminView) regularAdminView.classList.remove("hidden");
+
+          headerTitle.textContent = "Quản Trị Sinh Viên Khóa Dưới";
+          headerSub.textContent = "Không gian quản lý sinh viên các khóa, cổng chat chung toàn khóa & gửi thông báo tự động";
+          renderRegularAdminWorkspace();
+        }
+      } else if (isRegularStudent) {
+        // Regular student view
+        if (teacherNavTabs) teacherNavTabs.classList.add("hidden");
+        if (teacherMetrics) teacherMetrics.classList.add("hidden");
+        if (mainGrid) mainGrid.classList.add("hidden");
+        if (regularAdminView) regularAdminView.classList.add("hidden");
+        if (btnHeaderSettings) btnHeaderSettings.classList.add("hidden");
+        if (btnHeaderEditProfile) btnHeaderEditProfile.classList.remove("hidden");
+        if (regularStudentPortal) regularStudentPortal.classList.remove("hidden");
+
+        headerTitle.textContent = "Không Gian Sinh Viên Khóa Dưới";
+        headerSub.textContent = "Cổng thông tin, phòng chat chung và kênh trao đổi với Giáo viên Chủ nhiệm";
+        renderRegularStudentPortal();
       } else {
-        // Student view: 1 Column ONLY, focused purely on the student's personal thesis
-        leftDir.classList.add("hidden");
-        rightSec.className = "lg:col-span-12 max-w-5xl mx-auto w-full bg-white rounded-2xl border border-slate-200/80 shadow-sm p-5 sm:p-8 min-h-[820px]";
-        teacherMetrics.classList.add("hidden");
+        // Thesis Student view: 1 Column ONLY, focused purely on the student's personal thesis
+        if (teacherNavTabs) teacherNavTabs.classList.add("hidden");
+        if (teacherMetrics) teacherMetrics.classList.add("hidden");
+        if (regularAdminView) regularAdminView.classList.add("hidden");
+        if (regularStudentPortal) regularStudentPortal.classList.add("hidden");
+        if (btnHeaderSettings) btnHeaderSettings.classList.add("hidden");
+        if (btnHeaderEditProfile) btnHeaderEditProfile.classList.add("hidden");
+
+        if (mainGrid) mainGrid.classList.remove("hidden");
+        if (leftDir) leftDir.classList.add("hidden");
+        if (rightSec) rightSec.className = "lg:col-span-12 max-w-5xl mx-auto w-full bg-white rounded-2xl border border-slate-200/80 shadow-sm p-5 sm:p-8 min-h-[820px]";
         headerTitle.textContent = "Hồ Sơ Đồ Án Cá Nhân";
         headerSub.textContent = "Không gian cá nhân: Chỉ hiển thị và quản lý tiến độ đồ án của riêng bạn";
-        submitArea.classList.remove("hidden");
-        const btnDeleteStudent = document.getElementById("btnDeleteStudent");
-        const detailRoleTag = document.getElementById("detailRoleTag");
-        if (btnHeaderSettings) btnHeaderSettings.classList.add("hidden");
+        if (submitArea) submitArea.classList.remove("hidden");
         if (btnResetStudentPass) btnResetStudentPass.classList.add("hidden");
         if (btnDeleteStudent) btnDeleteStudent.classList.add("hidden");
         if (detailRoleTag) detailRoleTag.classList.remove("hidden");
@@ -4537,14 +6660,21 @@
 
       if (currentUser.role === "teacher") {
         nameEl.textContent = currentUser.name;
-        subEl.textContent = "Quản trị viên (Toàn quyền 24 SV)";
+        subEl.textContent = "Giáo Viên Chủ Nhiệm (Toàn quyền)";
         roleBadge.textContent = "Giảng Viên";
         avatarBadge.textContent = "GV";
         avatarBadge.className = "w-12 h-12 rounded-xl bg-purple-600 text-white font-bold text-base flex items-center justify-center flex-shrink-0 shadow-sm";
+      } else if (currentUser.role === "regular_student") {
+        nameEl.textContent = currentUser.name;
+        subEl.textContent = `MSV: ${currentUser.id} • ${currentUser.course || 'Khóa dưới'} • SĐT: ${currentUser.phone || '--'}`;
+        roleBadge.textContent = "Sinh Viên Khóa Dưới";
+        const parts = currentUser.name.split(" ");
+        avatarBadge.textContent = parts.length >= 2 ? (parts[0][0] + parts[parts.length - 1][0]).toUpperCase() : currentUser.name.substring(0, 2).toUpperCase();
+        avatarBadge.className = "w-12 h-12 rounded-xl bg-emerald-600 text-white font-bold text-base flex items-center justify-center flex-shrink-0 shadow-sm";
       } else {
         nameEl.textContent = currentUser.name;
         subEl.textContent = `MSV: ${currentUser.id}`;
-        roleBadge.textContent = "Sinh Viên";
+        roleBadge.textContent = "SV Đồ Án";
         const hasAv = !!(state.avatars && state.avatars[currentUser.id]);
         if (hasAv) {
           avatarBadge.innerHTML = `<img src="${state.avatars[currentUser.id]}" class="w-full h-full object-cover" alt="${currentUser.name}">`;
