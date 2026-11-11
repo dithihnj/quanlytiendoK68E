@@ -326,7 +326,7 @@
                     <input 
                       type="password" 
                       id="studentPasswordInput" 
-                      placeholder="Nhập mật khẩu (Mặc định là Mã SV)..." 
+                      placeholder="Nhập mật khẩu tài khoản đã đăng ký..." 
                       required
                       class="w-full px-4 py-2.5 pr-10 text-sm rounded-xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-blue-500 bg-slate-50 focus:bg-white transition text-slate-800"
                     >
@@ -3100,6 +3100,49 @@
           .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'chat_messages' }, payload => {
             const msg = payload.new;
             if (msg && msg.student_id) {
+              // 1. NẾU LÀ TIN NHẮN PHÒNG CHAT CHUNG TOÀN KHOA:
+              if (msg.student_id === 'COMMUNITY') {
+                let msgText = msg.message_text;
+                let msgCourse = 'Khóa K68';
+                try {
+                  const parsed = JSON.parse(msg.message_text);
+                  if (parsed && parsed.text) {
+                    msgText = parsed.text;
+                    msgCourse = parsed.course || msgCourse;
+                  }
+                } catch (e) {}
+
+                if (!state.communityChatMessages) state.communityChatMessages = [];
+                const exists = state.communityChatMessages.some(m => m.id === msg.id);
+                if (!exists) {
+                  const commMsgObj = {
+                    id: msg.id,
+                    sender_id: msg.sender_name || 'SV',
+                    sender_name: msg.student_name || msg.sender_name || 'Sinh viên',
+                    sender_role: msg.sender_role,
+                    course: msgCourse,
+                    text: msgText,
+                    created_at: msg.created_at
+                  };
+                  state.communityChatMessages.push(commMsgObj);
+                  saveState();
+                  renderCommunityChatMessages(true);
+
+                  const isFromMe = currentUser && (currentUser.name === msg.student_name || currentUser.id === msg.sender_name);
+                  if (!isFromMe) {
+                    playMessengerChime();
+                    showMessengerToast(
+                      `[Chat Toàn Khoa] ${commMsgObj.sender_name}`,
+                      msgText,
+                      'COMMUNITY',
+                      commMsgObj.sender_role === 'teacher'
+                    );
+                  }
+                }
+                return;
+              }
+
+              // 2. NẾU LÀ TIN NHẮN 1-1 RIÊNG TƯ GIỮA GV VÀ SV:
               if (!state.chatHistory) state.chatHistory = {};
               if (!state.chatHistory[msg.student_id]) state.chatHistory[msg.student_id] = [];
               const exists = state.chatHistory[msg.student_id].some(m => m.id === msg.id);
@@ -3377,7 +3420,9 @@
           if (studentRows) {
             studentRows.forEach(s => {
               if (s.topic) state.customTopics[s.id] = s.topic;
-              if (s.password) state.studentPasswords[s.id] = s.password;
+              if (s.password && state.registeredStudentIds && state.registeredStudentIds.includes(s.id)) {
+                state.studentPasswords[s.id] = s.password;
+              }
               if (s.avatar_url) {
                 if (!state.avatars) state.avatars = {};
                 state.avatars[s.id] = s.avatar_url;
@@ -3477,6 +3522,43 @@
               }
             });
             populateCourseDropdowns();
+          }
+
+          // Tải tin nhắn Chat Chung Toàn Khoa từ bảng chat_messages (đảm bảo đồng bộ với các sinh viên khác)
+          try {
+            const { data: commMsgs, error: commErr } = await supabaseClient
+              .from('chat_messages')
+              .select('*')
+              .eq('student_id', 'COMMUNITY')
+              .order('created_at', { ascending: true })
+              .limit(150);
+
+            if (commMsgs && !commErr && commMsgs.length > 0) {
+              state.communityChatMessages = commMsgs.map(m => {
+                let msgText = m.message_text;
+                let msgCourse = 'Khóa K68';
+                try {
+                  const parsed = JSON.parse(m.message_text);
+                  if (parsed && parsed.text) {
+                    msgText = parsed.text;
+                    msgCourse = parsed.course || msgCourse;
+                  }
+                } catch (e) {}
+
+                return {
+                  id: m.id,
+                  sender_id: m.sender_name || 'SV',
+                  sender_name: m.student_name || m.sender_name || 'Sinh viên',
+                  sender_role: m.sender_role,
+                  course: msgCourse,
+                  text: msgText,
+                  created_at: m.created_at
+                };
+              });
+              renderCommunityChatMessages(true);
+            }
+          } catch (commErr) {
+            console.warn("Lỗi tải tin nhắn cộng đồng:", commErr);
           }
 
           saveState();
@@ -4124,20 +4206,18 @@
       }
 
       // Kiểm tra tài khoản đã đăng ký chưa
-      const isRegistered = (state.registeredStudentIds && state.registeredStudentIds.includes(match.id)) ||
-                           (state.studentPasswords && state.studentPasswords[match.id]) ||
-                           match.password;
+      const isRegistered = Boolean(state.registeredStudentIds && state.registeredStudentIds.includes(match.id));
 
       if (!isRegistered) {
         if (err) {
-          err.textContent = `Tài khoản ${match.name} (${match.id}) chưa được đăng ký trên hệ thống! Vui lòng chuyển sang tab Đăng Ký để tạo tài khoản.`;
+          err.textContent = `Tài khoản ${match.name} (MSV: ${match.id}) chưa được đăng ký trên hệ thống! Vui lòng chuyển sang tab Đăng Ký để tạo tài khoản.`;
           err.classList.remove("hidden");
         }
         return;
       }
 
       const savedPass = String((state.studentPasswords && state.studentPasswords[match.id]) || match.password || "").trim();
-      const isValid = (pass === savedPass) || (pass === "123");
+      const isValid = (pass === savedPass);
 
       if (!isValid) {
         if (err) {
@@ -4609,26 +4689,26 @@
 
       renderCommunityChatMessages(true);
 
-      // Lưu lên Supabase system_settings
+      // Lưu lên Supabase: chèn vào chat_messages với student_id = 'COMMUNITY' để kích hoạt Realtime tức thì
       if (supabaseClient) {
         try {
+          await supabaseClient.from('chat_messages').insert({
+            student_id: 'COMMUNITY',
+            student_name: currentUser.name,
+            sender_role: currentUser.role,
+            sender_name: currentUser.id,
+            message_text: JSON.stringify({
+              text: text,
+              course: newMsg.course
+            }),
+            is_recalled: false
+          });
+
           await supabaseClient.from('system_settings').upsert({
             key: 'COMMUNITY_CHAT_MESSAGES',
-            value: JSON.stringify(state.communityChatMessages.slice(-200)), // lưu tối đa 200 tin gần nhất
+            value: JSON.stringify(state.communityChatMessages.slice(-200)),
             updated_at: new Date().toISOString()
           }, { onConflict: 'key' });
-
-          // Broadcast tin nhắn tới tất cả client khác
-          const chan = supabaseClient.channel('k68_realtime_channel');
-          chan.subscribe((st) => {
-            if (st === 'SUBSCRIBED') {
-              chan.send({
-                type: 'broadcast',
-                event: 'community_chat_message',
-                payload: newMsg
-              });
-            }
-          });
         } catch (dbErr) {
           console.warn("Lỗi lưu chat cộng đồng:", dbErr);
         }
@@ -5304,13 +5384,11 @@
       }
 
       // 1. BẮT BUỘC PHẢI ĐĂNG KÝ TÀI KHOẢN TRƯỚC KHI ĐĂNG NHẬP
-      const isRegistered = (state.registeredStudentIds && state.registeredStudentIds.includes(match.id)) ||
-                           (state.studentPasswords && state.studentPasswords[match.id]) ||
-                           (state.regularStudents && state.regularStudents.some(r => r.id === match.id));
+      const isRegistered = Boolean(state.registeredStudentIds && state.registeredStudentIds.includes(match.id));
 
       if (!isRegistered) {
         err.classList.remove("hidden");
-        err.textContent = `Tài khoản ${match.name} (${match.id}) chưa được đăng ký trên hệ thống! Vui lòng chuyển sang tab "Đăng Ký Đồ Án" (hoặc tab Sinh Viên) để tạo mật khẩu trước khi đăng nhập.`;
+        err.textContent = `Tài khoản ${match.name} (MSV: ${match.id}) chưa được đăng ký trên hệ thống! Vui lòng chuyển sang tab "Đăng Ký Đồ Án" (hoặc tab Sinh Viên) để tạo tài khoản trước khi đăng nhập.`;
         return;
       }
 
@@ -5327,17 +5405,15 @@
       }
 
       // 3. KIỂM TRA MẬT KHẨU
-      const savedPass = (state.studentPasswords && state.studentPasswords[match.id]) 
-        ? String(state.studentPasswords[match.id]).trim() 
-        : (match.password ? String(match.password).trim() : "");
+      const savedPass = String((state.studentPasswords && state.studentPasswords[match.id]) || match.password || "").trim();
 
       if (!pass) {
         err.classList.remove("hidden");
-        err.textContent = "Vui lòng nhập mật khẩu của bạn để đăng nhập!";
+        err.textContent = "Vui lòng nhập mật khẩu tài khoản của bạn để đăng nhập!";
         return;
       }
 
-      const isValid = (pass === savedPass) || (pass === "123");
+      const isValid = (pass === savedPass);
 
       if (!isValid) {
         err.classList.remove("hidden");
@@ -8157,22 +8233,23 @@
 
         if (supabaseClient) {
           try {
+            await supabaseClient.from('chat_messages').insert({
+              student_id: 'COMMUNITY',
+              student_name: currentUser.name,
+              sender_role: currentUser.role,
+              sender_name: currentUser.id,
+              message_text: JSON.stringify({
+                text: text,
+                course: newMsg.course
+              }),
+              is_recalled: false
+            });
+
             await supabaseClient.from('system_settings').upsert({
               key: 'COMMUNITY_CHAT_MESSAGES',
               value: JSON.stringify(state.communityChatMessages.slice(-200)),
               updated_at: new Date().toISOString()
             }, { onConflict: 'key' });
-
-            const chan = supabaseClient.channel('k68_realtime_channel');
-            chan.subscribe((st) => {
-              if (st === 'SUBSCRIBED') {
-                chan.send({
-                  type: 'broadcast',
-                  event: 'community_chat_message',
-                  payload: newMsg
-                });
-              }
-            });
           } catch (dbErr) {
             console.warn("Lỗi lưu chat cộng đồng từ floating:", dbErr);
           }
