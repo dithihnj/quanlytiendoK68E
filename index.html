@@ -127,13 +127,13 @@
             class="inline-flex items-center gap-2 px-3 py-1 rounded-full text-xs font-semibold bg-blue-500/20 text-blue-300 border border-blue-400/30 mb-3 backdrop-blur-sm cursor-pointer hover:bg-blue-500/30 transition select-none"
           >
             <span class="w-2 h-2 rounded-full bg-emerald-400 animate-ping"></span>
-            <span>Khoa Kỹ Thuật Năng Lượng &amp; HTĐ • K68 (2023 - 2027)</span>
+            <span>Khoa Vật Lý Kỹ Thuật và Công Nghệ Nano • VNU-UET</span>
           </div>
           <h3 class="text-xl sm:text-2xl font-black tracking-tight text-white leading-snug">
-            Hệ Thống Giám Sát Đồ Án Tốt Nghiệp
+            Quản Lý Đào Tạo Sinh Viên
           </h3>
           <p class="text-xs text-slate-400 mt-1">
-            Theo dõi tiến độ &amp; Quản lý đề tài tốt nghiệp sinh viên Khóa K68 (2023 - 2027)
+            Theo dõi tiến độ, trao đổi học tập &amp; Kết nối sinh viên toàn khoa
           </p>
         </div>
 
@@ -256,7 +256,7 @@
             </button>
             <button id="tabLoginStudentRegular" onclick="switchLoginTab('student_regular')" class="py-2.5 px-2 rounded-xl transition-all duration-200 text-slate-600 hover:text-slate-900 flex items-center justify-center gap-1.5">
               <span>👥</span>
-              <span class="truncate">SV Khóa Dưới</span>
+              <span class="truncate">Sinh Viên</span>
             </button>
             <button id="tabLoginTeacher" onclick="switchLoginTab('teacher')" class="py-2.5 px-2 rounded-xl transition-all duration-200 text-slate-600 hover:text-slate-900 flex items-center justify-center gap-1.5">
               <span>👨‍🏫</span>
@@ -350,7 +350,7 @@
             <!-- Sub-tabs: Đăng Nhập vs Đăng Ký -->
             <div class="flex items-center justify-between mb-4 pb-2 border-b border-slate-100">
               <div class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-md text-[11px] font-bold bg-emerald-50 text-emerald-700 border border-emerald-200">
-                <span>👥 Cổng 2: Sinh Viên Khóa Dưới</span>
+                <span>👥 Cổng 2: Sinh Viên Khoa Vật Lý Kỹ Thuật &amp; CN Nano</span>
               </div>
               <div class="flex items-center gap-1 p-1 bg-slate-100 rounded-lg text-xs font-semibold">
                 <button type="button" id="btnSubRegularLogin" onclick="switchRegularSubTab('login')" class="px-3 py-1 rounded-md bg-white text-emerald-700 shadow-xs font-bold transition">
@@ -362,12 +362,12 @@
               </div>
             </div>
 
-            <!-- 2A. FORM ĐĂNG NHẬP SINH VIÊN KHÓA DƯỚI -->
+            <!-- 2A. FORM ĐĂNG NHẬP SINH VIÊN TOÀN KHOA -->
             <div id="subRegularLoginForm">
               <div class="mb-4">
-                <h2 class="text-xl font-black text-slate-900 tracking-tight">Đăng Nhập Khóa Dưới</h2>
+                <h2 class="text-xl font-black text-slate-900 tracking-tight">Đăng Nhập Sinh Viên</h2>
                 <p class="text-xs text-slate-500 mt-1">
-                  Dành cho sinh viên các khóa K69, K70, K71... tham gia cổng thông tin &amp; chat cộng đồng.
+                  Dành cho sinh viên tất cả các khóa tham gia cổng thông tin, trao đổi học tập &amp; chat cộng đồng toàn khoa.
                 </p>
               </div>
 
@@ -416,7 +416,7 @@
                   type="submit" 
                   class="w-full py-3 bg-emerald-600 hover:bg-emerald-700 active:scale-[0.99] text-white font-bold text-sm rounded-xl shadow-lg shadow-emerald-500/25 transition duration-150 flex items-center justify-center gap-2 mt-2"
                 >
-                  <span>Đăng Nhập Vào Không Gian Khóa Dưới</span>
+                  <span>Đăng Nhập Cổng Sinh Viên</span>
                   <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3"/></svg>
                 </button>
 
@@ -429,12 +429,12 @@
               </form>
             </div>
 
-            <!-- 2B. FORM ĐĂNG KÝ TÀI KHOẢN SINH VIÊN KHÓA DƯỚI -->
+            <!-- 2B. FORM ĐĂNG KÝ TÀI KHOẢN SINH VIÊN TOÀN KHOA -->
             <div id="subRegularRegisterForm" class="hidden">
               <div class="mb-3">
-                <h2 class="text-lg font-black text-slate-900 tracking-tight">Đăng Ký Tài Khoản Khóa Dưới</h2>
+                <h2 class="text-lg font-black text-slate-900 tracking-tight">Đăng Ký Tài Khoản Sinh Viên</h2>
                 <p class="text-[11px] text-slate-500 mt-0.5">
-                  Email bắt buộc chính xác để nhận thông báo tự động từ Thầy/Cô &amp; khôi phục mật khẩu.
+                  Dành cho sinh viên các khóa. Email bắt buộc chính xác để nhận thông báo từ Thầy/Cô &amp; khôi phục mật khẩu.
                 </p>
               </div>
 
@@ -1531,13 +1531,13 @@
         <div>
           <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full text-xs font-semibold bg-blue-50 text-blue-700 border border-blue-200 mb-2">
             <span class="w-2 h-2 rounded-full bg-blue-600 animate-pulse"></span>
-            Hệ Thống Theo Dõi Đồ Án Tốt Nghiệp • Khóa K68 (Năm học 2023 - 2027)
+            Khoa Vật Lý Kỹ Thuật và Công Nghệ Nano • Đại học Công nghệ (VNU-UET)
           </div>
           <h1 id="headerMainTitle" class="text-2xl sm:text-3xl font-extrabold text-slate-900 tracking-tight">
-            Quản Lý Tiến Độ Đồ Án
+            Đồ Án Sinh Viên
           </h1>
           <p id="headerSubTitle" class="text-xs sm:text-sm text-slate-500 mt-1">
-            Không gian theo dõi tiến độ và các mốc hoàn thành đồ án tốt nghiệp
+            Không gian theo dõi tiến độ, trao đổi học thuật và quản lý đề tài nghiên cứu sinh viên
           </p>
         </div>
 
@@ -1569,20 +1569,23 @@
         </div>
       </div>
 
-      <!-- TEACHER MAIN VIEW NAVIGATION TABS (2 MANAGEMENT PAGES: THESIS & JUNIOR STUDENTS) -->
+      <!-- TEACHER MAIN VIEW NAVIGATION TABS (2 MANAGEMENT PAGES: THESIS & FACULTY STUDENTS) -->
       <div id="teacherPortalNavTabs" class="mt-4 pt-4 border-t border-slate-100 flex items-center justify-between gap-3 flex-wrap hidden">
         <div class="flex items-center gap-1.5 p-1 bg-slate-100 rounded-xl">
           <button id="btnTeacherTabThesis" onclick="switchTeacherPortalView('thesis')" class="px-4 py-2 rounded-lg text-xs sm:text-sm font-bold transition bg-white text-blue-700 shadow-sm flex items-center gap-2">
             <span>🎓</span>
-            <span>1. Quản Lý Đồ Án Tốt Nghiệp (K68)</span>
+            <span>1. Đồ Án Sinh Viên</span>
           </button>
           <button id="btnTeacherTabRegular" onclick="switchTeacherPortalView('regular')" class="px-4 py-2 rounded-lg text-xs sm:text-sm font-bold transition text-slate-600 hover:text-slate-900 flex items-center gap-2">
             <span>👥</span>
-            <span>2. Quản Trị Sinh Viên Khóa Dưới</span>
+            <span>2. Sinh Viên Khoa Vật Lý Kỹ Thuật và Công Nghệ Nano</span>
           </button>
         </div>
 
         <div class="flex items-center gap-2 flex-wrap">
+          <button onclick="triggerSendDailyDigestNow()" class="px-3.5 py-2 bg-gradient-to-r from-amber-600 to-orange-600 hover:from-amber-700 hover:to-orange-700 text-white font-bold text-xs sm:text-sm rounded-xl shadow-md flex items-center gap-1.5 transition active:scale-95" title="Tổng hợp và gửi bản tin tất cả tin nhắn của sinh viên về email Thầy (hoạt động tự động lúc 7:00 sáng hàng ngày)">
+            <span>📬 Bản Tin 7:00 Sáng</span>
+          </button>
           <button onclick="openBroadcastAnnouncementModal()" class="px-3.5 py-2 bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white font-bold text-xs sm:text-sm rounded-xl shadow-md flex items-center gap-2 transition active:scale-95" title="Gửi thông báo tới toàn thể sinh viên qua email tự động">
             <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5.882V19.24a1.76 1.76 0 01-3.417.592l-2.147-6.15M18 13a3 3 0 100-6M5.436 13.683A4.001 4.001 0 017 6h1.832c4.1 0 7.625-1.234 9.168-3v14c-1.543-1.766-5.067-3-9.168-3H7a3.988 3.988 0 01-1.564-.317z"/></svg>
             <span>📢 Gửi Email Thông Báo</span>
@@ -1727,7 +1730,7 @@
                   TB
                 </div>
                 <!-- Chấm xanh trực tuyến chuẩn Meta Messenger góc dưới bên phải -->
-                <span id="detail_online_dot" class="absolute bottom-0 right-0 h-4 w-4 rounded-full bg-emerald-500 ring-2 ring-white shadow-xs hidden" title="Đang trực tuyến"></span>
+                <span id="detail_online_dot" class="absolute bottom-0.5 right-0.5 h-4 w-4 rounded-full bg-emerald-500 border-2 border-white ring-1 ring-emerald-600/30 shadow-sm hidden" title="Đang trực tuyến (Online)"></span>
                 <!-- Nút đổi ảnh đại diện sinh viên -->
                 <button type="button" onclick="triggerAvatarUpload()" class="absolute -top-1 -right-1 p-1 bg-slate-900/80 hover:bg-slate-900 text-white rounded-full text-[10px] shadow-sm transition opacity-80 group-hover:opacity-100 flex items-center gap-0.5 px-1.5 cursor-pointer" title="Nhấp để tải ảnh đại diện lên">
                   <span>📷</span>
@@ -1748,8 +1751,23 @@
                   <span class="font-bold text-slate-700 flex-shrink-0">Hướng đề tài:</span>
                   <span id="detailTopic" class="italic text-slate-700">Điện mặt trời</span>
                 </div>
+                <!-- THÔNG TIN SĐT & EMAIL CỦA SINH VIÊN (GIẢNG VIÊN CÓ THỂ XEM, BẤM LIÊN HỆ & CHỈNH SỬA) -->
+                <div class="mt-2.5 flex flex-wrap items-center gap-2 text-xs">
+                  <div class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-blue-50 text-blue-700 border border-blue-200 font-medium">
+                    <svg class="w-3.5 h-3.5 text-blue-600 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z"/></svg>
+                    <span class="font-bold text-slate-700">SĐT:</span>
+                    <a id="detailPhone" href="#" class="font-bold text-blue-700 hover:underline">Chưa cập nhật</a>
+                    <button type="button" onclick="promptEditThesisContact('phone')" class="text-blue-500 hover:text-blue-800 p-0.5 ml-0.5 transition" title="Nhấp để cập nhật số điện thoại sinh viên">✏️</button>
+                  </div>
+                  <div class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-purple-50 text-purple-700 border border-purple-200 font-medium">
+                    <svg class="w-3.5 h-3.5 text-purple-600 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/></svg>
+                    <span class="font-bold text-slate-700">Email:</span>
+                    <a id="detailEmail" href="#" class="font-bold text-purple-700 hover:underline truncate max-w-[220px]">Chưa cập nhật</a>
+                    <button type="button" onclick="promptEditThesisContact('email')" class="text-purple-500 hover:text-purple-800 p-0.5 ml-0.5 transition" title="Nhấp để cập nhật email sinh viên">✏️</button>
+                  </div>
+                </div>
                 <!-- Status Badges for Last Submission and Access -->
-                <div class="mt-2 flex flex-wrap items-center gap-2 text-xs">
+                <div class="mt-2.5 flex flex-wrap items-center gap-2 text-xs">
                   <div id="badgeLastSubmitted" class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-emerald-50 text-emerald-700 border border-emerald-200 font-medium">
                     <span class="w-2 h-2 rounded-full bg-emerald-500"></span>
                     <span>Đã gửi báo cáo: <strong id="detailLastSubmittedTime">Chưa gửi</strong></span>
@@ -1903,7 +1921,7 @@
       <div class="bg-white rounded-2xl border border-slate-200/80 shadow-sm p-4 sm:p-5 flex flex-wrap items-center justify-between gap-4">
         <div class="flex flex-wrap items-center gap-3 text-xs">
           <div class="bg-emerald-50 px-3.5 py-2 rounded-xl border border-emerald-200 flex items-center gap-2">
-            <span class="text-emerald-700 font-semibold">Tổng SV Khóa Dưới:</span>
+            <span class="text-emerald-700 font-semibold">Tổng Sinh Viên:</span>
             <strong id="statTotalRegularStudents" class="text-emerald-900 font-bold text-sm">0</strong>
           </div>
           <div class="bg-blue-50 px-3.5 py-2 rounded-xl border border-blue-200 flex items-center gap-2">
@@ -1912,16 +1930,19 @@
             <strong id="statOnlineRegularStudents" class="text-blue-900 font-bold text-sm">0</strong>
           </div>
           <div class="bg-slate-50 px-3.5 py-2 rounded-xl border border-slate-200 text-slate-600">
-            <span>Phân Bố: </span>
-            <span id="statCoursesBreakdown" class="font-bold text-slate-800">K69, K70, K71...</span>
+            <span>Các Khóa: </span>
+            <span id="statCoursesBreakdown" class="font-bold text-slate-800">Tất cả các khóa</span>
           </div>
         </div>
 
         <div class="flex items-center gap-2 flex-wrap">
+          <button onclick="triggerSendDailyDigestNow()" class="px-3.5 py-2 bg-gradient-to-r from-amber-600 to-orange-600 hover:from-amber-700 hover:to-orange-700 text-white font-bold text-xs rounded-xl shadow-sm transition active:scale-95 flex items-center gap-1.5" title="Gửi bản tin tổng hợp tất cả tin nhắn của sinh viên về email Thầy">
+            <span>📬 Bản Tin 7:00 Sáng</span>
+          </button>
           <button onclick="openBroadcastAnnouncementModal()" class="px-3.5 py-2 bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white font-bold text-xs rounded-xl shadow-sm transition active:scale-95 flex items-center gap-1.5">
             <span>📢 Gửi Email Thông Báo</span>
           </button>
-          <button onclick="exportRegularStudentsToCsv()" class="px-3 py-2 bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold text-xs rounded-xl transition flex items-center gap-1.5" title="Xuất danh sách sinh viên khóa dưới ra file Excel CSV">
+          <button onclick="exportRegularStudentsToCsv()" class="px-3 py-2 bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold text-xs rounded-xl transition flex items-center gap-1.5" title="Xuất danh sách sinh viên ra file Excel CSV">
             <svg class="w-3.5 h-3.5 text-emerald-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>
             <span>Xuất Excel</span>
           </button>
@@ -1934,13 +1955,13 @@
       <!-- MAIN WORKSPACE 2-COLUMN GRID -->
       <div class="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
         
-        <!-- LEFT COLUMN: DIRECTORY OF JUNIOR STUDENTS (5 COLS) -->
+        <!-- LEFT COLUMN: DIRECTORY OF FACULTY STUDENTS (5 COLS) -->
         <div class="lg:col-span-5 bg-white rounded-2xl border border-slate-200/80 shadow-sm p-4 sm:p-5 flex flex-col h-[780px]">
           <div class="space-y-3 pb-3 border-b border-slate-100">
             <div class="flex items-center justify-between">
               <div class="flex items-center gap-2">
                 <span class="w-2.5 h-2.5 rounded-full bg-emerald-600"></span>
-                <h3 class="text-sm font-extrabold text-slate-900">Danh Sách Sinh Viên Khóa Dưới</h3>
+                <h3 class="text-sm font-extrabold text-slate-900">Danh Sách Sinh Viên Toàn Khoa</h3>
               </div>
               <span class="text-xs px-2 py-0.5 rounded-full bg-emerald-100 text-emerald-800 font-bold" id="badgeTotalRegularStudents">0 SV</span>
             </div>
@@ -2109,7 +2130,7 @@
           </div>
           <div>
             <div class="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-xs font-bold bg-emerald-500/20 text-emerald-300 border border-emerald-400/30 mb-1">
-              <span>Sinh Viên Khóa Dưới</span>
+              <span>Sinh Viên (Khoa VLKT &amp; CN Nano)</span>
               <span id="regUserCourseBadge" class="font-normal opacity-90">&bull; K69</span>
             </div>
             <h2 id="regUserDisplayName" class="text-xl sm:text-2xl font-black text-white tracking-tight">Họ và Tên</h2>
@@ -3020,7 +3041,9 @@
       courses: ["Khóa K68 (2023 - 2027)", "Khóa K67 (2022 - 2026)", "Khóa K69 (2024 - 2028)"],
       selectedCourse: "all",
       unreadMessages: {},   // { [studentId]: count }
-      avatars: {}           // { [studentId]: "data:image/jpeg;base64,..." }
+      avatars: {},          // { [studentId]: "data:image/jpeg;base64,..." }
+      thesisContacts: {},   // { [studentId]: { phone, email } }
+      pendingDigestMessages: [] // [ { studentId, studentName, cohort, phone, email, text, timestamp } ]
     };
     window.state = state;
 
@@ -3227,6 +3250,18 @@
                 try {
                   const aArr = JSON.parse(st.value);
                   if (Array.isArray(aArr)) state.announcements = aArr;
+                } catch (e) {}
+              }
+              if (st.key === 'THESIS_STUDENTS_CONTACTS' && st.value) {
+                try {
+                  const tc = JSON.parse(st.value);
+                  if (tc && typeof tc === 'object') state.thesisContacts = tc;
+                } catch (e) {}
+              }
+              if (st.key === 'PENDING_STUDENT_MESSAGES_FOR_DIGEST' && st.value) {
+                try {
+                  const pd = JSON.parse(st.value);
+                  if (Array.isArray(pd)) state.pendingDigestMessages = pd;
                 } catch (e) {}
               }
               if (st.key && st.key.startsWith('AVATAR_')) {
@@ -4407,18 +4442,17 @@
         }).then(() => {});
       }
 
-      // Kích hoạt gửi email thông báo cho GVCN qua API
-      fetch('/api/send-report', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          type: 'chat_notification',
-          studentName: currentUser.name,
-          studentId: currentUser.id,
-          messageText: text,
-          timestamp: new Date().toLocaleString('vi-VN')
-        })
-      }).catch(e => console.log(e));
+      // Gom tin nhắn vào hàng đợi Bản Tin 7:00 Sáng gửi về Thầy (không gửi email tức thì để tránh spam hộp thư)
+      queueMessageForDailyDigest({
+        studentId: currentUser.id,
+        studentName: currentUser.name,
+        cohort: currentUser.course || 'Sinh viên',
+        phone: currentUser.phone || 'Chưa cập nhật',
+        email: currentUser.email || 'Chưa cập nhật',
+        text: text,
+        timestamp: new Date().toLocaleString('vi-VN'),
+        createdAt: new Date().toISOString()
+      });
     }
 
     // ==============================================================
@@ -5369,7 +5403,7 @@
 
           const headers = rawRows[headerIdx].map(c => normalizeHeaderKey(c));
           
-          let colName = -1, colId = -1, colCourse = -1, colTopic = -1, colGpa = -1, colPass = -1;
+          let colName = -1, colId = -1, colCourse = -1, colTopic = -1, colGpa = -1, colPass = -1, colPhone = -1, colEmail = -1;
           headers.forEach((h, idx) => {
             if (colName === -1 && (h.includes('hoten') || h.includes('tensinhvien') || h.includes('ten') || h.includes('fullname') || h.includes('name'))) colName = idx;
             if (colId === -1 && (h.includes('masv') || h.includes('mssv') || h.includes('msv') || h.includes('studentid') || h === 'id')) colId = idx;
@@ -5377,6 +5411,8 @@
             if (colTopic === -1 && (h.includes('detai') || h.includes('huong') || h.includes('topic'))) colTopic = idx;
             if (colGpa === -1 && (h.includes('gpa') || h.includes('diem'))) colGpa = idx;
             if (colPass === -1 && (h.includes('matkhau') || h.includes('pass'))) colPass = idx;
+            if (colPhone === -1 && (h.includes('sdt') || h.includes('phone') || h.includes('dienthoai') || h.includes('tel') || h.includes('mobile'))) colPhone = idx;
+            if (colEmail === -1 && (h.includes('email') || h.includes('mail'))) colEmail = idx;
           });
 
           if (colName === -1 || colId === -1) {
@@ -5409,6 +5445,9 @@
             if (isNaN(gpa)) gpa = 2.50;
             let pass = (colPass !== -1 && row[colPass]) ? row[colPass].toString().trim() : id;
 
+            let phone = (colPhone !== -1 && row[colPhone]) ? row[colPhone].toString().trim() : '';
+            let email = (colEmail !== -1 && row[colEmail]) ? row[colEmail].toString().trim() : '';
+
             pendingImportCourses.add(course);
             pendingImportStudents.push({
               stt: pendingImportStudents.length + 1,
@@ -5417,7 +5456,9 @@
               course: course,
               topic: topic,
               gpa: gpa,
-              password: pass
+              password: pass,
+              phone: phone,
+              email: email
             });
           }
 
@@ -5487,6 +5528,9 @@
         const newIds = pendingImportStudents.map(s => s.id);
         state.deletedStudentIds = state.deletedStudentIds.filter(dId => !newIds.includes(dId));
 
+        if (!state.thesisContacts) state.thesisContacts = {};
+        let hasContactsUpdated = false;
+
         pendingImportStudents.forEach(newS => {
           const existingIdx = state.customStudents.findIndex(cs => cs.id === newS.id);
           if (existingIdx !== -1) {
@@ -5496,6 +5540,14 @@
           }
           state.studentPasswords[newS.id] = newS.password;
           if (newS.topic) state.customTopics[newS.id] = newS.topic;
+
+          if (newS.phone || newS.email) {
+            hasContactsUpdated = true;
+            state.thesisContacts[newS.id] = {
+              phone: newS.phone || (state.thesisContacts[newS.id] && state.thesisContacts[newS.id].phone) || '',
+              email: newS.email || (state.thesisContacts[newS.id] && state.thesisContacts[newS.id].email) || ''
+            };
+          }
         });
 
         if (supabaseClient) {
@@ -5520,10 +5572,18 @@
             }));
             await supabaseClient.from('student_progress').upsert(progressUpserts, { onConflict: 'student_id' });
 
-            await supabaseClient.from('system_settings').upsert([
+            const settingsUpserts = [
               { key: 'COURSES_LIST', value: JSON.stringify(state.courses), updated_at: new Date().toISOString() },
               { key: 'DELETED_STUDENT_IDS', value: JSON.stringify(state.deletedStudentIds), updated_at: new Date().toISOString() }
-            ], { onConflict: 'key' });
+            ];
+            if (hasContactsUpdated) {
+              settingsUpserts.push({
+                key: 'THESIS_STUDENTS_CONTACTS',
+                value: JSON.stringify(state.thesisContacts),
+                updated_at: new Date().toISOString()
+              });
+            }
+            await supabaseClient.from('system_settings').upsert(settingsUpserts, { onConflict: 'key' });
           } catch (errSup) {
             console.warn("Supabase import upsert warning:", errSup);
           }
@@ -6587,14 +6647,14 @@
           if (teacherMetrics) teacherMetrics.classList.remove("hidden");
           if (regularAdminView) regularAdminView.classList.add("hidden");
 
-          headerTitle.textContent = "Bảng Quản Trị Đồ Án Tốt Nghiệp";
-          headerSub.textContent = "Theo dõi và quản lý toàn bộ 24 sinh viên đồ án tốt nghiệp Khóa K68";
+          headerTitle.textContent = "Đồ Án Sinh Viên";
+          headerSub.textContent = "Không gian theo dõi tiến độ, trao đổi học thuật và hoàn thành đề tài tốt nghiệp";
           if (submitArea) submitArea.classList.add("hidden");
           if (btnResetStudentPass) btnResetStudentPass.classList.remove("hidden");
           if (btnDeleteStudent) btnDeleteStudent.classList.remove("hidden");
           if (detailRoleTag) detailRoleTag.classList.add("hidden");
         } else {
-          // Junior students management view
+          // Regular / All Faculty students management view
           if (btnTabThesis) {
             btnTabThesis.className = "px-4 py-2 rounded-lg text-xs sm:text-sm font-bold transition text-slate-600 hover:text-slate-900 flex items-center gap-2";
           }
@@ -6605,12 +6665,12 @@
           if (teacherMetrics) teacherMetrics.classList.add("hidden");
           if (regularAdminView) regularAdminView.classList.remove("hidden");
 
-          headerTitle.textContent = "Quản Trị Sinh Viên Khóa Dưới";
-          headerSub.textContent = "Không gian quản lý sinh viên các khóa, cổng chat chung toàn khóa & gửi thông báo tự động";
+          headerTitle.textContent = "Sinh Viên Khoa Vật Lý Kỹ Thuật và Công Nghệ Nano";
+          headerSub.textContent = "Không gian quản lý sinh viên toàn khoa, phòng chat chung và gửi thông báo tự động";
           renderRegularAdminWorkspace();
         }
       } else if (isRegularStudent) {
-        // Regular student view
+        // Regular student view (All cohorts)
         if (teacherNavTabs) teacherNavTabs.classList.add("hidden");
         if (teacherMetrics) teacherMetrics.classList.add("hidden");
         if (mainGrid) mainGrid.classList.add("hidden");
@@ -6619,8 +6679,8 @@
         if (btnHeaderEditProfile) btnHeaderEditProfile.classList.remove("hidden");
         if (regularStudentPortal) regularStudentPortal.classList.remove("hidden");
 
-        headerTitle.textContent = "Không Gian Sinh Viên Khóa Dưới";
-        headerSub.textContent = "Cổng thông tin, phòng chat chung và kênh trao đổi với Giáo viên Chủ nhiệm";
+        headerTitle.textContent = "Cổng Sinh Viên Khoa Vật Lý Kỹ Thuật và Công Nghệ Nano";
+        headerSub.textContent = "Không gian trao đổi sinh viên toàn khoa, phòng chat chung và kênh liên hệ với Giáo viên Chủ nhiệm";
         renderRegularStudentPortal();
       } else {
         // Thesis Student view: 1 Column ONLY, focused purely on the student's personal thesis
@@ -6804,6 +6864,118 @@
       });
     }
 
+    // ==============================================================
+    // CHỈNH SỬA SĐT & EMAIL CỦA SINH VIÊN LÀM ĐỒ ÁN (LƯU SUPABASE)
+    // ==============================================================
+    async function promptEditThesisContact(field) {
+      const all = getAllStudents();
+      const student = all.find(s => s.id === state.selectedStudentId) || (currentUser && currentUser.role === "student" ? currentUser : null);
+      if (!student) return;
+
+      if (!state.thesisContacts) state.thesisContacts = {};
+      if (!state.thesisContacts[student.id]) state.thesisContacts[student.id] = { phone: '', email: '' };
+
+      const currentVal = state.thesisContacts[student.id][field] || student[field] || '';
+      const label = field === 'phone' ? 'Số điện thoại' : 'Địa chỉ Email';
+      const example = field === 'phone' ? 'Ví dụ: 0987654321' : 'Ví dụ: nguyenvana@vnu.edu.vn';
+
+      const newVal = prompt(`Nhập ${label} cho sinh viên ${student.name} (${student.id}):\n(${example})`, currentVal);
+      if (newVal === null) return;
+
+      const cleanVal = newVal.trim();
+      state.thesisContacts[student.id][field] = cleanVal;
+      saveState();
+
+      if (supabaseClient) {
+        try {
+          await supabaseClient.from('system_settings').upsert({
+            key: 'THESIS_STUDENTS_CONTACTS',
+            value: JSON.stringify(state.thesisContacts),
+            updated_at: new Date().toISOString()
+          }, { onConflict: 'key' });
+        } catch (e) {
+          console.warn("Lưu thesisContacts lên Supabase:", e);
+        }
+      }
+
+      renderStudentDetail();
+      showToast("Đã lưu thông tin liên hệ!", `Đã cập nhật ${label} của ${student.name}.`);
+    }
+    window.promptEditThesisContact = promptEditThesisContact;
+
+    // ==============================================================
+    // HÀNG ĐỢI BẢN TIN TỔNG HỢP 7:00 SÁNG (TRÁNH GỬI EMAIL TỨC THÌ SPAM HỘP THƯ)
+    // ==============================================================
+    async function queueMessageForDailyDigest(msgObj) {
+      if (!msgObj) return;
+      if (!state.pendingDigestMessages) state.pendingDigestMessages = [];
+      state.pendingDigestMessages.push(msgObj);
+      saveState();
+
+      if (supabaseClient) {
+        try {
+          await supabaseClient.from('system_settings').upsert({
+            key: 'PENDING_STUDENT_MESSAGES_FOR_DIGEST',
+            value: JSON.stringify(state.pendingDigestMessages),
+            updated_at: new Date().toISOString()
+          }, { onConflict: 'key' });
+        } catch (e) {
+          console.warn("Lưu pendingDigestMessages lên Supabase:", e);
+        }
+      }
+    }
+    window.queueMessageForDailyDigest = queueMessageForDailyDigest;
+
+    // GỬI BẢN TIN 7:00 SÁNG THỦ CÔNG KHI GIẢNG VIÊN CẦN XEM/GỬI NGAY
+    async function triggerSendDailyDigestNow() {
+      const pendingCount = (state.pendingDigestMessages && state.pendingDigestMessages.length) || 0;
+      const targetEmail = state.teacherEmail || localStorage.getItem("K68_TEACHER_EMAIL") || 'tkdark3010@gmail.com';
+
+      const confirmMsg = `📬 BẢN TIN 7:00 SÁNG - TỔNG HỢP TIN NHẮN SINH VIÊN:\n\n` +
+        `- Hiện có ${pendingCount} tin nhắn sinh viên trong hàng đợi.\n` +
+        `- Email nhận báo cáo: ${targetEmail}\n\n` +
+        `Hệ thống sẽ gom toàn bộ tin nhắn thành 1 email tổng hợp duy nhất gửi tới Thầy/Cô (thay vì gửi từng email khi sinh viên nhắn).\n\n` +
+        `Thầy/Cô có muốn kích hoạt gửi bản tin ngay bây giờ không?`;
+
+      if (!confirm(confirmMsg)) return;
+
+      showToast("Đang chuẩn bị bản tin...", "Đang tổng hợp tất cả tin nhắn sinh viên để phát 1 bản tin duy nhất...");
+
+      try {
+        const res = await fetch('/api/send-report', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            type: 'daily_digest',
+            teacherEmail: targetEmail,
+            clientMessages: state.pendingDigestMessages || []
+          })
+        });
+
+        const data = await res.json();
+        if (data.success) {
+          state.pendingDigestMessages = [];
+          saveState();
+          if (supabaseClient) {
+            try {
+              await supabaseClient.from('system_settings').upsert({
+                key: 'PENDING_STUDENT_MESSAGES_FOR_DIGEST',
+                value: JSON.stringify([]),
+                updated_at: new Date().toISOString()
+              }, { onConflict: 'key' });
+            } catch (e) {}
+          }
+          showToast("🎉 Gửi bản tin thành công!", data.message || `Đã gửi bản tin tổng hợp về email ${targetEmail}.`);
+        } else {
+          showToast("Thông báo", data.message || "Không có tin nhắn nào cần gửi hoặc cấu hình email chưa hoàn tất", true);
+        }
+      } catch (err) {
+        console.warn("Lỗi gửi bản tin 7h sáng:", err);
+        showToast("Lỗi gửi bản tin", err.message || "Vui lòng kiểm tra kết nối mạng hoặc thử lại sau", true);
+      }
+    }
+    window.triggerSendDailyDigestNow = triggerSendDailyDigestNow;
+
     function renderStudentDetail() {
       // If student logged in, ALWAYS view their own ID
       if (currentUser && currentUser.role === "student") {
@@ -6819,6 +6991,36 @@
       document.getElementById("detailGpa").textContent = `GPA: ${typeof student.gpa === 'number' ? student.gpa.toFixed(2) : (student.gpa || '2.50')}`;
       document.getElementById("detailId").textContent = `MSV: ${student.id}`;
       document.getElementById("detailTopic").textContent = topic;
+
+      // Hiển thị SĐT & Email liên hệ của sinh viên đồ án
+      const contact = (state.thesisContacts && state.thesisContacts[student.id]) || {};
+      const phoneVal = contact.phone || student.phone || '';
+      const emailVal = contact.email || student.email || '';
+
+      const phoneEl = document.getElementById("detailPhone");
+      const emailEl = document.getElementById("detailEmail");
+      if (phoneEl) {
+        if (phoneVal) {
+          phoneEl.textContent = phoneVal;
+          phoneEl.href = `tel:${phoneVal}`;
+          phoneEl.className = "font-bold text-blue-700 hover:underline";
+        } else {
+          phoneEl.textContent = "Chưa cập nhật";
+          phoneEl.href = "#";
+          phoneEl.className = "text-slate-400 italic";
+        }
+      }
+      if (emailEl) {
+        if (emailVal) {
+          emailEl.textContent = emailVal;
+          emailEl.href = `mailto:${emailVal}`;
+          emailEl.className = "font-bold text-purple-700 hover:underline truncate max-w-[220px]";
+        } else {
+          emailEl.textContent = "Chưa cập nhật";
+          emailEl.href = "#";
+          emailEl.className = "text-slate-400 italic";
+        }
+      }
 
       const nameParts = student.name.split(" ");
       const initials = nameParts.length >= 2 
@@ -7310,23 +7512,19 @@
         }
       }
 
-      // Tự động gửi email thông báo có tin nhắn mới về Gmail của giảng viên khi sinh viên nhắn
+      // Gom tin nhắn vào hàng đợi Bản Tin 7:00 Sáng gửi về Thầy (không gửi email tức thì để tránh spam hộp thư)
       if (!isTeacher) {
-        const targetTeacherEmail = state.teacherEmail || localStorage.getItem("K68_TEACHER_EMAIL") || "tkdark3010@gmail.com";
-        try {
-          fetch('/api/send-report', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({
-              type: 'chat_notification',
-              studentId: student.id,
-              studentName: student.name,
-              messageText: text,
-              timestamp: nowStr,
-              teacherEmail: targetTeacherEmail
-            })
-          }).catch(err => console.warn('Lỗi gửi email thông báo tin nhắn:', err));
-        } catch (e) {}
+        const contact = (state.thesisContacts && state.thesisContacts[student.id]) || {};
+        queueMessageForDailyDigest({
+          studentId: student.id,
+          studentName: student.name,
+          cohort: student.course || 'Sinh viên đồ án',
+          phone: contact.phone || student.phone || 'Chưa cập nhật',
+          email: contact.email || student.email || 'Chưa cập nhật',
+          text: text,
+          timestamp: nowStr,
+          createdAt: new Date().toISOString()
+        });
       }
 
       if (isGoogleAppsScript()) {
