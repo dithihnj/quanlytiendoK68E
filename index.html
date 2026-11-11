@@ -264,85 +264,236 @@
             </button>
           </div>
 
-          <!-- PORTAL 1: THESIS STUDENT LOGIN (KHÓA K68 ĐỒ ÁN) -->
+          <!-- PORTAL 1: THESIS STUDENT LOGIN & REGISTER (ĐỒ ÁN SINH VIÊN) -->
           <div id="studentLoginForm">
-            <div class="mb-5">
-              <div class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-md text-[11px] font-bold bg-blue-50 text-blue-700 border border-blue-200 mb-2">
-                <span>🎓 Cổng 1: Sinh Viên Làm Đồ Án Tốt Nghiệp</span>
+            <!-- Sub-tabs: Đăng Nhập vs Đăng Ký cho Sinh Viên Đồ Án -->
+            <div class="flex items-center justify-between mb-4 pb-2 border-b border-slate-100">
+              <div class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-md text-[11px] font-bold bg-blue-50 text-blue-700 border border-blue-200">
+                <span>🎓 Cổng 1: Đồ Án Sinh Viên</span>
               </div>
-              <h2 class="text-xl sm:text-2xl font-black text-slate-900 tracking-tight">Chào mừng bạn!</h2>
-              <p class="text-xs text-slate-500 mt-1">
-                Nhập chính xác Họ tên và Mã sinh viên (đầu <strong>2302</strong>) để vào trang quản lý và gửi báo cáo đồ án của bạn.
-              </p>
+              <div class="flex items-center gap-1 p-1 bg-slate-100 rounded-lg text-xs font-semibold">
+                <button type="button" id="btnSubThesisLogin" onclick="switchThesisSubTab('login')" class="px-3 py-1 rounded-md bg-white text-blue-700 shadow-xs font-bold transition">
+                  Đăng Nhập
+                </button>
+                <button type="button" id="btnSubThesisRegister" onclick="switchThesisSubTab('register')" class="px-3 py-1 rounded-md text-slate-600 hover:text-slate-900 transition">
+                  Đăng Ký Đồ Án
+                </button>
+              </div>
             </div>
 
-            <form onsubmit="handleStudentLogin(event)" class="space-y-4">
-              <div>
-                <label class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1.5 flex items-center gap-1.5">
-                  <svg class="w-3.5 h-3.5 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"/></svg>
-                  <span>Họ và Tên Sinh Viên</span>
-                </label>
-                <input 
-                  type="text" 
-                  id="studentNameInput" 
-                  placeholder="Gõ tên của bạn (VD: Trần Gia Bình, Nguyễn Thành Đạt...)" 
-                  list="studentsNameList"
-                  required
-                  class="w-full px-4 py-3 text-sm rounded-xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-blue-500 bg-slate-50 focus:bg-white transition"
-                >
-                <datalist id="studentsNameList">
-                  <!-- Populated by JS -->
-                </datalist>
+            <!-- 1A. FORM ĐĂNG NHẬP SINH VIÊN ĐỒ ÁN -->
+            <div id="subThesisLoginForm">
+              <div class="mb-4">
+                <h2 class="text-xl font-black text-slate-900 tracking-tight">Đăng Nhập Đồ Án</h2>
+                <p class="text-xs text-slate-500 mt-1">
+                  Nhập Họ tên, Mã sinh viên và Mật khẩu để vào không gian quản lý tiến độ cá nhân.
+                </p>
               </div>
 
-              <div>
-                <label class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1.5 flex items-center gap-1.5">
-                  <svg class="w-3.5 h-3.5 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H5a2 2 0 00-2 2v9a2 2 0 002 2h14a2 2 0 002-2V8a2 2 0 00-2-2h-5m-4 0V5a2 2 0 114 0v1m-4 0a2 2 0 104 0m-5 8a2 2 0 100-4 2 2 0 000 4zm0 0c1.306 0 2.417.835 2.83 2M9 14a3.001 3.001 0 00-2.83 2M15 11h3m-3 4h2"/></svg>
-                  <span>Mã Sinh Viên (2302xxxx)</span>
-                </label>
-                <input 
-                  type="text" 
-                  id="studentIdInput" 
-                  placeholder="Ví dụ: 23020452" 
-                  required
-                  class="w-full px-4 py-3 text-sm rounded-xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-blue-500 bg-slate-50 focus:bg-white transition font-mono"
-                >
-              </div>
-
-              <div>
-                <div class="flex items-center justify-between mb-1.5">
-                  <label class="block text-xs font-bold text-slate-700 uppercase tracking-wider flex items-center gap-1.5">
-                    <svg class="w-3.5 h-3.5 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"/></svg>
-                    <span>Mật Khẩu</span>
+              <form onsubmit="handleStudentLogin(event)" class="space-y-3.5">
+                <div>
+                  <label class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1.5 flex items-center gap-1.5">
+                    <svg class="w-3.5 h-3.5 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"/></svg>
+                    <span>Họ và Tên Sinh Viên</span>
                   </label>
-                  <span class="text-[11px] text-slate-400 italic">Mặc định: Mã SV</span>
-                </div>
-                <div class="relative">
                   <input 
-                    type="password" 
-                    id="studentPasswordInput" 
-                    placeholder="Nhập mật khẩu (Mặc định là Mã SV)..." 
+                    type="text" 
+                    id="studentNameInput" 
+                    placeholder="Gõ tên của bạn (VD: Trần Gia Bình, Nguyễn Thành Đạt...)" 
+                    list="studentsNameList"
                     required
-                    class="w-full px-4 py-3 pr-10 text-sm rounded-xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-blue-500 bg-slate-50 focus:bg-white transition"
+                    class="w-full px-4 py-2.5 text-sm rounded-xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-blue-500 bg-slate-50 focus:bg-white transition text-slate-800"
                   >
-                  <button type="button" onclick="togglePasswordVisibility('studentPasswordInput')" class="absolute right-3 top-3 text-slate-400 hover:text-slate-600 transition" title="Hiện/Ẩn mật khẩu">
-                    👁️
+                  <datalist id="studentsNameList">
+                    <!-- Populated by JS -->
+                  </datalist>
+                </div>
+
+                <div>
+                  <label class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1.5 flex items-center gap-1.5">
+                    <svg class="w-3.5 h-3.5 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H5a2 2 0 00-2 2v9a2 2 0 002 2h14a2 2 0 002-2V8a2 2 0 00-2-2h-5m-4 0V5a2 2 0 114 0v1m-4 0a2 2 0 104 0m-5 8a2 2 0 100-4 2 2 0 000 4zm0 0c1.306 0 2.417.835 2.83 2M9 14a3.001 3.001 0 00-2.83 2M15 11h3m-3 4h2"/></svg>
+                    <span>Mã Sinh Viên (MSV)</span>
+                  </label>
+                  <input 
+                    type="text" 
+                    id="studentIdInput" 
+                    placeholder="Ví dụ: 23020452" 
+                    required
+                    class="w-full px-4 py-2.5 text-sm rounded-xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-blue-500 bg-slate-50 focus:bg-white transition font-mono text-slate-800"
+                  >
+                </div>
+
+                <div>
+                  <div class="flex items-center justify-between mb-1.5">
+                    <label class="block text-xs font-bold text-slate-700 uppercase tracking-wider flex items-center gap-1.5">
+                      <svg class="w-3.5 h-3.5 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"/></svg>
+                      <span>Mật Khẩu</span>
+                    </label>
+                    <button 
+                      type="button" 
+                      onclick="openForgotPasswordModal()" 
+                      class="text-xs text-blue-600 hover:text-blue-800 font-semibold transition hover:underline"
+                    >
+                      Quên mật khẩu?
+                    </button>
+                  </div>
+                  <div class="relative">
+                    <input 
+                      type="password" 
+                      id="studentPasswordInput" 
+                      placeholder="Nhập mật khẩu (Mặc định là Mã SV)..." 
+                      required
+                      class="w-full px-4 py-2.5 pr-10 text-sm rounded-xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-blue-500 bg-slate-50 focus:bg-white transition text-slate-800"
+                    >
+                    <button type="button" onclick="togglePasswordVisibility('studentPasswordInput')" class="absolute right-3 top-2.5 text-slate-400 hover:text-slate-600 transition" title="Hiện/Ẩn mật khẩu">
+                      👁️
+                    </button>
+                  </div>
+                </div>
+
+                <div id="studentLoginError" class="text-xs text-rose-600 font-semibold hidden bg-rose-50 p-3 rounded-xl border border-rose-200 text-center">
+                  Thông tin Họ tên hoặc Mã sinh viên chưa chính xác! Vui lòng kiểm tra lại.
+                </div>
+
+                <button 
+                  type="submit" 
+                  class="w-full py-3 bg-blue-600 hover:bg-blue-700 active:scale-[0.99] text-white font-bold text-sm rounded-xl shadow-lg shadow-blue-500/25 transition duration-150 flex items-center justify-center gap-2 mt-2"
+                >
+                  <span>Vào Trang Quản Lý Đồ Án</span>
+                  <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3"/></svg>
+                </button>
+
+                <div class="text-center pt-2 text-xs text-slate-500">
+                  Chưa có trong danh sách đồ án? 
+                  <button type="button" onclick="switchThesisSubTab('register')" class="text-blue-700 font-bold hover:underline ml-1">
+                    Đăng ký làm đồ án &rarr;
                   </button>
                 </div>
+              </form>
+            </div>
+
+            <!-- 1B. FORM ĐĂNG KÝ SINH VIÊN LÀM ĐỒ ÁN MỚI -->
+            <div id="subThesisRegisterForm" class="hidden">
+              <div class="mb-3">
+                <h2 class="text-lg font-black text-slate-900 tracking-tight">Đăng Ký Đồ Án Mới</h2>
+                <p class="text-[11px] text-slate-500 mt-0.5">
+                  Đăng ký thông tin đề tài tốt nghiệp, SĐT và Email để Thầy phê duyệt &amp; theo dõi tiến độ.
+                </p>
               </div>
 
-              <div id="studentLoginError" class="text-xs text-rose-600 font-semibold hidden bg-rose-50 p-3 rounded-xl border border-rose-200 text-center">
-                Thông tin Họ tên hoặc Mã sinh viên chưa chính xác! Vui lòng kiểm tra lại.
-              </div>
+              <form onsubmit="handleStudentThesisRegister(event)" class="space-y-2.5">
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
+                  <div>
+                    <label class="block text-[11px] font-bold text-slate-700 uppercase mb-1">Họ và Tên *</label>
+                    <input 
+                      type="text" 
+                      id="regThesisName" 
+                      required 
+                      placeholder="VD: Nguyễn Văn An" 
+                      class="w-full px-3 py-2 rounded-xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-blue-500 text-xs text-slate-800"
+                    />
+                  </div>
+                  <div>
+                    <label class="block text-[11px] font-bold text-slate-700 uppercase mb-1">Mã Sinh Viên (MSV) *</label>
+                    <input 
+                      type="text" 
+                      id="regThesisId" 
+                      required 
+                      placeholder="VD: 23020999" 
+                      class="w-full px-3 py-2 rounded-xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-blue-500 text-xs font-mono text-slate-800 uppercase"
+                    />
+                  </div>
+                </div>
 
-              <button 
-                type="submit" 
-                class="w-full py-3.5 bg-blue-600 hover:bg-blue-700 active:scale-[0.99] text-white font-bold text-sm rounded-xl shadow-lg shadow-blue-500/25 transition duration-150 flex items-center justify-center gap-2 mt-2"
-              >
-                <span>Vào Trang Quản Lý &amp; Gửi Tiến Độ</span>
-                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3"/></svg>
-              </button>
-            </form>
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
+                  <div>
+                    <label class="block text-[11px] font-bold text-slate-700 uppercase mb-1">Khóa Học *</label>
+                    <select 
+                      id="regThesisCourse" 
+                      class="w-full px-3 py-2 rounded-xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-blue-500 text-xs bg-white text-slate-800 font-medium"
+                    >
+                      <option value="Khóa K68 (2023 - 2027)">Khóa K68 (2023 - 2027)</option>
+                      <option value="Khóa K67 (2022 - 2026)">Khóa K67 (2022 - 2026)</option>
+                      <option value="Khóa K69 (2024 - 2028)">Khóa K69 (2024 - 2028)</option>
+                    </select>
+                  </div>
+                  <div>
+                    <label class="block text-[11px] font-bold text-slate-700 uppercase mb-1">Điểm GPA Tích Lũy</label>
+                    <input 
+                      type="number" 
+                      id="regThesisGpa" 
+                      step="0.01" 
+                      min="0" 
+                      max="4.0" 
+                      placeholder="VD: 3.25" 
+                      class="w-full px-3 py-2 rounded-xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-blue-500 text-xs font-mono text-slate-800"
+                    />
+                  </div>
+                </div>
+
+                <div>
+                  <label class="block text-[11px] font-bold text-slate-700 uppercase mb-1">Hướng / Đề Tài Nghiên Cứu *</label>
+                  <input 
+                    type="text" 
+                    id="regThesisTopic" 
+                    required 
+                    placeholder="VD: Nghiên cứu pin mặt trời Perovskite / Cảm biến nano..." 
+                    class="w-full px-3 py-2 rounded-xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-blue-500 text-xs text-slate-800"
+                  />
+                </div>
+
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
+                  <div>
+                    <label class="block text-[11px] font-bold text-slate-700 uppercase mb-1">Số Điện Thoại (SĐT) *</label>
+                    <input 
+                      type="tel" 
+                      id="regThesisPhone" 
+                      required 
+                      placeholder="VD: 0987654321" 
+                      class="w-full px-3 py-2 rounded-xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-blue-500 text-xs font-mono text-slate-800"
+                    />
+                  </div>
+                  <div>
+                    <label class="block text-[11px] font-bold text-slate-700 uppercase mb-1">Email Cá Nhân *</label>
+                    <input 
+                      type="email" 
+                      id="regThesisEmail" 
+                      required 
+                      placeholder="VD: vanan@vnu.edu.vn" 
+                      class="w-full px-3 py-2 rounded-xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-blue-500 text-xs text-slate-800"
+                    />
+                  </div>
+                </div>
+
+                <div>
+                  <label class="block text-[11px] font-bold text-slate-700 uppercase mb-1">Mật Khẩu Đăng Nhập *</label>
+                  <input 
+                    type="password" 
+                    id="regThesisPassword" 
+                    required 
+                    placeholder="Tối thiểu 4 ký tự..." 
+                    class="w-full px-3 py-2 rounded-xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-blue-500 text-xs text-slate-800"
+                  />
+                </div>
+
+                <div id="regThesisError" class="p-2.5 rounded-xl bg-rose-50 border border-rose-200 text-xs text-rose-600 font-medium hidden"></div>
+
+                <button 
+                  type="submit" 
+                  id="btnSubmitThesisRegister"
+                  class="w-full py-2.5 bg-blue-600 hover:bg-blue-700 active:scale-[0.99] text-white font-bold text-xs rounded-xl shadow-md transition flex items-center justify-center gap-1.5 mt-2"
+                >
+                  <span>🚀 Hoàn Tất Đăng Ký Đồ Án &amp; Vào Quản Lý Ngay</span>
+                </button>
+
+                <div class="text-center pt-1.5 text-xs text-slate-500">
+                  Đã có trong danh sách? 
+                  <button type="button" onclick="switchThesisSubTab('login')" class="text-blue-700 font-bold hover:underline ml-1">
+                    Đăng nhập &rarr;
+                  </button>
+                </div>
+              </form>
+            </div>
           </div>
 
           <!-- PORTAL 2: REGULAR STUDENTS (KHÓA DƯỚI / KHÔNG LÀM ĐỒ ÁN - ĐĂNG NHẬP & ĐĂNG KÝ) -->
@@ -3505,6 +3656,166 @@
       }
     }
 
+    // Toggle giữa Đăng Nhập và Đăng Ký cho Sinh Viên Làm Đồ Án
+    function switchThesisSubTab(mode) {
+      const btnLogin = document.getElementById("btnSubThesisLogin");
+      const btnReg = document.getElementById("btnSubThesisRegister");
+      const formLogin = document.getElementById("subThesisLoginForm");
+      const formReg = document.getElementById("subThesisRegisterForm");
+
+      if (mode === "login") {
+        if (btnLogin) btnLogin.className = "px-3 py-1 rounded-md bg-white text-blue-700 shadow-xs font-bold transition";
+        if (btnReg) btnReg.className = "px-3 py-1 rounded-md text-slate-600 hover:text-slate-900 transition";
+        if (formLogin) formLogin.classList.remove("hidden");
+        if (formReg) formReg.classList.add("hidden");
+      } else {
+        if (btnReg) btnReg.className = "px-3 py-1 rounded-md bg-white text-blue-700 shadow-xs font-bold transition";
+        if (btnLogin) btnLogin.className = "px-3 py-1 rounded-md text-slate-600 hover:text-slate-900 transition";
+        if (formReg) formReg.classList.remove("hidden");
+        if (formLogin) formLogin.classList.add("hidden");
+      }
+    }
+    window.switchThesisSubTab = switchThesisSubTab;
+
+    // Xử lý Đăng Ký Đề Tài Đồ Án Mới
+    async function handleStudentThesisRegister(e) {
+      e.preventDefault();
+      const errEl = document.getElementById("regThesisError");
+      if (errEl) errEl.classList.add("hidden");
+
+      const name = (document.getElementById("regThesisName").value || "").trim();
+      const id = (document.getElementById("regThesisId").value || "").trim();
+      const course = (document.getElementById("regThesisCourse").value || "").trim() || "Khóa K68 (2023 - 2027)";
+      const gpaRaw = document.getElementById("regThesisGpa").value;
+      const gpa = gpaRaw ? parseFloat(gpaRaw) : 2.50;
+      const topic = (document.getElementById("regThesisTopic").value || "").trim();
+      const phone = (document.getElementById("regThesisPhone").value || "").trim();
+      const email = (document.getElementById("regThesisEmail").value || "").trim().toLowerCase();
+      const password = (document.getElementById("regThesisPassword").value || "").trim();
+
+      if (!name || !id || !topic || !phone || !email || !password) {
+        if (errEl) {
+          errEl.textContent = "Vui lòng điền đầy đủ các mục có dấu sao (*)!";
+          errEl.classList.remove("hidden");
+        }
+        return;
+      }
+
+      if (password.length < 4) {
+        if (errEl) {
+          errEl.textContent = "Mật khẩu cần tối thiểu 4 ký tự!";
+          errEl.classList.remove("hidden");
+        }
+        return;
+      }
+
+      // Kiểm tra xem MSV đã tồn tại trong danh sách đồ án chưa
+      const allCurrent = getAllStudents();
+      const existing = allCurrent.find(s => s.id === id);
+      if (existing) {
+        if (errEl) {
+          errEl.textContent = `Mã sinh viên ${id} (${existing.name}) đã có trong danh sách làm đồ án! Vui lòng chuyển sang tab Đăng Nhập.`;
+          errEl.classList.remove("hidden");
+        }
+        return;
+      }
+
+      const btn = document.getElementById("btnSubmitThesisRegister");
+      const prevHtml = btn ? btn.innerHTML : "";
+      if (btn) {
+        btn.disabled = true;
+        btn.innerHTML = `<span>⏳ Đang tạo tài khoản đồ án...</span>`;
+      }
+
+      try {
+        if (!state.customStudents) state.customStudents = [];
+        const newStudent = {
+          stt: allCurrent.length + 1,
+          name: name,
+          id: id,
+          course: course,
+          topic: topic,
+          gpa: isNaN(gpa) ? 2.50 : gpa,
+          password: password,
+          phone: phone,
+          email: email
+        };
+
+        state.customStudents.push(newStudent);
+        state.studentPasswords[id] = password;
+        state.customTopics[id] = topic;
+
+        if (!state.thesisContacts) state.thesisContacts = {};
+        state.thesisContacts[id] = { phone: phone, email: email };
+
+        const curCourses = getCoursesList();
+        if (!curCourses.includes(course)) {
+          state.courses.push(course);
+        }
+
+        // Lưu đồng bộ lên Supabase Cloud
+        if (supabaseClient) {
+          try {
+            await supabaseClient.from('students').upsert({
+              id: id,
+              stt: newStudent.stt,
+              name: name,
+              gpa: newStudent.gpa,
+              topic: topic,
+              password: password
+            }, { onConflict: 'id' });
+
+            await supabaseClient.from('student_progress').upsert({
+              student_id: id,
+              percent: 0,
+              done_count: 0,
+              total_count: 24,
+              checked_tasks: {},
+              updated_at: new Date().toISOString()
+            }, { onConflict: 'student_id' });
+
+            await supabaseClient.from('system_settings').upsert([
+              { key: 'THESIS_STUDENTS_CONTACTS', value: JSON.stringify(state.thesisContacts), updated_at: new Date().toISOString() },
+              { key: 'COURSES_LIST', value: JSON.stringify(state.courses), updated_at: new Date().toISOString() }
+            ], { onConflict: 'key' });
+          } catch (supErr) {
+            console.warn("Lưu sinh viên đồ án mới lên Supabase:", supErr);
+          }
+        }
+
+        saveState();
+        populateCourseDropdowns();
+        populateLoginDatalist();
+
+        // Tự động đăng nhập luôn cho sinh viên đồ án mới
+        currentUser = {
+          role: "student",
+          id: id,
+          name: name
+        };
+        state.selectedStudentId = id;
+        localStorage.setItem("K68_CURRENT_USER", JSON.stringify(currentUser));
+        localStorage.setItem("K68_LAST_ACCESS_" + id, new Date().toLocaleString('vi-VN'));
+        trackUserPresence();
+
+        closeLoginModal();
+        renderAll();
+
+        showToast("🎉 Đăng ký đồ án thành công!", `Chào mừng bạn ${name}! Hồ sơ đề tài đồ án của bạn đã sẵn sàng.`);
+      } catch (err) {
+        if (errEl) {
+          errEl.textContent = err.message || "Lỗi tạo tài khoản đồ án!";
+          errEl.classList.remove("hidden");
+        }
+      } finally {
+        if (btn) {
+          btn.disabled = false;
+          btn.innerHTML = prevHtml;
+        }
+      }
+    }
+    window.handleStudentThesisRegister = handleStudentThesisRegister;
+
     // Toggle giữa Đăng Nhập và Đăng Ký cho Sinh Viên Khóa Dưới
     function switchRegularSubTab(mode) {
       const btnLogin = document.getElementById("btnSubRegularLogin");
@@ -5161,6 +5472,12 @@
       const modalSelect = document.getElementById("newStudentCourse");
       if (modalSelect) {
         modalSelect.innerHTML = courses.map(c => `<option value="${c}">${c}</option>`).join('');
+      }
+
+      // 3. Dropdown chọn khóa ở Form Đăng Ký Đồ Án (Cổng 1)
+      const regThesisSelect = document.getElementById("regThesisCourse");
+      if (regThesisSelect) {
+        regThesisSelect.innerHTML = courses.map(c => `<option value="${c}">${c}</option>`).join('');
       }
     }
 
