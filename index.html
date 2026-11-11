@@ -2975,8 +2975,10 @@
       } catch (e) {}
     }
 
-    function showMessengerToast(senderName, text, studentId, isTeacherSender = false) {
-      playMessengerChime();
+    function showMessengerToast(senderName, text, studentId, isTeacherSender = false, withSound = false) {
+      if (withSound) {
+        playMessengerChime();
+      }
 
       const toast = document.getElementById("messengerNotificationToast");
       const avatar = document.getElementById("msgToastAvatar");
@@ -3510,16 +3512,8 @@
                   saveState();
                   renderCommunityChatMessages(true);
 
-                  const isFromMe = currentUser && (currentUser.name === msg.student_name || currentUser.id === msg.sender_name);
-                  if (!isFromMe) {
-                    playMessengerChime();
-                    showMessengerToast(
-                      `[Chat Toàn Khoa] ${commMsgObj.sender_name}`,
-                      msgText,
-                      'COMMUNITY',
-                      commMsgObj.sender_role === 'teacher'
-                    );
-                  }
+                  // Kênh Chat Chung Toàn Khoa: Tuyệt đối im lặng, không phát chuông làm phiền
+                  // Chỉ cập nhật tin nhắn trên màn hình và re-render
                 }
                 return;
               }
@@ -3561,26 +3555,37 @@
                   renderRegularStudentPrivateChat();
                 }
 
+                // Kiểm tra xem đây có phải là tin nhắn riêng 1-1 gửi đến đích danh mình không:
+                const isForMe = currentUser && (
+                  (currentUser.role === "teacher" && msg.sender_role !== "teacher") ||
+                  ((currentUser.role === "student" || currentUser.role === "regular_student") && currentUser.id === msg.student_id && msg.sender_role === "teacher")
+                );
+
+                const isFromMe = (currentUser && currentUser.role === "teacher" && msg.sender_role === "teacher") ||
+                                 (currentUser && currentUser.role === "student" && msg.sender_role === "student") ||
+                                 (currentUser && currentUser.name === msg.sender_name);
+
+                // CHỈ KÊU CHUÔNG KHI CÓ TIN NHẮN RIÊNG GỬI ĐẾN ĐÍCH DANH MÌNH
+                if (isForMe && !isFromMe) {
+                  playMessengerChime();
+                }
+
                 const active = getActiveChatStudent();
                 if (isChatOpen && active && active.id === msg.student_id) {
                   renderMessagesList(state.chatHistory[msg.student_id]);
-                } else {
-                  // Tin nhắn gửi đến nhưng chưa mở chat -> Thông báo đẩy kiểu Messenger
-                  const isFromMe = (currentUser && currentUser.role === "teacher" && msg.sender_role === "teacher") ||
-                                   (currentUser && currentUser.role === "student" && msg.sender_role === "student") ||
-                                   (currentUser && currentUser.name === msg.sender_name);
-                  if (!isFromMe) {
-                    if (!state.unreadMessages) state.unreadMessages = {};
-                    state.unreadMessages[msg.student_id] = (state.unreadMessages[msg.student_id] || 0) + 1;
-                    saveState();
-                    updateChatBadges();
-                    showMessengerToast(
-                      msg.sender_name || (msg.sender_role === "teacher" ? "Giảng Viên" : msg.student_name),
-                      msg.message_text,
-                      msg.student_id,
-                      msg.sender_role === "teacher"
-                    );
-                  }
+                } else if (isForMe && !isFromMe) {
+                  // Tin nhắn riêng gửi đến nhưng chưa mở chat -> Thông báo đẩy kiểu Messenger
+                  if (!state.unreadMessages) state.unreadMessages = {};
+                  state.unreadMessages[msg.student_id] = (state.unreadMessages[msg.student_id] || 0) + 1;
+                  saveState();
+                  updateChatBadges();
+                  showMessengerToast(
+                    msg.sender_name || (msg.sender_role === "teacher" ? "Giảng Viên" : msg.student_name),
+                    msg.message_text,
+                    msg.student_id,
+                    msg.sender_role === "teacher",
+                    false
+                  );
                 }
               }
             }
@@ -3667,7 +3672,6 @@
                 if (!state.registeredStudentIds) state.registeredStudentIds = [];
                 if (!state.registeredStudentIds.includes(st.id)) state.registeredStudentIds.push(st.id);
                 if (!currentUser || currentUser.id !== st.id) {
-                  playMessengerChime();
                   showToast("Sinh viên mới đăng ký!", `${st.name} (${st.id} - ${cInfo.kLabel}) vừa đăng ký tài khoản.`);
                 }
               }
@@ -10119,10 +10123,6 @@
             state.communityChatMessages = cleanList;
             saveState();
             renderCommunityChatMessages(true);
-
-            if (!isFromMe && lastMsg) {
-              playMessengerChime();
-            }
           }
         }
 
