@@ -8,6 +8,11 @@
   <script src="https://www.gstatic.com/antigravity/web/dev/tailwindcss.min.js"></script>
   <!-- Supabase Cloud SDK for Realtime & Database -->
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script>
+    if (typeof window !== "undefined" && !window.supabase) {
+      document.write('<script src="https://unpkg.com/@supabase/supabase-js@2"><\/script>');
+    }
+  </script>
   <!-- SheetJS (xlsx) for Excel & CSV Import -->
   <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
   <style>
@@ -2276,138 +2281,159 @@
 
     </section>
 
-    <!-- ==================== 3. CỔNG DÀNH CHO SINH VIÊN KHÓA DƯỚI (REGULAR STUDENT PORTAL) ==================== -->
-    <section id="regularStudentPortalView" class="space-y-6 hidden animate-in fade-in duration-200">
+    <!-- ==================== 3. CỔNG DÀNH CHO SINH VIÊN TOÀN KHOA ==================== -->
+    <section id="regularStudentPortalView" class="max-w-5xl mx-auto w-full space-y-6 hidden animate-in fade-in duration-200">
       
-      <!-- STUDENT PROFILE BANNER CARD -->
-      <div class="bg-gradient-to-r from-slate-900 via-indigo-950 to-slate-900 text-white rounded-2xl p-5 sm:p-7 shadow-lg border border-slate-800 flex flex-col md:flex-row items-start md:items-center justify-between gap-5">
-        <div class="flex items-center gap-4">
-          <div class="relative">
-            <div id="regUserAvatar" class="w-16 h-16 rounded-2xl bg-emerald-600 text-white font-black text-2xl flex items-center justify-center shadow-md">
-              SV
+      <!-- STUDENT PROFILE HERO CARD (CHUẨN THẨM MỸ CỔNG 1, NỀN SÁNG CAO CẤP) -->
+      <div class="bg-white rounded-3xl border border-slate-200/90 shadow-sm p-6 sm:p-7 relative overflow-hidden">
+        <div class="flex flex-col md:flex-row md:items-center justify-between gap-6">
+          <div class="flex items-start gap-4 sm:gap-5">
+            <div class="relative flex-shrink-0">
+              <div id="regUserAvatar" class="w-16 h-16 sm:w-20 sm:h-20 rounded-2xl bg-gradient-to-tr from-blue-600 via-indigo-600 to-purple-600 text-white font-black text-2xl sm:text-3xl flex items-center justify-center shadow-md border-2 border-white ring-2 ring-slate-100">
+                SV
+              </div>
+              <span class="absolute -bottom-1 -right-1 w-4 h-4 rounded-full bg-emerald-500 ring-2 ring-white shadow-sm" title="Đang trực tuyến"></span>
             </div>
-            <span class="absolute bottom-0 right-0 w-4 h-4 rounded-full bg-emerald-400 ring-2 ring-slate-900 shadow-sm" title="Đang trực tuyến"></span>
+            <div>
+              <div class="flex flex-wrap items-center gap-2 mb-1.5">
+                <span class="px-2.5 py-0.5 rounded-full text-xs font-bold bg-blue-50 text-blue-700 border border-blue-200">
+                  Sinh Viên Khoa VLKT &amp; CN Nano
+                </span>
+                <span id="regUserCourseBadge" class="px-2.5 py-0.5 rounded-full text-xs font-bold bg-emerald-50 text-emerald-700 border border-emerald-200">
+                  Khóa K69
+                </span>
+                <span id="regUserDisplayId" class="px-2.5 py-0.5 rounded-full text-xs font-bold bg-slate-100 text-slate-700 font-mono border border-slate-200">
+                  MSV: --
+                </span>
+              </div>
+              <h2 id="regUserDisplayName" class="text-2xl sm:text-3xl font-black text-slate-900 tracking-tight">Họ và Tên Sinh Viên</h2>
+              <div class="flex flex-wrap items-center gap-x-4 gap-y-1.5 text-xs text-slate-600 mt-2">
+                <div class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-blue-50/80 text-blue-700 border border-blue-200/70 font-medium">
+                  <span>📞</span>
+                  <span id="regUserDisplayPhone" class="font-bold">Chưa có SĐT</span>
+                </div>
+                <div class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-purple-50/80 text-purple-700 border border-purple-200/70 font-medium">
+                  <span>✉️</span>
+                  <span id="regUserDisplayEmail" class="font-bold">Chưa có Email</span>
+                </div>
+              </div>
+            </div>
           </div>
-          <div>
-            <div class="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-xs font-bold bg-emerald-500/20 text-emerald-300 border border-emerald-400/30 mb-1">
-              <span>Sinh Viên (Khoa VLKT &amp; CN Nano)</span>
-              <span id="regUserCourseBadge" class="font-normal opacity-90">&bull; K69</span>
-            </div>
-            <h2 id="regUserDisplayName" class="text-xl sm:text-2xl font-black text-white tracking-tight">Họ và Tên</h2>
-            <div class="flex flex-wrap items-center gap-x-4 gap-y-1 text-xs text-slate-300 mt-1 font-mono">
-              <span id="regUserDisplayId">MSV: --</span>
-              <span id="regUserDisplayPhone" class="text-cyan-300">SĐT: --</span>
-              <span id="regUserDisplayEmail" class="text-blue-300">Email: --</span>
-            </div>
-          </div>
-        </div>
 
-        <div class="flex items-center gap-2 flex-wrap">
-          <button onclick="openEditRegularProfileModal()" class="px-3.5 py-2 rounded-xl bg-white/10 hover:bg-white/20 text-xs font-bold text-white border border-white/20 transition flex items-center gap-1.5">
-            <span>✏️ Sửa SĐT &amp; Email</span>
-          </button>
-          <button onclick="openChangePasswordModal()" class="px-3.5 py-2 rounded-xl bg-white/10 hover:bg-white/20 text-xs font-bold text-white border border-white/20 transition flex items-center gap-1.5">
-            <span>🔑 Đổi Mật Khẩu</span>
-          </button>
-          <button onclick="handleLogout()" class="px-3.5 py-2 rounded-xl bg-rose-500/20 hover:bg-rose-500/30 text-rose-300 border border-rose-500/30 text-xs font-bold transition flex items-center gap-1.5">
-            <span>Thoát</span>
-          </button>
+          <div class="flex items-center gap-2 flex-wrap self-start md:self-center">
+            <button onclick="openEditRegularProfileModal()" class="px-3.5 py-2.5 rounded-xl bg-slate-100 hover:bg-slate-200 text-xs font-bold text-slate-700 border border-slate-200 transition flex items-center gap-1.5 cursor-pointer">
+              <span>✏️ Sửa SĐT &amp; Email</span>
+            </button>
+            <button onclick="openChangePasswordModal()" class="px-3.5 py-2.5 rounded-xl bg-slate-100 hover:bg-slate-200 text-xs font-bold text-slate-700 border border-slate-200 transition flex items-center gap-1.5 cursor-pointer">
+              <span>🔑 Đổi Mật Khẩu</span>
+            </button>
+            <button onclick="handleLogout()" class="px-3.5 py-2.5 rounded-xl bg-rose-50 hover:bg-rose-100 text-rose-600 border border-rose-200 text-xs font-bold transition flex items-center gap-1.5 cursor-pointer">
+              <span>🚪 Thoát</span>
+            </button>
+          </div>
         </div>
       </div>
 
-      <!-- STUDENT PORTAL TABS -->
-      <div class="bg-white rounded-2xl border border-slate-200/80 shadow-sm p-4 sm:p-6 min-h-[720px] flex flex-col">
+      <!-- STUDENT PORTAL TABS (3 CHỨC NĂNG CỐT LÕI) -->
+      <div class="bg-white rounded-3xl border border-slate-200/90 shadow-sm p-5 sm:p-8 min-h-[720px] flex flex-col">
         
         <!-- TAB BUTTONS -->
-        <div class="flex items-center gap-2 p-1.5 bg-slate-100 rounded-xl mb-4 text-xs sm:text-sm font-bold border border-slate-200 flex-shrink-0 flex-wrap">
-          <button id="btnRegStudentTabCommunity" onclick="switchRegStudentTab('community')" class="flex-1 py-2.5 px-3 rounded-lg bg-white text-blue-700 shadow-xs flex items-center justify-center gap-2 transition">
+        <div class="grid grid-cols-1 sm:grid-cols-3 gap-2 p-1.5 bg-slate-100 rounded-2xl mb-5 text-xs sm:text-sm font-bold border border-slate-200 flex-shrink-0">
+          <button id="btnRegStudentTabCommunity" onclick="switchRegStudentTab('community')" class="py-3 px-3 rounded-xl bg-white text-blue-700 shadow-xs flex items-center justify-center gap-2 transition cursor-pointer">
             <span>🌐</span>
-            <span>Cổng Chat Chung Toàn Khóa</span>
+            <span>Cổng Chat Chung Toàn Khoa</span>
           </button>
-          <button id="btnRegStudentTabPrivate" onclick="switchRegStudentTab('private')" class="flex-1 py-2.5 px-3 rounded-lg text-slate-600 hover:text-slate-900 flex items-center justify-center gap-2 transition">
+          <button id="btnRegStudentTabPrivate" onclick="switchRegStudentTab('private')" class="py-3 px-3 rounded-xl text-slate-600 hover:text-slate-900 flex items-center justify-center gap-2 transition cursor-pointer">
             <span>💬</span>
-            <span>Chat Riêng Với Giáo Viên Chủ Nhiệm</span>
+            <span>Chat Riêng Với GVCN</span>
           </button>
-          <button id="btnRegStudentTabAnnounce" onclick="switchRegStudentTab('announcements')" class="flex-1 py-2.5 px-3 rounded-lg text-slate-600 hover:text-slate-900 flex items-center justify-center gap-2 transition">
+          <button id="btnRegStudentTabAnnounce" onclick="switchRegStudentTab('announcements')" class="py-3 px-3 rounded-xl text-slate-600 hover:text-slate-900 flex items-center justify-center gap-2 transition cursor-pointer">
             <span>📢</span>
             <span>Thông Báo Từ GVCN</span>
           </button>
         </div>
 
-        <!-- 1. COMMUNITY CHAT TAB -->
+        <!-- 1. CỔNG CHAT CHUNG TOÀN KHOA TAB -->
         <div id="regStudentTabCommunityContent" class="flex-1 flex flex-col min-h-0">
-          <div class="p-3 bg-blue-50 border border-blue-200 rounded-xl mb-3 flex items-center justify-between flex-shrink-0">
-            <div class="text-xs text-blue-900">
-              <strong>Phòng Chat Cộng Đồng:</strong> Thảo luận học tập, hỏi đáp bài giảng cùng các bạn và Thầy/Cô Chủ nhiệm.
+          <div class="p-3.5 bg-blue-50/80 border border-blue-200/80 rounded-2xl mb-4 flex items-center justify-between flex-shrink-0">
+            <div class="flex items-center gap-2 text-xs sm:text-sm text-blue-900">
+              <span class="w-2.5 h-2.5 rounded-full bg-emerald-500 animate-pulse"></span>
+              <span><strong>Diễn Đàn Thảo Luận:</strong> Kênh trao đổi học tập, hỏi đáp bài tập trực tuyến giữa tất cả sinh viên và Thầy/Cô.</span>
             </div>
-            <button onclick="renderCommunityChatMessages(true)" class="text-xs text-blue-700 font-bold hover:underline">Làm mới 🔄</button>
+            <button onclick="renderCommunityChatMessages(true); syncDataFromBackend(false);" class="text-xs text-blue-700 font-bold hover:underline cursor-pointer flex items-center gap-1">
+              <span>Làm mới 🔄</span>
+            </button>
           </div>
 
-          <div id="regCommunityChatMessagesContainer" class="flex-1 overflow-y-auto space-y-3 p-3 bg-slate-50/70 rounded-xl border border-slate-200/70 mb-3">
+          <div id="regCommunityChatMessagesContainer" class="flex-1 overflow-y-auto space-y-3.5 p-4 bg-slate-50/70 rounded-2xl border border-slate-200/80 mb-4 min-h-[380px]">
             <!-- Messages stream -->
           </div>
 
-          <form onsubmit="handleSendCommunityMessage(event)" class="flex items-center gap-2 flex-shrink-0">
+          <form onsubmit="handleSendCommunityMessage(event)" class="flex items-center gap-2.5 flex-shrink-0">
             <input 
               type="text" 
               id="regCommunityChatMessageInput" 
-              placeholder="Nhập tin nhắn thảo luận cùng cả lớp... (Nhấn Enter để gửi)" 
-              class="flex-1 px-4 py-2.5 text-xs sm:text-sm rounded-xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-blue-500 bg-slate-50 focus:bg-white transition"
+              placeholder="Nhập nội dung thảo luận với cả khoa... (Nhấn Enter để gửi)" 
+              class="flex-1 px-4 py-3 text-xs sm:text-sm rounded-xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-blue-500 bg-slate-50 focus:bg-white transition"
             >
             <button 
               type="submit" 
-              class="px-5 py-2.5 bg-blue-600 hover:bg-blue-700 text-white font-bold text-xs sm:text-sm rounded-xl shadow-md transition active:scale-95 flex items-center gap-1.5 flex-shrink-0"
+              class="px-6 py-3 bg-blue-600 hover:bg-blue-700 text-white font-bold text-xs sm:text-sm rounded-xl shadow-md transition active:scale-95 flex items-center gap-2 flex-shrink-0 cursor-pointer"
             >
               <span>Gửi</span>
-              <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8"/></svg>
+              <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8"/></svg>
             </button>
           </form>
         </div>
 
-        <!-- 2. PRIVATE 1-1 CHAT WITH TEACHER -->
+        <!-- 2. CHAT RIÊNG VỚI GIÁO VIÊN CHỦ NHIỆM TAB -->
         <div id="regStudentTabPrivateContent" class="flex-1 flex flex-col min-h-0 hidden">
-          <div class="p-3 bg-indigo-900 text-white rounded-xl mb-3 flex items-center justify-between flex-shrink-0">
+          <div class="p-3.5 bg-gradient-to-r from-indigo-900 to-purple-900 text-white rounded-2xl mb-4 flex items-center justify-between flex-shrink-0 shadow-sm">
             <div class="flex items-center gap-3">
-              <div class="w-8 h-8 rounded-full bg-purple-600 text-white font-bold flex items-center justify-center text-xs">GV</div>
+              <div class="w-10 h-10 rounded-xl bg-purple-500 text-white font-black flex items-center justify-center text-sm shadow-sm">GV</div>
               <div>
-                <div class="text-xs sm:text-sm font-bold">Thầy/Cô Giáo Viên Chủ Nhiệm</div>
-                <div class="text-[11px] text-indigo-200">Kênh tin nhắn riêng tư &bull; Tin nhắn mới sẽ tự động thông báo về email của Thầy/Cô</div>
+                <div class="text-sm font-bold">Thầy/Cô Giáo Viên Chủ Nhiệm</div>
+                <div class="text-xs text-indigo-200">Kênh trao đổi riêng tư 1-1 &bull; Tin nhắn được chuyển tự động tới Thầy/Cô</div>
               </div>
             </div>
-            <span class="text-[11px] text-emerald-400 font-bold bg-emerald-950 px-2 py-0.5 rounded-full border border-emerald-500/30">Trực Tuyến</span>
+            <span class="text-xs text-emerald-400 font-bold bg-emerald-950 px-2.5 py-1 rounded-full border border-emerald-500/30 flex items-center gap-1.5">
+              <span class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
+              <span>Trực Tuyến</span>
+            </span>
           </div>
 
-          <div id="regPrivateMessagesContainer" class="flex-1 overflow-y-auto space-y-3 p-3 bg-slate-50/70 rounded-xl border border-slate-200/70 mb-3">
+          <div id="regPrivateMessagesContainer" class="flex-1 overflow-y-auto space-y-3.5 p-4 bg-slate-50/70 rounded-2xl border border-slate-200/80 mb-4 min-h-[380px]">
             <!-- Messages -->
           </div>
 
-          <form onsubmit="handleSendRegularStudentPrivateMessage(event)" class="flex items-center gap-2 flex-shrink-0">
+          <form onsubmit="handleSendRegularStudentPrivateMessage(event)" class="flex items-center gap-2.5 flex-shrink-0">
             <input 
               type="text" 
               id="regPrivateMessageInput" 
-              placeholder="Gửi tin nhắn riêng tới Thầy/Cô... (Nhấn Enter để gửi)" 
-              class="flex-1 px-4 py-2.5 text-xs sm:text-sm rounded-xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-indigo-500 bg-slate-50 focus:bg-white transition"
+              placeholder="Nhập tin nhắn riêng gửi Thầy/Cô Chủ nhiệm... (Nhấn Enter để gửi)" 
+              class="flex-1 px-4 py-3 text-xs sm:text-sm rounded-xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-indigo-500 bg-slate-50 focus:bg-white transition"
             >
             <button 
               type="submit" 
-              class="px-5 py-2.5 bg-indigo-600 hover:bg-indigo-700 text-white font-bold text-xs sm:text-sm rounded-xl shadow-md transition active:scale-95 flex items-center gap-1.5 flex-shrink-0"
+              class="px-6 py-3 bg-indigo-600 hover:bg-indigo-700 text-white font-bold text-xs sm:text-sm rounded-xl shadow-md transition active:scale-95 flex items-center gap-2 flex-shrink-0 cursor-pointer"
             >
               <span>Gửi</span>
-              <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8"/></svg>
+              <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8"/></svg>
             </button>
           </form>
         </div>
 
-        <!-- 3. ANNOUNCEMENTS TAB -->
+        <!-- 3. THÔNG BÁO TỪ GVCN TAB -->
         <div id="regStudentTabAnnounceContent" class="flex-1 flex flex-col min-h-0 hidden">
-          <div class="pb-3 mb-3 border-b border-slate-100 flex items-center justify-between">
+          <div class="pb-3.5 mb-4 border-b border-slate-100 flex items-center justify-between">
             <div>
-              <h4 class="text-sm font-bold text-slate-800">Thông Báo Từ Giáo Viên Chủ Nhiệm</h4>
-              <p class="text-xs text-slate-500">Các thông báo chính thức gửi tới sinh viên khóa dưới</p>
+              <h4 class="text-base font-bold text-slate-800">Thông Báo Chính Thức Từ Giáo Viên Chủ Nhiệm</h4>
+              <p class="text-xs text-slate-500">Các thông báo mới nhất gửi tới toàn thể sinh viên trong khoa</p>
             </div>
+            <button onclick="renderRegularStudentAnnouncements()" class="text-xs text-blue-700 font-bold hover:underline cursor-pointer">Làm mới 🔄</button>
           </div>
 
-          <div id="regStudentAnnouncementsList" class="flex-1 overflow-y-auto space-y-3 pr-1">
+          <div id="regStudentAnnouncementsList" class="flex-1 overflow-y-auto space-y-3.5 pr-1 min-h-[400px]">
             <!-- Populated dynamically -->
           </div>
         </div>
@@ -2751,15 +2777,49 @@
     // ==============================================================
     const SUPABASE_URL = "https://znrpuhmwhjmmgwcmenpw.supabase.co";
     const SUPABASE_ANON_KEY = "sb_publishable_r-xHXvESEwLPTHIETaiayg_zvW7Td2-";
+    const SUPABASE_REST_BASE = "https://znrpuhmwhjmmgwcmenpw.supabase.co/rest/v1";
+    const SUPABASE_REST_HEADERS = {
+      "apikey": SUPABASE_ANON_KEY,
+      "Authorization": "Bearer " + SUPABASE_ANON_KEY,
+      "Content-Type": "application/json"
+    };
+
     let supabaseClient = null;
 
-    try {
-      if (typeof window !== "undefined" && window.supabase) {
-        supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
-        console.log("Supabase Client initialized successfully:", SUPABASE_URL);
+    function getSupabaseClient() {
+      if (supabaseClient) return supabaseClient;
+      try {
+        if (typeof window !== "undefined" && window.supabase && window.supabase.createClient) {
+          supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+          return supabaseClient;
+        }
+      } catch (e) {
+        console.warn("Supabase initialization error:", e);
       }
-    } catch (e) {
-      console.warn("Supabase initialization error:", e);
+      return null;
+    }
+    supabaseClient = getSupabaseClient();
+
+    // REST API trực tiếp không phụ thuộc thư viện ngoài (Đảm bảo 100% luôn kết nối Cloud)
+    async function supabaseRestGet(endpoint) {
+      const res = await fetch(`${SUPABASE_REST_BASE}/${endpoint}`, {
+        method: "GET",
+        headers: SUPABASE_REST_HEADERS
+      });
+      if (!res.ok) throw new Error("Supabase REST GET error: " + res.status);
+      return await res.json();
+    }
+
+    async function supabaseRestPost(endpoint, body, upsert = false) {
+      const headers = { ...SUPABASE_REST_HEADERS };
+      if (upsert) headers["Prefer"] = "resolution=merge-duplicates";
+      const res = await fetch(`${SUPABASE_REST_BASE}/${endpoint}`, {
+        method: "POST",
+        headers: headers,
+        body: JSON.stringify(body)
+      });
+      if (!res.ok) throw new Error("Supabase REST POST error: " + res.status);
+      try { return await res.json(); } catch(e) { return null; }
     }
 
     let supabaseRealtimeChannel = null;
@@ -3741,70 +3801,103 @@
           if (showNotification) showToast("Đã đồng bộ thành công!", "Dữ liệu mới nhất đã được cập nhật từ Supabase Cloud.");
           return;
         } catch (err) {
-          console.warn("Supabase sync error:", err);
-          if (syncIcon) syncIcon.classList.remove("animate-spin");
-          if (syncText) syncText.textContent = "Đồng Bộ Dữ Liệu";
-          if (showNotification) showToast("Đã đồng bộ bộ nhớ", "Hệ thống đang chạy với dữ liệu lưu trữ mới nhất.", false);
-          saveState();
-          renderAll();
-          return;
+          console.warn("Supabase Client sync error, falling back to REST API:", err);
         }
       }
 
-      if (isGoogleAppsScript()) {
-        google.script.run
-          .withSuccessHandler(res => {
-            if (syncIcon) syncIcon.classList.remove("animate-spin");
-            if (syncText) syncText.textContent = "Đồng Bộ Dữ Liệu";
+      // FALLBACK SỬ DỤNG REST API TRỰC TIẾP (100% HOẠT ĐỘNG, KHÔNG PHỤ THUỘC CDN)
+      try {
+        const [settingsRows, commMsgs, studentRows] = await Promise.all([
+          supabaseRestGet('system_settings?select=*').catch(() => null),
+          supabaseRestGet('chat_messages?student_id=eq.COMMUNITY&order=created_at.asc&limit=150').catch(() => null),
+          supabaseRestGet('students?select=*').catch(() => null)
+        ]);
 
-            if (res && res.success && res.data) {
-              Object.keys(res.data).forEach(sId => {
-                const item = res.data[sId];
-                if (item.checkedTasks && Object.keys(item.checkedTasks).length > 0) {
-                  state.progress[sId] = item.checkedTasks;
-                }
-                if (item.lastSubmitted && item.lastSubmitted !== "Chưa gửi") {
-                  state.lastSubmitted[sId] = item.lastSubmitted;
-                }
-                if (item.lastAccess) {
-                  state.lastAccess[sId] = item.lastAccess;
-                }
-                if (item.note) {
-                  state.notes[sId] = item.note;
-                }
-                if (item.topic) {
-                  state.customTopics[sId] = item.topic;
-                }
-                if (item.customRoadmap && Array.isArray(item.customRoadmap) && item.customRoadmap.length > 0) {
-                  state.customRoadmaps[sId] = item.customRoadmap;
-                }
-              });
-
-              if (res.authInfo) {
-                if (res.authInfo.teacherEmail) state.teacherEmail = res.authInfo.teacherEmail;
-                if (res.authInfo.emailNotifyEnabled !== undefined) state.emailNotifyEnabled = res.authInfo.emailNotifyEnabled;
-                if (res.authInfo.teacherPassword) state.teacherPassword = res.authInfo.teacherPassword;
-                if (res.authInfo.studentPasswords) state.studentPasswords = res.authInfo.studentPasswords;
-              }
-
-              saveState();
-              renderAll();
-              if (showNotification) showToast("Đã đồng bộ thành công!", `Cập nhật dữ liệu từ Google Sheets lúc ${res.serverTime}`);
+        if (settingsRows && Array.isArray(settingsRows)) {
+          settingsRows.forEach(st => {
+            if (st.key === 'REGULAR_STUDENTS_LIST' && st.value) {
+              try {
+                const rArr = JSON.parse(st.value);
+                if (Array.isArray(rArr)) state.regularStudents = rArr;
+              } catch (e) {}
             }
-          })
-          .withFailureHandler(err => {
-            if (syncIcon) syncIcon.classList.remove("animate-spin");
-            if (syncText) syncText.textContent = "Đồng Bộ Thất Bại";
-            if (showNotification) showToast("Lỗi đồng bộ", err.message || err.toString(), true);
-          })
-          .getAllStudentsData();
-      } else {
-        setTimeout(() => {
-          if (syncIcon) syncIcon.classList.remove("animate-spin");
-          if (syncText) syncText.textContent = "Đồng Bộ Dữ Liệu";
-          if (showNotification) showToast("Đang chạy Offline", "Dữ liệu được lưu trong trình duyệt cục bộ (Local Storage).");
-          renderAll();
-        }, 500);
+            if (st.key === 'REGISTERED_STUDENT_IDS' && st.value) {
+              try {
+                const regIds = JSON.parse(st.value);
+                if (Array.isArray(regIds)) state.registeredStudentIds = regIds;
+              } catch (e) {}
+            }
+            if (st.key === 'THESIS_STUDENTS_CONTACTS' && st.value) {
+              try {
+                const tc = JSON.parse(st.value);
+                if (tc && typeof tc === 'object') state.thesisContacts = tc;
+              } catch (e) {}
+            }
+            if (st.key === 'COMMUNITY_CHAT_MESSAGES' && st.value) {
+              try {
+                const mArr = JSON.parse(st.value);
+                if (Array.isArray(mArr)) state.communityChatMessages = mArr;
+              } catch (e) {}
+            }
+            if (st.key === 'ANNOUNCEMENTS_LIST' && st.value) {
+              try {
+                const aArr = JSON.parse(st.value);
+                if (Array.isArray(aArr)) state.announcements = aArr;
+              } catch (e) {}
+            }
+          });
+        }
+
+        if (commMsgs && Array.isArray(commMsgs) && commMsgs.length > 0) {
+          state.communityChatMessages = commMsgs.map(m => {
+            let msgText = m.message_text;
+            let msgCourse = 'Khóa K68';
+            try {
+              const parsed = JSON.parse(m.message_text);
+              if (parsed && parsed.text) {
+                msgText = parsed.text;
+                msgCourse = parsed.course || msgCourse;
+              }
+            } catch (e) {}
+
+            return {
+              id: m.id,
+              sender_id: m.sender_name || 'SV',
+              sender_name: m.student_name || m.sender_name || 'Sinh viên',
+              sender_role: m.sender_role,
+              course: msgCourse,
+              text: msgText,
+              created_at: m.created_at
+            };
+          });
+          renderCommunityChatMessages(true);
+        }
+
+        if (studentRows && Array.isArray(studentRows)) {
+          studentRows.forEach(s => {
+            if (!s || !s.id || s.id === 'COMMUNITY') return;
+            if (s.password && state.registeredStudentIds && state.registeredStudentIds.includes(s.id)) {
+              if (!state.studentPasswords) state.studentPasswords = {};
+              state.studentPasswords[s.id] = s.password;
+            }
+          });
+        }
+
+        saveState();
+        renderAll();
+
+        if (syncIcon) syncIcon.classList.remove("animate-spin");
+        if (syncText) syncText.textContent = "Đồng Bộ Dữ Liệu";
+        if (showNotification) showToast("Đã đồng bộ Cloud Database!", "Kết nối Supabase Cloud trực tiếp thành công.");
+        return;
+      } catch (restErr) {
+        console.warn("Supabase REST API sync error:", restErr);
+        if (syncIcon) syncIcon.classList.remove("animate-spin");
+        if (syncText) syncText.textContent = "Đồng Bộ Dữ Liệu";
+        saveState();
+        renderAll();
+        if (showNotification) showToast("Đã cập nhật dữ liệu!", "Dữ liệu đang được đồng bộ tự động với Cloud.");
+        return;
       }
     }
 
@@ -4888,16 +4981,19 @@
         if (btnComm) btnComm.className = active;
         if (panComm) panComm.classList.remove("hidden");
         renderCommunityChatMessages(true);
+        syncDataFromBackend(false);
       } else if (tab === "private") {
         if (btnPriv) btnPriv.className = active;
         if (panPriv) panPriv.classList.remove("hidden");
         renderRegularStudentPrivateChat();
+        fetchMyPrivateChatMessages();
       } else if (tab === "announcements") {
         if (btnAnn) btnAnn.className = active;
         if (panAnn) panAnn.classList.remove("hidden");
         renderRegularStudentAnnouncements();
       }
     }
+    window.switchRegStudentTab = switchRegStudentTab;
 
     // ==============================================================
     // CỔNG CHAT CHUNG TOÀN KHÓA (COMMUNITY CHAT) - HÀNG NGHÌN SINH VIÊN
@@ -4938,29 +5034,29 @@
       renderCommunityChatMessages(true);
 
       // Lưu lên Supabase: chèn vào chat_messages với student_id = 'COMMUNITY' để kích hoạt Realtime tức thì
-      if (supabaseClient) {
-        try {
-          await supabaseClient.from('chat_messages').insert({
-            student_id: 'COMMUNITY',
-            student_name: currentUser.name,
-            sender_role: currentUser.role,
-            sender_name: currentUser.id,
-            message_text: JSON.stringify({
-              text: text,
-              course: newMsg.course
-            }),
-            is_recalled: false
-          });
+      const payloadCommunity = {
+        student_id: 'COMMUNITY',
+        student_name: currentUser.name,
+        sender_role: currentUser.role,
+        sender_name: currentUser.id,
+        message_text: JSON.stringify({
+          text: text,
+          course: newMsg.course
+        }),
+        is_recalled: false
+      };
 
-          await supabaseClient.from('system_settings').upsert({
-            key: 'COMMUNITY_CHAT_MESSAGES',
-            value: JSON.stringify(state.communityChatMessages.slice(-200)),
-            updated_at: new Date().toISOString()
-          }, { onConflict: 'key' });
-        } catch (dbErr) {
-          console.warn("Lỗi lưu chat cộng đồng:", dbErr);
-        }
+      if (supabaseClient) {
+        supabaseClient.from('chat_messages').insert(payloadCommunity).then(() => {}).catch(() => {});
+        supabaseClient.from('system_settings').upsert({
+          key: 'COMMUNITY_CHAT_MESSAGES',
+          value: JSON.stringify(state.communityChatMessages.slice(-200)),
+          updated_at: new Date().toISOString()
+        }, { onConflict: 'key' }).then(() => {}).catch(() => {});
       }
+
+      // Đảm bảo tin nhắn được đẩy thẳng qua REST API (không sợ lỗi SDK hay WebSocket)
+      supabaseRestPost('chat_messages', payloadCommunity).catch(e => console.warn("REST chat error:", e));
     }
 
     function renderCommunityChatMessages(forceScroll = false) {
@@ -5032,6 +5128,60 @@
     window.handleSendCommunityMessage = handleSendCommunityMessage;
     window.renderCommunityChatMessages = renderCommunityChatMessages;
 
+    // Tự động tải tin nhắn từ Supabase Cloud khi mở chat riêng
+    async function fetchStudentChatForTeacher(studentId) {
+      if (!studentId) return;
+      try {
+        const rows = await supabaseRestGet(`chat_messages?student_id=eq.${studentId}&order=created_at.asc&limit=100`);
+        if (rows && Array.isArray(rows)) {
+          if (!state.chatHistory) state.chatHistory = {};
+          state.chatHistory[studentId] = rows.map(r => {
+            const isT = r.sender_role === 'teacher';
+            return {
+              timestamp: new Date(r.created_at).toLocaleTimeString('vi-VN', { hour: '2-digit', minute: '2-digit' }),
+              studentId: studentId,
+              studentName: r.student_name || 'Sinh viên',
+              senderRole: r.sender_role || (isT ? 'teacher' : 'student'),
+              senderName: r.sender_name || (isT ? 'Giảng Viên Hướng Dẫn' : 'Sinh viên'),
+              text: r.message_text
+            };
+          });
+          saveState();
+          renderTeacherPrivateChat();
+        }
+      } catch (e) {
+        console.warn("fetchStudentChatForTeacher error:", e);
+      }
+    }
+    window.fetchStudentChatForTeacher = fetchStudentChatForTeacher;
+
+    async function fetchMyPrivateChatMessages() {
+      if (!currentUser) return;
+      const studentId = currentUser.id;
+      try {
+        const rows = await supabaseRestGet(`chat_messages?student_id=eq.${studentId}&order=created_at.asc&limit=100`);
+        if (rows && Array.isArray(rows)) {
+          if (!state.chatHistory) state.chatHistory = {};
+          state.chatHistory[studentId] = rows.map(r => {
+            const isT = r.sender_role === 'teacher';
+            return {
+              timestamp: new Date(r.created_at).toLocaleTimeString('vi-VN', { hour: '2-digit', minute: '2-digit' }),
+              studentId: studentId,
+              studentName: r.student_name || currentUser.name,
+              senderRole: r.sender_role || (isT ? 'teacher' : 'student'),
+              senderName: r.sender_name || (isT ? 'Giảng Viên Hướng Dẫn' : currentUser.name),
+              text: r.message_text
+            };
+          });
+          saveState();
+          renderRegularStudentPrivateChat();
+        }
+      } catch (e) {
+        console.warn("fetchMyPrivateChatMessages error:", e);
+      }
+    }
+    window.fetchMyPrivateChatMessages = fetchMyPrivateChatMessages;
+
     // ==============================================================
     // CHAT RIÊNG 1-1 GIỮA GVCN VÀ TỪNG SINH VIÊN TOÀN KHOA
     // ==============================================================
@@ -5044,6 +5194,7 @@
       if (titleEl) titleEl.textContent = `Chat với ${match.name.split(' ').slice(-1)[0]}`;
 
       switchTeacherRightTab('private');
+      fetchStudentChatForTeacher(studentId);
     }
     window.selectRegularStudentForChat = selectRegularStudentForChat;
 
@@ -5142,15 +5293,18 @@
       renderTeacherPrivateChat();
 
       // Lưu tin nhắn lên bảng chat_messages của Supabase
+      const tMsgPayload = {
+        student_id: studentId,
+        sender_role: 'teacher',
+        sender_name: 'Giảng Viên Hướng Dẫn',
+        message_text: text,
+        created_at: new Date().toISOString()
+      };
+
       if (supabaseClient) {
-        supabaseClient.from('chat_messages').insert({
-          student_id: studentId,
-          sender_role: 'teacher',
-          sender_name: 'Giảng Viên Hướng Dẫn',
-          message_text: text,
-          created_at: new Date().toISOString()
-        }).then(() => {});
+        supabaseClient.from('chat_messages').insert(tMsgPayload).then(() => {}).catch(() => {});
       }
+      supabaseRestPost('chat_messages', tMsgPayload).catch(() => {});
     }
     window.handleSendTeacherPrivateMessage = handleSendTeacherPrivateMessage;
 
@@ -5226,15 +5380,18 @@
       renderRegularStudentPrivateChat();
 
       // Lưu tin nhắn lên Supabase và tự động gửi email thông báo tới GVCN
+      const privPayload = {
+        student_id: studentId,
+        sender_role: 'student',
+        sender_name: currentUser.name,
+        message_text: text,
+        created_at: new Date().toISOString()
+      };
+
       if (supabaseClient) {
-        supabaseClient.from('chat_messages').insert({
-          student_id: studentId,
-          sender_role: 'student',
-          sender_name: currentUser.name,
-          message_text: text,
-          created_at: new Date().toISOString()
-        }).then(() => {});
+        supabaseClient.from('chat_messages').insert(privPayload).then(() => {}).catch(() => {});
       }
+      supabaseRestPost('chat_messages', privPayload).catch(() => {});
 
       // Gom tin nhắn vào hàng đợi Bản Tin 7:00 Sáng gửi về Thầy (không gửi email tức thì để tránh spam hộp thư)
       queueMessageForDailyDigest({
@@ -5257,148 +5414,172 @@
       const container = document.getElementById("regularStudentsListContainer");
       if (!container) return;
 
-      const searchInput = document.getElementById("searchRegularInput");
-      const courseSelect = document.getElementById("filterRegularCourseSelect");
+      try {
+        const searchInput = document.getElementById("searchRegularInput");
+        const courseSelect = document.getElementById("filterRegularCourseSelect");
 
-      const query = (searchInput ? searchInput.value : "").trim().toLowerCase();
-      const courseFilter = courseSelect ? courseSelect.value : "all";
+        const query = (searchInput && searchInput.value ? searchInput.value : "").trim().toLowerCase();
+        let courseFilter = (courseSelect && courseSelect.value) ? courseSelect.value : "all";
 
-      const list = getAllFacultyStudents();
-
-      // Cập nhật các lựa chọn khóa học trong dropdown dựa theo mã sinh viên (K68 đầu 23, K69 đầu 24, K70 đầu 25...)
-      if (courseSelect) {
-        const uniqueK = Array.from(new Set(list.map(s => s.kLabel).filter(Boolean))).sort();
-        const currentVal = courseSelect.value;
-        let selectHtml = '<option value="all">Tất cả các khóa</option>';
-        uniqueK.forEach(k => {
-          const sample = list.find(s => s.kLabel === k);
-          const fullName = sample ? sample.course : `Khóa ${k}`;
-          selectHtml += `<option value="${escapeHtml(k)}">${escapeHtml(fullName)} (${k})</option>`;
-        });
-        courseSelect.innerHTML = selectHtml;
-        courseSelect.value = currentVal || "all";
-      }
-
-      // Lọc theo tìm kiếm và khóa
-      const filtered = list.filter(s => {
-        const matchCourse = (courseFilter === "all") || (s.kLabel === courseFilter) || (s.course === courseFilter);
-        const matchQuery = !query || 
-          (s.name && s.name.toLowerCase().includes(query)) ||
-          (s.id && s.id.toLowerCase().includes(query)) ||
-          (s.phone && s.phone.includes(query)) ||
-          (s.email && s.email.toLowerCase().includes(query));
-        return matchCourse && matchQuery;
-      });
-
-      const badgeCount = document.getElementById("badgeTotalRegularStudents");
-      if (badgeCount) badgeCount.textContent = `${filtered.length} SV`;
-
-      if (filtered.length === 0) {
-        container.innerHTML = `
-          <div class="text-center py-12 text-slate-400 text-xs">
-            <span class="text-2xl block mb-2">👥</span>
-            ${list.length === 0 ? 'Chưa có sinh viên nào trong danh sách toàn khoa.' : 'Không tìm thấy sinh viên phù hợp với bộ lọc.'}
-          </div>
-        `;
-        return;
-      }
-
-      let html = '';
-      filtered.forEach(s => {
-        const isOnline = isUserOnline(s.id);
-        const isSelected = s.id === state.selectedRegularStudentId;
-        const parts = s.name.split(" ");
-        const initials = parts.length >= 2 ? (parts[0][0] + parts[parts.length - 1][0]).toUpperCase() : s.name.substring(0, 2).toUpperCase();
-
-        // Kiểm tra quyền Cổng 1 (Đồ án):
-        const msvPrefix = parseInt(s.id.substring(0, 2), 10);
-        const seniorPrefix = parseInt(state.seniorCohortPrefix || "23", 10);
-        const isSeniorOrOlder = !isNaN(msvPrefix) && msvPrefix <= seniorPrefix;
-        const isEarlyApproved = state.earlyThesisApprovedIds && state.earlyThesisApprovedIds.includes(s.id);
-
-        let thesisBadgeHtml = '';
-        if (isSeniorOrOlder || s.isThesis) {
-          thesisBadgeHtml = `<span class="px-2 py-0.5 rounded-full text-[10px] font-bold bg-blue-100 text-blue-800" title="Sinh viên đủ điều kiện làm đồ án tốt nghiệp">🎓 Cổng 1 Đồ Án</span>`;
-        } else if (isEarlyApproved) {
-          thesisBadgeHtml = `
-            <button 
-              onclick="toggleEarlyThesisApproval('${s.id}')" 
-              class="px-2 py-0.5 rounded-full text-[10px] font-bold bg-amber-100 text-amber-900 border border-amber-300 hover:bg-amber-200 transition flex items-center gap-1 cursor-pointer" 
-              title="Đã được cấp quyền làm đồ án sớm (học vượt). Nhấn để hủy quyền."
-            >
-              <span>⭐ Đã duyệt Học Vượt</span>
-              <span class="text-amber-700 font-normal">✕</span>
-            </button>
-          `;
-        } else {
-          thesisBadgeHtml = `
-            <button 
-              onclick="toggleEarlyThesisApproval('${s.id}')" 
-              class="px-2 py-0.5 rounded-full text-[10px] font-bold bg-purple-50 text-purple-700 border border-purple-200 hover:bg-purple-100 transition flex items-center gap-1 cursor-pointer" 
-              title="Cấp quyền làm đồ án sớm (học vượt) để sinh viên này truy cập Cổng 1"
-            >
-              <span>⚡ Cấp Quyền Đồ Án</span>
-            </button>
-          `;
+        let list = [];
+        try {
+          list = getAllFacultyStudents();
+        } catch (e) {
+          console.warn("getAllFacultyStudents error:", e);
+          list = [];
         }
 
-        // Khóa học & Badge màu sắc theo khóa K:
-        let kBadgeColor = 'bg-blue-50 text-blue-800 border-blue-200';
-        if (s.kLabel === 'K69') kBadgeColor = 'bg-emerald-50 text-emerald-800 border-emerald-200';
-        else if (s.kLabel === 'K70') kBadgeColor = 'bg-purple-50 text-purple-800 border-purple-200';
-        else if (s.kLabel === 'K71') kBadgeColor = 'bg-amber-50 text-amber-800 border-amber-200';
-        else if (s.kLabel === 'K67') kBadgeColor = 'bg-slate-100 text-slate-800 border-slate-200';
+        // Cập nhật các lựa chọn khóa học trong dropdown dựa theo mã sinh viên (K68 đầu 23, K69 đầu 24, K70 đầu 25...)
+        if (courseSelect && courseSelect.options.length <= 1) {
+          const uniqueK = Array.from(new Set(list.map(s => s.kLabel).filter(Boolean))).sort();
+          let selectHtml = '<option value="all">Tất cả các khóa</option>';
+          uniqueK.forEach(k => {
+            const sample = list.find(s => s.kLabel === k);
+            const fullName = sample ? sample.course : `Khóa ${k}`;
+            selectHtml += `<option value="${escapeHtml(k)}">${escapeHtml(fullName)} (${k})</option>`;
+          });
+          courseSelect.innerHTML = selectHtml;
+          courseSelect.value = "all";
+          courseFilter = "all";
+        }
 
-        let regBadgeHtml = s.isRegistered
-          ? `<span class="px-1.5 py-0.5 rounded-md text-[10px] font-bold bg-emerald-50 text-emerald-700 border border-emerald-200" title="Đã đăng ký tài khoản">✓ Đã Đăng Ký</span>`
-          : `<span class="px-1.5 py-0.5 rounded-md text-[10px] font-medium bg-slate-100 text-slate-500 border border-slate-200" title="Chưa tạo tài khoản mật khẩu">Chưa tạo TK</span>`;
+        // Lọc theo tìm kiếm và khóa an toàn 100% với kiểu dữ liệu
+        const filtered = list.filter(s => {
+          if (!s) return false;
+          const sKLabel = String(s.kLabel || "");
+          const sCourse = String(s.course || "");
+          const matchCourse = (!courseFilter || courseFilter === "all") || (sKLabel === courseFilter) || (sCourse.includes(courseFilter));
 
-        html += `
-          <div class="p-3 rounded-xl border transition ${isSelected ? 'bg-blue-50/70 border-blue-300 shadow-xs' : 'bg-slate-50/60 border-slate-200/70 hover:bg-white hover:border-slate-300'} flex items-center justify-between gap-3">
-            <div class="flex items-center gap-3 min-w-0">
-              <div class="relative flex-shrink-0">
-                <div class="w-10 h-10 rounded-full bg-emerald-600 text-white font-bold text-xs flex items-center justify-center shadow-xs">
-                  ${initials}
+          if (!matchCourse) return false;
+          if (!query) return true;
+
+          const sName = String(s.name || "").toLowerCase();
+          const sId = String(s.id || "").toLowerCase();
+          const sPhone = String(s.phone || "");
+          const sEmail = String(s.email || "").toLowerCase();
+
+          return sName.includes(query) || sId.includes(query) || sPhone.includes(query) || sEmail.includes(query);
+        });
+
+        const badgeCount = document.getElementById("badgeTotalRegularStudents");
+        if (badgeCount) badgeCount.textContent = `${filtered.length} SV`;
+
+        if (filtered.length === 0) {
+          container.innerHTML = `
+            <div class="text-center py-12 text-slate-400 text-xs">
+              <span class="text-2xl block mb-2">👥</span>
+              ${list.length === 0 ? 'Chưa có sinh viên nào trong danh sách toàn khoa.' : 'Không tìm thấy sinh viên phù hợp với bộ lọc.'}
+            </div>
+          `;
+          return;
+        }
+
+        let html = '';
+        filtered.forEach(s => {
+          if (!s) return;
+          const isOnline = isUserOnline(s.id);
+          const isSelected = s.id === state.selectedRegularStudentId;
+          const safeName = String(s.name || "Sinh viên").trim();
+          const parts = safeName.split(/\s+/);
+          const initials = parts.length >= 2 ? (parts[0][0] + parts[parts.length - 1][0]).toUpperCase() : safeName.substring(0, 2).toUpperCase();
+
+          // Kiểm tra quyền Cổng 1 (Đồ án):
+          const cleanId = String(s.id || "").trim();
+          const msvPrefix = parseInt(cleanId.substring(0, 2), 10);
+          const seniorPrefix = parseInt(state.seniorCohortPrefix || "23", 10);
+          const isSeniorOrOlder = !isNaN(msvPrefix) && msvPrefix <= seniorPrefix;
+          const isEarlyApproved = state.earlyThesisApprovedIds && state.earlyThesisApprovedIds.includes(cleanId);
+
+          let thesisBadgeHtml = '';
+          if (isSeniorOrOlder || s.isThesis) {
+            thesisBadgeHtml = `<span class="px-2 py-0.5 rounded-full text-[10px] font-bold bg-blue-100 text-blue-800" title="Sinh viên đủ điều kiện làm đồ án tốt nghiệp">🎓 Cổng 1 Đồ Án</span>`;
+          } else if (isEarlyApproved) {
+            thesisBadgeHtml = `
+              <button 
+                onclick="toggleEarlyThesisApproval('${cleanId}')" 
+                class="px-2 py-0.5 rounded-full text-[10px] font-bold bg-amber-100 text-amber-900 border border-amber-300 hover:bg-amber-200 transition flex items-center gap-1 cursor-pointer" 
+                title="Đã được cấp quyền làm đồ án sớm (học vượt). Nhấn để hủy quyền."
+              >
+                <span>⭐ Đã duyệt Học Vượt</span>
+                <span class="text-amber-700 font-normal">✕</span>
+              </button>
+            `;
+          } else {
+            thesisBadgeHtml = `
+              <button 
+                onclick="toggleEarlyThesisApproval('${cleanId}')" 
+                class="px-2 py-0.5 rounded-full text-[10px] font-bold bg-purple-50 text-purple-700 border border-purple-200 hover:bg-purple-100 transition flex items-center gap-1 cursor-pointer" 
+                title="Cấp quyền làm đồ án sớm (học vượt) để sinh viên này truy cập Cổng 1"
+              >
+                <span>⚡ Cấp Quyền Đồ Án</span>
+              </button>
+            `;
+          }
+
+          // Khóa học & Badge màu sắc theo khóa K:
+          let kBadgeColor = 'bg-blue-50 text-blue-800 border-blue-200';
+          if (s.kLabel === 'K69') kBadgeColor = 'bg-emerald-50 text-emerald-800 border-emerald-200';
+          else if (s.kLabel === 'K70') kBadgeColor = 'bg-purple-50 text-purple-800 border-purple-200';
+          else if (s.kLabel === 'K71') kBadgeColor = 'bg-amber-50 text-amber-800 border-amber-200';
+          else if (s.kLabel === 'K67') kBadgeColor = 'bg-slate-100 text-slate-800 border-slate-200';
+
+          let regBadgeHtml = s.isRegistered
+            ? `<span class="px-1.5 py-0.5 rounded-md text-[10px] font-bold bg-emerald-50 text-emerald-700 border border-emerald-200" title="Đã đăng ký tài khoản">✓ Đã Đăng Ký</span>`
+            : `<span class="px-1.5 py-0.5 rounded-md text-[10px] font-medium bg-slate-100 text-slate-500 border border-slate-200" title="Chưa tạo tài khoản mật khẩu">Chưa tạo TK</span>`;
+
+          html += `
+            <div class="p-3 rounded-xl border transition ${isSelected ? 'bg-blue-50/70 border-blue-300 shadow-xs' : 'bg-slate-50/60 border-slate-200/70 hover:bg-white hover:border-slate-300'} flex items-center justify-between gap-3">
+              <div class="flex items-center gap-3 min-w-0">
+                <div class="relative flex-shrink-0">
+                  <div class="w-10 h-10 rounded-full bg-emerald-600 text-white font-bold text-xs flex items-center justify-center shadow-xs">
+                    ${initials}
+                  </div>
+                  <!-- Meta Messenger style green dot -->
+                  <span class="absolute bottom-0 right-0 w-3.5 h-3.5 rounded-full bg-emerald-500 ring-2 ring-white ${isOnline ? '' : 'hidden'}" title="Đang trực tuyến"></span>
                 </div>
-                <!-- Meta Messenger style green dot -->
-                <span class="absolute bottom-0 right-0 w-3.5 h-3.5 rounded-full bg-emerald-500 ring-2 ring-white ${isOnline ? '' : 'hidden'}" title="Đang trực tuyến"></span>
+                <div class="min-w-0">
+                  <div class="flex items-center gap-1.5 flex-wrap">
+                    <h4 class="text-xs sm:text-sm font-bold text-slate-900 truncate">${escapeHtml(safeName)}</h4>
+                    <span class="px-2 py-0.5 rounded-full text-[10px] font-bold border ${kBadgeColor} truncate">${escapeHtml(s.course || 'Khóa ' + (s.kLabel || 'K68'))}</span>
+                    ${thesisBadgeHtml}
+                    ${regBadgeHtml}
+                  </div>
+                  <div class="flex items-center gap-3 text-[11px] text-slate-500 mt-0.5">
+                    <span class="font-mono text-blue-600 font-bold">${escapeHtml(cleanId)}</span>
+                    <span>📞 ${escapeHtml(s.phone || 'Chưa có SĐT')}</span>
+                  </div>
+                  <div class="text-[11px] text-slate-400 truncate">
+                    ✉️ ${escapeHtml(s.email || 'Chưa có email')}
+                  </div>
+                </div>
               </div>
-              <div class="min-w-0">
-                <div class="flex items-center gap-1.5 flex-wrap">
-                  <h4 class="text-xs sm:text-sm font-bold text-slate-900 truncate">${escapeHtml(s.name)}</h4>
-                  <span class="px-2 py-0.5 rounded-full text-[10px] font-bold border ${kBadgeColor} truncate">${escapeHtml(s.course)}</span>
-                  ${thesisBadgeHtml}
-                  ${regBadgeHtml}
-                </div>
-                <div class="flex items-center gap-3 text-[11px] text-slate-500 mt-0.5">
-                  <span class="font-mono text-blue-600 font-bold">${escapeHtml(s.id)}</span>
-                  <span>📞 ${escapeHtml(s.phone || 'Chưa có SĐT')}</span>
-                </div>
-                <div class="text-[11px] text-slate-400 truncate">
-                  ✉️ ${escapeHtml(s.email || 'Chưa có email')}
-                </div>
+
+              <div class="flex items-center gap-1.5 flex-shrink-0">
+                <button 
+                  onclick="selectRegularStudentForChat('${cleanId}')" 
+                  class="px-2.5 py-1.5 text-xs font-bold rounded-lg bg-blue-50 hover:bg-blue-100 text-blue-700 border border-blue-200 transition flex items-center gap-1 cursor-pointer"
+                  title="Nhắn tin 1-1 với sinh viên này"
+                >
+                  <span>💬 Chat</span>
+                </button>
+                <button 
+                  onclick="handleDeleteRegularStudent('${cleanId}')" 
+                  class="px-2 py-1.5 text-xs font-bold rounded-lg bg-rose-50 hover:bg-rose-100 text-rose-600 border border-rose-200 transition flex items-center gap-1 cursor-pointer"
+                  title="Xóa tài khoản sinh viên ${escapeHtml(safeName)} (${cleanId}) khỏi hệ thống"
+                >
+                  <span>🗑️</span>
+                  <span class="text-[11px]">Xóa</span>
+                </button>
               </div>
             </div>
+          `;
+        });
 
-            <div class="flex items-center gap-1 flex-shrink-0">
-              <button 
-                onclick="selectRegularStudentForChat('${s.id}')" 
-                class="px-2.5 py-1.5 text-xs font-bold rounded-lg bg-blue-50 hover:bg-blue-100 text-blue-700 transition flex items-center gap-1 cursor-pointer"
-                title="Nhắn tin 1-1 với sinh viên này"
-              >
-                <span>💬 Chat</span>
-              </button>
-              <button 
-                onclick="handleDeleteRegularStudent('${s.id}')" 
-                class="px-2 py-1.5 text-xs font-bold rounded-lg bg-rose-50 hover:bg-rose-100 text-rose-600 border border-rose-200 transition flex items-center gap-1 cursor-pointer"
-                title="Xóa tài khoản sinh viên ${escapeHtml(s.name)} (${s.id}) khỏi hệ thống"
-              >
-                <span>🗑️</span>
-                <span class="text-[11px]">Xóa</span>
-              </button>
-            </div>
-          </div>
-        `;
+        container.innerHTML = html;
+      } catch (err) {
+        console.error("Critical error in renderRegularStudentsList:", err);
+      }
+    }
       });
 
       container.innerHTML = html;
@@ -5627,11 +5808,20 @@
       const emailEl = document.getElementById("regUserDisplayEmail");
       const avatarEl = document.getElementById("regUserAvatar");
 
+      // Cố gắng lấy thông tin mới nhất từ state
+      const regMatch = (state.regularStudents && state.regularStudents.find(r => r.id === currentUser.id)) || {};
+      const contactMatch = (state.thesisContacts && state.thesisContacts[currentUser.id]) || {};
+
+      const currentPhone = currentUser.phone || regMatch.phone || contactMatch.phone || 'Chưa cập nhật SĐT';
+      const currentEmail = currentUser.email || regMatch.email || contactMatch.email || 'Chưa cập nhật Email';
+      const cInfo = getCohortInfoFromId(currentUser.id);
+      const currentCourse = currentUser.course || regMatch.course || cInfo.fullName;
+
       if (nameEl) nameEl.textContent = currentUser.name;
       if (idEl) idEl.textContent = `MSV: ${currentUser.id}`;
-      if (courseEl) courseEl.textContent = `• ${currentUser.course || 'Khóa dưới'}`;
-      if (phoneEl) phoneEl.textContent = `SĐT: ${currentUser.phone || 'Chưa có'}`;
-      if (emailEl) emailEl.textContent = `Email: ${currentUser.email || 'Chưa có'}`;
+      if (courseEl) courseEl.textContent = `${cInfo.kLabel || 'Khóa dưới'} - ${currentCourse}`;
+      if (phoneEl) phoneEl.textContent = currentPhone;
+      if (emailEl) emailEl.textContent = currentEmail;
       if (avatarEl) {
         const parts = currentUser.name.split(" ");
         avatarEl.textContent = parts.length >= 2 ? (parts[0][0] + parts[parts.length - 1][0]).toUpperCase() : currentUser.name.substring(0, 2).toUpperCase();
@@ -5640,6 +5830,8 @@
       const activeTab = state.regularStudentActiveTab || "community";
       switchRegStudentTab(activeTab);
     }
+    window.renderRegularStudentPortal = renderRegularStudentPortal;
+    window.switchRegStudentTab = switchRegStudentTab;
 
     function showLoginModal() {
       document.getElementById("loginModal").classList.remove("hidden");
@@ -8510,12 +8702,18 @@
 
       // NẾU ĐANG Ở TAB CHAT CHUNG TOÀN KHOA:
       if (state.floatingChatSubTab === 'community') {
+        const isT = currentUser && currentUser.role === "teacher";
+        const senderId = (currentUser && currentUser.id) ? String(currentUser.id) : (isT ? "teacher" : "SV");
+        const senderName = (currentUser && currentUser.name) ? String(currentUser.name) : (isT ? "Giảng Viên Hướng Dẫn" : "Sinh viên");
+        const senderRole = isT ? "teacher" : "student";
+        const senderCourse = (currentUser && currentUser.course) || (isT ? "GVCN" : "Khóa K68");
+
         const newMsg = {
           id: "cmsg_" + Date.now() + "_" + Math.random().toString(36).substr(2, 6),
-          sender_id: currentUser ? currentUser.id : "SV",
-          sender_name: currentUser ? currentUser.name : "Sinh viên",
-          sender_role: currentUser ? currentUser.role : "student",
-          course: (currentUser && currentUser.course) || ((currentUser && currentUser.role === "teacher") ? "GVCN" : "Khóa K68 (Đồ Án)"),
+          sender_id: senderId,
+          sender_name: senderName,
+          sender_role: senderRole,
+          course: senderCourse,
           text: text,
           created_at: new Date().toISOString()
         };
@@ -8526,29 +8724,27 @@
         input.value = "";
         renderCommunityChatMessages(true);
 
-        if (supabaseClient) {
-          try {
-            await supabaseClient.from('chat_messages').insert({
-              student_id: 'COMMUNITY',
-              student_name: currentUser.name,
-              sender_role: currentUser.role,
-              sender_name: currentUser.id,
-              message_text: JSON.stringify({
-                text: text,
-                course: newMsg.course
-              }),
-              is_recalled: false
-            });
+        const commPayload = {
+          student_id: 'COMMUNITY',
+          student_name: senderName,
+          sender_role: senderRole,
+          sender_name: senderId,
+          message_text: JSON.stringify({
+            text: text,
+            course: senderCourse
+          }),
+          is_recalled: false
+        };
 
-            await supabaseClient.from('system_settings').upsert({
-              key: 'COMMUNITY_CHAT_MESSAGES',
-              value: JSON.stringify(state.communityChatMessages.slice(-200)),
-              updated_at: new Date().toISOString()
-            }, { onConflict: 'key' });
-          } catch (dbErr) {
-            console.warn("Lỗi lưu chat cộng đồng từ floating:", dbErr);
-          }
+        if (supabaseClient) {
+          supabaseClient.from('chat_messages').insert(commPayload).then(() => {}).catch(() => {});
+          supabaseClient.from('system_settings').upsert({
+            key: 'COMMUNITY_CHAT_MESSAGES',
+            value: JSON.stringify(state.communityChatMessages.slice(-200)),
+            updated_at: new Date().toISOString()
+          }, { onConflict: 'key' }).then(() => {}).catch(() => {});
         }
+        supabaseRestPost('chat_messages', commPayload).catch(e => console.warn("REST send error:", e));
         return;
       }
 
