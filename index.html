@@ -1019,6 +1019,27 @@
 
       <!-- BODY (SCROLLABLE NẾU MÀN HÌNH NHỎ) -->
       <div class="p-5 sm:p-6 space-y-4 overflow-y-auto flex-1">
+        <!-- 0. ẢNH ĐẠI DIỆN GIẢNG VIÊN -->
+        <div class="p-4 bg-purple-50/70 rounded-2xl border border-purple-200 flex items-center gap-4">
+          <div id="teacherSettingAvatarPreview" class="w-14 h-14 rounded-2xl overflow-hidden flex items-center justify-center bg-purple-600 text-white font-extrabold text-lg shadow-sm border-2 border-white flex-shrink-0 cursor-pointer" onclick="triggerAvatarUpload('TEACHER')" title="Bấm để tải ảnh đại diện lên">
+            GV
+          </div>
+          <div class="flex-1 min-w-0">
+            <div class="text-xs font-bold text-purple-950">Ảnh Đại Diện Giảng Viên</div>
+            <p class="text-[11px] text-purple-800/80 mt-0.5 leading-snug">
+              Hiển thị đồng bộ trên Kênh Chat Chung toàn khoa, Kênh Chat Riêng 1-1 và Header cho toàn bộ sinh viên thấy.
+            </p>
+            <div class="flex items-center gap-2 mt-2">
+              <button type="button" onclick="triggerAvatarUpload('TEACHER')" class="px-3 py-1 bg-purple-600 hover:bg-purple-700 active:scale-95 text-white rounded-lg text-xs font-bold shadow-2xs transition cursor-pointer flex items-center gap-1">
+                <span>📷 Tải ảnh lên</span>
+              </button>
+              <button type="button" onclick="handleRemoveTeacherAvatar()" id="btnRemoveTeacherAvatar" class="px-2.5 py-1 bg-white hover:bg-rose-50 text-rose-600 border border-slate-200 rounded-lg text-xs font-medium transition cursor-pointer hidden">
+                <span>Xóa ảnh</span>
+              </button>
+            </div>
+          </div>
+        </div>
+
         <!-- 1. GMAIL NHẬN BÁO CÁO -->
         <div>
           <label class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1.5 flex items-center gap-1.5">
@@ -1678,7 +1699,7 @@
 
         <!-- AUTH USER BADGE & LOGOUT -->
         <div class="flex items-center gap-3 bg-slate-50 border border-slate-200/80 p-3 sm:p-4 rounded-xl self-start lg:self-auto">
-          <div id="userAvatarBadge" class="w-12 h-12 rounded-xl bg-blue-600 text-white font-bold text-base flex items-center justify-center flex-shrink-0 shadow-sm">
+          <div id="userAvatarBadge" class="w-12 h-12 rounded-xl bg-blue-600 text-white font-bold text-base flex items-center justify-center flex-shrink-0 shadow-sm cursor-pointer" title="Ảnh đại diện">
             SV
           </div>
           <div class="flex-1 min-w-[150px]">
@@ -1687,6 +1708,9 @@
             <div id="userDisplaySub" class="text-xs text-blue-600 font-medium font-mono">Mã SV: --</div>
           </div>
           <div class="flex flex-col sm:flex-row items-stretch sm:items-center gap-1.5">
+            <button id="btnHeaderTeacherAvatar" onclick="triggerAvatarUpload('TEACHER')" class="px-2.5 py-1.5 text-xs bg-purple-50 hover:bg-purple-100 text-purple-700 border border-purple-200 rounded-lg font-semibold transition flex items-center justify-center gap-1 shadow-2xs hidden" title="Tải ảnh đại diện Giảng viên lên để tất cả sinh viên cùng nhìn thấy">
+              <span>📷 Đổi Avatar</span>
+            </button>
             <button id="btnHeaderEditProfile" onclick="openEditRegularProfileModal()" class="px-2.5 py-1.5 text-xs bg-emerald-50 hover:bg-emerald-100 text-emerald-700 border border-emerald-200 rounded-lg font-semibold transition flex items-center justify-center gap-1 shadow-2xs hidden" title="Cập nhật Số điện thoại và Email cá nhân">
               <span>👤 SĐT / Email</span>
             </button>
@@ -2258,9 +2282,12 @@
       <div class="bg-white rounded-3xl border border-slate-200/90 shadow-sm p-6 sm:p-7 relative overflow-hidden">
         <div class="flex flex-col md:flex-row md:items-center justify-between gap-6">
           <div class="flex items-start gap-4 sm:gap-5">
-            <div class="relative flex-shrink-0">
-              <div id="regUserAvatar" class="w-16 h-16 sm:w-20 sm:h-20 rounded-2xl bg-gradient-to-tr from-blue-600 via-indigo-600 to-purple-600 text-white font-black text-2xl sm:text-3xl flex items-center justify-center shadow-md border-2 border-white ring-2 ring-slate-100">
+            <div class="relative flex-shrink-0 cursor-pointer group" onclick="triggerAvatarUpload(currentUser ? currentUser.id : null)" title="Nhấn để đổi ảnh đại diện">
+              <div id="regUserAvatar" class="w-16 h-16 sm:w-20 sm:h-20 rounded-2xl overflow-hidden bg-gradient-to-tr from-blue-600 via-indigo-600 to-purple-600 text-white font-black text-2xl sm:text-3xl flex items-center justify-center shadow-md border-2 border-white ring-2 ring-slate-100 relative">
                 SV
+              </div>
+              <div class="absolute inset-0 bg-black/40 rounded-2xl opacity-0 group-hover:opacity-100 transition flex items-center justify-center text-white text-[11px] font-bold gap-1 pointer-events-none">
+                <span>📷 Đổi ảnh</span>
               </div>
               <span class="absolute -bottom-1 -right-1 w-4 h-4 rounded-full bg-emerald-500 ring-2 ring-white shadow-sm" title="Đang trực tuyến"></span>
             </div>
@@ -2291,6 +2318,9 @@
           </div>
 
           <div class="flex items-center gap-2 flex-wrap self-start md:self-center">
+            <button onclick="triggerAvatarUpload(currentUser ? currentUser.id : null)" class="px-3.5 py-2.5 rounded-xl bg-blue-50 hover:bg-blue-100 text-xs font-bold text-blue-700 border border-blue-200 transition flex items-center gap-1.5 cursor-pointer" title="Tải ảnh mới làm ảnh đại diện">
+              <span>📷 Đổi Avatar</span>
+            </button>
             <button onclick="openEditRegularProfileModal()" class="px-3.5 py-2.5 rounded-xl bg-slate-100 hover:bg-slate-200 text-xs font-bold text-slate-700 border border-slate-200 transition flex items-center gap-1.5 cursor-pointer">
               <span>✏️ Sửa SĐT &amp; Email</span>
             </button>
@@ -2558,19 +2588,27 @@
         if (idStr && seenIds.has(idStr)) continue;
 
         const textClean = String(m.text || "").trim();
-        const senderClean = String(m.sender_name || m.sender_id || "").trim();
+        const senderClean = String(m.sender_name || m.sender_id || m.senderName || m.senderRole || "").trim();
         const mTime = m.created_at ? new Date(m.created_at).getTime() : 0;
 
         // Kiểm tra xem tin nhắn có bị trùng y hệt tin nhắn vừa thêm vào trước đó không
         if (result.length > 0) {
           const prev = result[result.length - 1];
           const prevText = String(prev.text || "").trim();
-          const prevSender = String(prev.sender_name || prev.sender_id || "").trim();
+          const prevSender = String(prev.sender_name || prev.sender_id || prev.senderName || prev.senderRole || "").trim();
           const prevTime = prev.created_at ? new Date(prev.created_at).getTime() : 0;
 
           if (textClean === prevText && senderClean === prevSender) {
-            // Cách nhau dưới 6 giây hoặc không có timestamp -> lặp do gửi kép, bỏ qua!
-            if (!mTime || !prevTime || Math.abs(mTime - prevTime) < 6000) {
+            // Nếu tin trước chưa có ID database mà tin này có, gán ID thật vào tin trước
+            if (!prev.id && m.id) {
+              prev.id = m.id;
+            }
+            if (m.is_recalled) {
+              prev.is_recalled = true;
+              prev.text = "[Tin nhắn đã được thu hồi]";
+            }
+            // Cách nhau dưới 8 giây hoặc không có timestamp -> lặp do gửi kép / echo realtime, bỏ qua tin thứ 2!
+            if (!mTime || !prevTime || Math.abs(mTime - prevTime) < 8000) {
               continue;
             }
           }
@@ -3104,8 +3142,50 @@
               const exists = state.communityChatMessages.some(m => m.id === payload.id);
               if (!exists) {
                 state.communityChatMessages.push(payload);
+                state.communityChatMessages = deduplicateMessages(state.communityChatMessages);
+                saveState();
                 renderCommunityChatMessages(true);
               }
+            }
+          })
+          .on('broadcast', { event: 'community_message_recalled' }, ({ payload }) => {
+            if (payload && payload.id && state.communityChatMessages) {
+              state.communityChatMessages.forEach(m => {
+                if (String(m.id) === String(payload.id)) {
+                  m.is_recalled = true;
+                  m.text = "[Tin nhắn đã được thu hồi]";
+                }
+              });
+              saveState();
+              renderCommunityChatMessages(false);
+            }
+          })
+          .on('broadcast', { event: 'faculty_private_message_recalled' }, ({ payload }) => {
+            if (payload && payload.studentId && state.chatHistory && state.chatHistory[payload.studentId]) {
+              state.chatHistory[payload.studentId].forEach((m, idx) => {
+                if ((payload.id && m.id === payload.id) || idx === payload.msgIndex) {
+                  m.is_recalled = true;
+                  m.text = "[Tin nhắn đã được thu hồi]";
+                }
+              });
+              saveState();
+              renderTeacherPrivateChat();
+              renderRegularStudentPrivateChat();
+              const active = getActiveChatStudent();
+              if (active && active.id === payload.studentId) {
+                renderMessagesList(state.chatHistory[payload.studentId]);
+              }
+            }
+          })
+          .on('broadcast', { event: 'avatar_updated' }, ({ payload }) => {
+            if (payload && payload.id && payload.avatar) {
+              if (!state.avatars) state.avatars = {};
+              state.avatars[payload.id] = payload.avatar;
+              saveState();
+              renderAll();
+              renderCommunityChatMessages(false);
+              renderTeacherPrivateChat();
+              renderRegularStudentPrivateChat();
             }
           })
           .on('broadcast', { event: 'new_regular_student' }, ({ payload }) => {
@@ -3202,24 +3282,80 @@
     }
 
     // ==============================================================
-    // CHỨC NĂNG ẢNH ĐẠI DIỆN SINH VIÊN (AVATAR UPLOAD & RESIZE)
+    // CHỨC NĂNG ẢNH ĐẠI DIỆN SINH VIÊN & GIẢNG VIÊN (AVATAR UPLOAD & RESIZE)
     // ==============================================================
     let currentAvatarUploadTargetId = null;
 
     function triggerAvatarUpload(studentId) {
-      currentAvatarUploadTargetId = studentId || state.selectedStudentId;
+      if (currentUser && currentUser.role === "teacher" && (!studentId || studentId === "TEACHER" || studentId === "teacher")) {
+        currentAvatarUploadTargetId = "TEACHER";
+      } else {
+        currentAvatarUploadTargetId = studentId || (currentUser ? currentUser.id : state.selectedStudentId);
+      }
       const fileInput = document.getElementById("studentAvatarFileInput");
       if (fileInput) {
         fileInput.value = "";
         fileInput.click();
       }
     }
+    window.triggerAvatarUpload = triggerAvatarUpload;
+
+    function updateTeacherSettingAvatarUI() {
+      const preview = document.getElementById("teacherSettingAvatarPreview");
+      const btnRemove = document.getElementById("btnRemoveTeacherAvatar");
+      const hasAv = !!(state.avatars && state.avatars['TEACHER']);
+      if (preview) {
+        if (hasAv) {
+          preview.innerHTML = `<img src="${state.avatars['TEACHER']}" class="w-full h-full object-cover rounded-2xl" alt="GV">`;
+        } else {
+          preview.textContent = "GV";
+        }
+      }
+      if (btnRemove) {
+        if (hasAv) btnRemove.classList.remove("hidden");
+        else btnRemove.classList.add("hidden");
+      }
+    }
+    window.updateTeacherSettingAvatarUI = updateTeacherSettingAvatarUI;
+
+    function handleRemoveTeacherAvatar() {
+      if (!confirm("Bạn có chắc muốn gỡ bỏ ảnh đại diện của Giảng viên để quay lại biểu tượng mặc định?")) return;
+      if (!state.avatars) state.avatars = {};
+      delete state.avatars['TEACHER'];
+      saveState();
+
+      if (supabaseClient) {
+        supabaseClient.from('system_settings').delete().eq('key', 'AVATAR_TEACHER').then(() => {});
+        try {
+          const bcChan = supabaseClient.channel('k68_realtime_channel');
+          bcChan.subscribe((st) => {
+            if (st === 'SUBSCRIBED') {
+              bcChan.send({
+                type: 'broadcast',
+                event: 'avatar_updated',
+                payload: { id: 'TEACHER', avatar: null }
+              });
+            }
+          });
+        } catch (e) {}
+      }
+      updateTeacherSettingAvatarUI();
+      renderAll();
+      renderCommunityChatMessages(false);
+      renderTeacherPrivateChat();
+      renderRegularStudentPrivateChat();
+      showToast("Đã gỡ ảnh đại diện", "Ảnh đại diện của Giảng viên đã được đặt lại mặc định.");
+    }
+    window.handleRemoveTeacherAvatar = handleRemoveTeacherAvatar;
 
     function handleAvatarFileChosen(event) {
       const file = event.target.files && event.target.files[0];
       if (!file) return;
 
-      const targetId = currentAvatarUploadTargetId || state.selectedStudentId;
+      let targetId = currentAvatarUploadTargetId || (currentUser ? currentUser.id : state.selectedStudentId);
+      if (currentUser && currentUser.role === "teacher" && (!targetId || targetId === "TEACHER" || targetId === "teacher")) {
+        targetId = "TEACHER";
+      }
       if (!targetId) return;
 
       if (!file.type.startsWith("image/")) {
@@ -3256,21 +3392,41 @@
           state.avatars[targetId] = compressedDataUrl;
           saveState();
 
-          // Lưu lên Supabase Cloud
+          // Lưu lên Supabase Cloud & Broadcast Realtime
           if (supabaseClient) {
-            // Lưu vào system_settings key AVATAR_<studentId>
+            // 1. Lưu vào system_settings key AVATAR_<studentId>
             supabaseClient.from('system_settings').upsert({
               key: 'AVATAR_' + targetId,
               value: compressedDataUrl,
               updated_at: new Date().toISOString()
             }, { onConflict: 'key' }).then(() => {});
 
-            // Thử lưu vào cột avatar_url của bảng students (nếu có)
-            supabaseClient.from('students').update({ avatar_url: compressedDataUrl }).eq('id', targetId).then(() => {});
+            // 2. Thử lưu vào cột avatar_url của bảng students (nếu là sinh viên)
+            if (targetId !== 'TEACHER') {
+              supabaseClient.from('students').update({ avatar_url: compressedDataUrl }).eq('id', targetId).then(() => {});
+            }
+
+            // 3. Broadcast sự kiện avatar_updated trên realtime channel để TẤT CẢ các máy khác lập tức thấy avatar mới
+            try {
+              const bcChan = supabaseClient.channel('k68_realtime_channel');
+              bcChan.subscribe((st) => {
+                if (st === 'SUBSCRIBED') {
+                  bcChan.send({
+                    type: 'broadcast',
+                    event: 'avatar_updated',
+                    payload: { id: targetId, avatar: compressedDataUrl }
+                  });
+                }
+              });
+            } catch (bcErr) {}
           }
 
+          updateTeacherSettingAvatarUI();
           renderAll();
-          showToast("Cập nhật thành công!", "Ảnh đại diện đã được lưu vào hệ thống.");
+          renderCommunityChatMessages(false);
+          renderTeacherPrivateChat();
+          renderRegularStudentPrivateChat();
+          showToast("Cập nhật thành công!", targetId === 'TEACHER' ? "Ảnh đại diện Giảng viên đã được lưu và hiển thị cho toàn bộ sinh viên." : "Ảnh đại diện đã được lưu vào hệ thống.");
         };
         img.src = e.target.result;
       };
@@ -3371,7 +3527,19 @@
               // 2. NẾU LÀ TIN NHẮN 1-1 RIÊNG TƯ GIỮA GV VÀ SV:
               if (!state.chatHistory) state.chatHistory = {};
               if (!state.chatHistory[msg.student_id]) state.chatHistory[msg.student_id] = [];
-              const exists = state.chatHistory[msg.student_id].some(m => m.id === msg.id);
+              let exists = state.chatHistory[msg.student_id].some(m => m.id === msg.id);
+              if (!exists) {
+                // Chống dội lặp tin nhắn client vừa tự gửi (echo trong 8s)
+                const recentEcho = state.chatHistory[msg.student_id].slice(-5).find(m => 
+                  m.senderRole === msg.sender_role &&
+                  String(m.text || "").trim() === String(msg.message_text || "").trim()
+                );
+                if (recentEcho) {
+                  recentEcho.id = msg.id; // Gắn ID thật từ Supabase DB
+                  exists = true;
+                }
+              }
+
               if (!exists) {
                 state.chatHistory[msg.student_id].push({
                   id: msg.id,
@@ -3382,7 +3550,16 @@
                   text: msg.message_text,
                   timestamp: new Date(msg.created_at).toLocaleTimeString('vi-VN', { hour: '2-digit', minute: '2-digit' }) + ' ' + new Date(msg.created_at).toLocaleDateString('vi-VN')
                 });
+                state.chatHistory[msg.student_id] = deduplicateMessages(state.chatHistory[msg.student_id]);
                 saveState();
+
+                // Cập nhật giao diện Chat Riêng Cổng 2 nếu đang mở
+                if (state.selectedRegularStudentId === msg.student_id) {
+                  renderTeacherPrivateChat();
+                }
+                if (currentUser && currentUser.id === msg.student_id) {
+                  renderRegularStudentPrivateChat();
+                }
 
                 const active = getActiveChatStudent();
                 if (isChatOpen && active && active.id === msg.student_id) {
@@ -3390,7 +3567,8 @@
                 } else {
                   // Tin nhắn gửi đến nhưng chưa mở chat -> Thông báo đẩy kiểu Messenger
                   const isFromMe = (currentUser && currentUser.role === "teacher" && msg.sender_role === "teacher") ||
-                                   (currentUser && currentUser.role === "student" && msg.sender_role === "student");
+                                   (currentUser && currentUser.role === "student" && msg.sender_role === "student") ||
+                                   (currentUser && currentUser.name === msg.sender_name);
                   if (!isFromMe) {
                     if (!state.unreadMessages) state.unreadMessages = {};
                     state.unreadMessages[msg.student_id] = (state.unreadMessages[msg.student_id] || 0) + 1;
@@ -3410,13 +3588,36 @@
           .on('postgres_changes', { event: 'UPDATE', schema: 'public', table: 'chat_messages' }, payload => {
             const msg = payload.new;
             if (msg && msg.student_id && msg.is_recalled) {
-              if (state.chatHistory && state.chatHistory[msg.student_id]) {
-                state.chatHistory[msg.student_id].forEach(m => {
+              // 1. Thu hồi tin nhắn Kênh Chat Chung Toàn Khoa
+              if (msg.student_id === 'COMMUNITY' && state.communityChatMessages) {
+                state.communityChatMessages.forEach(m => {
                   if (m.id === msg.id) {
+                    m.is_recalled = true;
                     m.text = "[Tin nhắn đã được thu hồi]";
                   }
                 });
                 saveState();
+                renderCommunityChatMessages(false);
+                return;
+              }
+
+              // 2. Thu hồi tin nhắn Kênh Chat Riêng
+              if (state.chatHistory && state.chatHistory[msg.student_id]) {
+                state.chatHistory[msg.student_id].forEach(m => {
+                  if (m.id === msg.id) {
+                    m.is_recalled = true;
+                    m.text = "[Tin nhắn đã được thu hồi]";
+                  }
+                });
+                saveState();
+
+                if (state.selectedRegularStudentId === msg.student_id) {
+                  renderTeacherPrivateChat();
+                }
+                if (currentUser && currentUser.id === msg.student_id) {
+                  renderRegularStudentPrivateChat();
+                }
+
                 const active = getActiveChatStudent();
                 if (active && active.id === msg.student_id) {
                   renderMessagesList(state.chatHistory[msg.student_id]);
@@ -3442,6 +3643,10 @@
           .on('postgres_changes', { event: '*', schema: 'public', table: 'students' }, payload => {
             const st = payload.new;
             if (st && st.id && st.id !== 'COMMUNITY') {
+              if (st.avatar_url) {
+                if (!state.avatars) state.avatars = {};
+                state.avatars[st.id] = st.avatar_url;
+              }
               const cInfo = getCohortInfoFromId(st.id);
               if (!state.regularStudents) state.regularStudents = [];
               const existsIdx = state.regularStudents.findIndex(r => r.id === st.id);
@@ -3477,6 +3682,13 @@
           .on('postgres_changes', { event: '*', schema: 'public', table: 'system_settings' }, payload => {
             const row = payload.new;
             if (row && row.key) {
+              if (row.key.startsWith('AVATAR_') && row.value) {
+                const sid = row.key.replace('AVATAR_', '');
+                if (!state.avatars) state.avatars = {};
+                state.avatars[sid] = row.value;
+                saveState();
+                renderAll();
+              }
               if (row.key === 'REGULAR_STUDENTS_LIST' && row.value) {
                 try {
                   const arr = JSON.parse(row.value);
@@ -3798,7 +4010,12 @@
                   if (Array.isArray(mArr)) state.communityChatMessages = mArr;
                 } catch (e) {}
               }
-              if (st.key === 'ANNOUNCEMENTS_LIST' && st.value) {
+              if (st.key && st.key.startsWith('AVATAR_')) {
+              const sid = st.key.replace('AVATAR_', '');
+              if (!state.avatars) state.avatars = {};
+              state.avatars[sid] = st.value;
+            }
+            if (st.key === 'ANNOUNCEMENTS_LIST' && st.value) {
                 try {
                   const aArr = JSON.parse(st.value);
                   if (Array.isArray(aArr)) state.announcements = aArr;
@@ -3923,6 +4140,11 @@
                 if (Array.isArray(mArr)) state.communityChatMessages = mArr;
               } catch (e) {}
             }
+            if (st.key && st.key.startsWith('AVATAR_')) {
+              const sid = st.key.replace('AVATAR_', '');
+              if (!state.avatars) state.avatars = {};
+              state.avatars[sid] = st.value;
+            }
             if (st.key === 'ANNOUNCEMENTS_LIST' && st.value) {
               try {
                 const aArr = JSON.parse(st.value);
@@ -3960,6 +4182,10 @@
         if (studentRows && Array.isArray(studentRows)) {
           studentRows.forEach(s => {
             if (!s || !s.id || s.id === 'COMMUNITY') return;
+            if (s.avatar_url) {
+              if (!state.avatars) state.avatars = {};
+              state.avatars[s.id] = s.avatar_url;
+            }
             if (s.password && state.registeredStudentIds && state.registeredStudentIds.includes(s.id)) {
               if (!state.studentPasswords) state.studentPasswords = {};
               state.studentPasswords[s.id] = s.password;
@@ -5203,8 +5429,9 @@
         }
 
         let html = '';
+        const allStudentsList = getAllFacultyStudents();
         messages.forEach(msg => {
-          const isMe = currentUser && currentUser.id === msg.sender_id;
+          const isMe = currentUser && (currentUser.id === msg.sender_id || currentUser.name === msg.sender_name);
           const isTeacher = msg.sender_role === "teacher";
           const timeStr = new Date(msg.created_at).toLocaleTimeString('vi-VN', { hour: '2-digit', minute: '2-digit' });
           const isOnline = isUserOnline(msg.sender_id);
@@ -5218,11 +5445,57 @@
             ? (msg.sender_name.split(' ').length >= 2 ? (msg.sender_name.split(' ')[0][0] + msg.sender_name.split(' ').slice(-1)[0][0]).toUpperCase() : msg.sender_name.substring(0, 2).toUpperCase())
             : 'SV';
 
+          // Đồng bộ avatar của sinh viên & giảng viên
+          let userAvatar = null;
+          const senderId = msg.sender_id;
+          if (isTeacher || msg.sender_role === 'teacher' || senderId === 'TEACHER' || senderId === 'teacher') {
+            userAvatar = (state.avatars && state.avatars['TEACHER']) || null;
+          } else if (senderId && state.avatars && state.avatars[senderId]) {
+            userAvatar = state.avatars[senderId];
+          } else if (msg.sender_name) {
+            const matched = allStudentsList.find(s => s.name === msg.sender_name || s.id === senderId);
+            if (matched && state.avatars && state.avatars[matched.id]) {
+              userAvatar = state.avatars[matched.id];
+            }
+          }
+
+          const avatarContent = userAvatar
+            ? `<img src="${userAvatar}" class="w-full h-full object-cover" alt="${escapeHtml(msg.sender_name)}">`
+            : `<span>${initials}</span>`;
+
+          const isRecalled = msg.is_recalled || msg.text === "[Tin nhắn đã được thu hồi]";
+          let messageBubbleHtml = '';
+          if (isRecalled) {
+            messageBubbleHtml = `
+              <div class="px-3.5 py-2 rounded-2xl text-xs italic text-slate-400 bg-slate-100 border border-slate-200/60 flex items-center gap-1.5 shadow-2xs">
+                <svg class="w-3.5 h-3.5 text-slate-400 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M18.364 18.364A9 9 0 005.636 5.636m12.728 12.728A9 9 0 015.636 5.636m12.728 12.728L5.636 5.636"/></svg>
+                <span>Tin nhắn đã được thu hồi</span>
+              </div>
+            `;
+          } else {
+            messageBubbleHtml = `
+              <div class="group relative flex items-center gap-1.5 ${isMe ? 'flex-row-reverse' : 'flex-row'}">
+                <div class="px-3.5 py-2 rounded-2xl text-xs sm:text-sm leading-relaxed ${isMe ? 'bg-blue-600 text-white rounded-tr-xs' : 'bg-white border border-slate-200/80 text-slate-800 rounded-tl-xs shadow-2xs'}">
+                  ${escapeHtml(msg.text)}
+                </div>
+                ${isMe ? `
+                  <button 
+                    onclick="handleRecallCommunityMessage('${escapeHtml(msg.id)}')" 
+                    class="text-[11px] text-slate-400 hover:text-rose-600 px-1.5 py-0.5 rounded hover:bg-slate-100 transition whitespace-nowrap opacity-75 hover:opacity-100 cursor-pointer" 
+                    title="Thu hồi tin nhắn này trên kênh chat chung"
+                  >
+                    ↩️ Thu hồi
+                  </button>
+                ` : ''}
+              </div>
+            `;
+          }
+
           html += `
             <div class="flex items-start gap-2.5 ${isMe ? 'flex-row-reverse' : ''}">
               <div class="relative flex-shrink-0">
-                <div class="w-8 h-8 rounded-full ${avatarBg} text-white font-bold text-xs flex items-center justify-center shadow-xs">
-                  ${initials}
+                <div class="w-8 h-8 rounded-full overflow-hidden shadow-xs border border-slate-200/80 flex items-center justify-center flex-shrink-0 ${userAvatar ? 'bg-white' : avatarBg + ' text-white font-bold text-xs'}">
+                  ${avatarContent}
                 </div>
                 <span class="absolute bottom-0 right-0 w-2.5 h-2.5 rounded-full bg-emerald-500 ring-2 ring-white ${isOnline ? '' : 'hidden'}" title="Đang trực tuyến"></span>
               </div>
@@ -5232,9 +5505,7 @@
                   ${roleBadge}
                   <span class="text-[10px] text-slate-400 font-mono">${timeStr}</span>
                 </div>
-                <div class="px-3.5 py-2 rounded-2xl text-xs sm:text-sm leading-relaxed ${isMe ? 'bg-blue-600 text-white rounded-tr-xs' : 'bg-white border border-slate-200/80 text-slate-800 rounded-tl-xs shadow-2xs'}">
-                  ${escapeHtml(msg.text)}
-                </div>
+                ${messageBubbleHtml}
               </div>
             </div>
           `;
@@ -5246,6 +5517,57 @@
         }
       });
     }
+
+    // THU HỒI TIN NHẮN KÊNH CHAT CHUNG TOÀN KHOA
+    async function handleRecallCommunityMessage(msgId) {
+      if (!msgId) return;
+      if (!confirm("Bạn có chắc chắn muốn thu hồi tin nhắn này trên Kênh Chat Chung Toàn Khoa không? Tin nhắn sẽ hiển thị trạng thái đã thu hồi với tất cả mọi người.")) return;
+
+      if (!state.communityChatMessages) return;
+      const targetMsg = state.communityChatMessages.find(m => String(m.id) === String(msgId));
+      if (!targetMsg) {
+        showToast("Lỗi", "Không tìm thấy tin nhắn cần thu hồi", true);
+        return;
+      }
+
+      targetMsg.is_recalled = true;
+      targetMsg.text = "[Tin nhắn đã được thu hồi]";
+      saveState();
+      renderCommunityChatMessages(false);
+
+      if (supabaseClient) {
+        try {
+          await supabaseClient.from('chat_messages').update({
+            is_recalled: true,
+            message_text: "[Tin nhắn đã được thu hồi]"
+          }).eq('id', msgId);
+        } catch (e) {}
+
+        try {
+          await supabaseClient.from('system_settings').upsert({
+            key: 'COMMUNITY_CHAT_MESSAGES',
+            value: JSON.stringify(state.communityChatMessages.slice(-200)),
+            updated_at: new Date().toISOString()
+          }, { onConflict: 'key' });
+        } catch (e) {}
+
+        try {
+          const bcChan = supabaseClient.channel('k68_realtime_channel');
+          bcChan.subscribe((st) => {
+            if (st === 'SUBSCRIBED') {
+              bcChan.send({
+                type: 'broadcast',
+                event: 'community_message_recalled',
+                payload: { id: msgId }
+              });
+            }
+          });
+        } catch (e) {}
+      }
+
+      showToast("Đã thu hồi tin nhắn", "Tin nhắn trên kênh chat chung toàn khoa đã được thu hồi.");
+    }
+    window.handleRecallCommunityMessage = handleRecallCommunityMessage;
     window.handleSendCommunityMessage = handleSendCommunityMessage;
     window.renderCommunityChatMessages = renderCommunityChatMessages;
 
@@ -5340,15 +5662,24 @@
       if (partnerName) partnerName.textContent = student.name;
       if (partnerSub) partnerSub.textContent = `MSV: ${student.id} • ${student.course || student.kLabel || 'Khóa dưới'} • SĐT: ${student.phone || '--'} • Email: ${student.email || '--'}`;
       if (partnerAvatar) {
-        const parts = student.name.split(" ");
-        partnerAvatar.textContent = (parts[0][0] + parts[parts.length - 1][0]).toUpperCase();
+        const hasAv = !!(state.avatars && state.avatars[student.id]);
+        if (hasAv) {
+          partnerAvatar.innerHTML = `<img src="${state.avatars[student.id]}" class="w-full h-full object-cover rounded-xl" alt="${escapeHtml(student.name)}">`;
+          partnerAvatar.className = "w-10 h-10 rounded-xl overflow-hidden flex items-center justify-center text-sm shadow-sm border border-slate-200 bg-white";
+        } else {
+          const parts = student.name.split(" ");
+          partnerAvatar.textContent = (parts[0][0] + parts[parts.length - 1][0]).toUpperCase();
+          partnerAvatar.className = "w-10 h-10 rounded-xl bg-purple-600 text-white font-bold flex items-center justify-center text-sm shadow-sm";
+        }
       }
       if (partnerDot) {
         const isOnline = isUserOnline(student.id);
         partnerDot.className = `absolute bottom-0 right-0 w-3 h-3 bg-emerald-500 border-2 border-slate-900 rounded-full ${isOnline ? '' : 'hidden'}`;
       }
 
-      const msgs = (state.chatHistory && state.chatHistory[studentId]) || [];
+      const rawMsgs = (state.chatHistory && state.chatHistory[studentId]) || [];
+      const msgs = deduplicateMessages(rawMsgs);
+      if (state.chatHistory) state.chatHistory[studentId] = msgs;
       if (!container) return;
 
       if (msgs.length === 0) {
@@ -5362,22 +5693,54 @@
       }
 
       let html = '';
-      msgs.forEach(m => {
+      const hasTeacherAv = !!(state.avatars && state.avatars['TEACHER']);
+      msgs.forEach((m, idx) => {
         const isMe = m.senderRole === "teacher";
         const timeStr = m.timestamp ? (m.timestamp.includes(' ') ? m.timestamp.split(' ')[0] : m.timestamp) : '';
+        const hasAv = !isMe && !!(state.avatars && state.avatars[studentId]);
+        const avatarContent = isMe 
+          ? (hasTeacherAv ? `<img src="${state.avatars['TEACHER']}" class="w-full h-full object-cover" alt="GV">` : 'GV')
+          : (hasAv ? `<img src="${state.avatars[studentId]}" class="w-full h-full object-cover" alt="SV">` : 'SV');
+
+        const isRecalled = m.is_recalled || m.text === "[Tin nhắn đã được thu hồi]";
+        let bodyBubbleHtml = '';
+        if (isRecalled) {
+          bodyBubbleHtml = `
+            <div class="px-3.5 py-2 rounded-2xl text-xs italic text-slate-400 bg-slate-100 border border-slate-200/60 flex items-center gap-1.5 shadow-2xs">
+              <svg class="w-3.5 h-3.5 text-slate-400 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M18.364 18.364A9 9 0 005.636 5.636m12.728 12.728A9 9 0 015.636 5.636m12.728 12.728L5.636 5.636"/></svg>
+              <span>Tin nhắn đã được thu hồi</span>
+            </div>
+          `;
+        } else {
+          bodyBubbleHtml = `
+            <div class="group relative flex items-center gap-1.5 ${isMe ? 'flex-row-reverse' : 'flex-row'}">
+              <div class="px-3.5 py-2 rounded-2xl text-xs sm:text-sm leading-relaxed ${isMe ? 'bg-purple-600 text-white rounded-tr-xs' : 'bg-white border border-slate-200 text-slate-800 rounded-tl-xs'}">
+                ${escapeHtml(m.text)}
+              </div>
+              ${isMe ? `
+                <button 
+                  onclick="handleRecallFacultyPrivateMessage('${studentId}', ${idx}, '${escapeHtml(m.id || '')}')" 
+                  class="text-[11px] text-slate-400 hover:text-rose-600 px-1.5 py-0.5 rounded hover:bg-slate-100 transition whitespace-nowrap opacity-75 hover:opacity-100 cursor-pointer" 
+                  title="Thu hồi tin nhắn này"
+                >
+                  ↩️ Thu hồi
+                </button>
+              ` : ''}
+            </div>
+          `;
+        }
+
         html += `
           <div class="flex items-start gap-2.5 ${isMe ? 'flex-row-reverse' : ''}">
-            <div class="w-7 h-7 rounded-full ${isMe ? 'bg-purple-600' : 'bg-emerald-600'} text-white font-bold text-xs flex items-center justify-center flex-shrink-0">
-              ${isMe ? 'GV' : 'SV'}
+            <div class="w-7 h-7 rounded-full overflow-hidden shadow-xs flex items-center justify-center flex-shrink-0 ${((isMe && hasTeacherAv) || (!isMe && hasAv)) ? 'bg-white border border-slate-200' : (isMe ? 'bg-purple-600 text-white font-bold text-xs' : 'bg-emerald-600 text-white font-bold text-xs')}">
+              ${avatarContent}
             </div>
             <div class="max-w-[75%]">
               <div class="flex items-center gap-1.5 mb-0.5 ${isMe ? 'flex-row-reverse text-right' : ''}">
                 <span class="text-xs font-bold text-slate-700">${escapeHtml(m.senderName || (isMe ? 'Giảng Viên' : student.name))}</span>
                 <span class="text-[10px] text-slate-400 font-mono">${timeStr}</span>
               </div>
-              <div class="px-3.5 py-2 rounded-2xl text-xs sm:text-sm leading-relaxed ${isMe ? 'bg-purple-600 text-white rounded-tr-xs' : 'bg-white border border-slate-200 text-slate-800 rounded-tl-xs'}">
-                ${escapeHtml(m.text)}
-              </div>
+              ${bodyBubbleHtml}
             </div>
           </div>
         `;
@@ -5396,36 +5759,38 @@
       const text = (input.value || "").trim();
       if (!text) return;
 
+      const tempId = "priv_" + Date.now() + "_" + Math.random().toString(36).substr(2, 6);
       const newMsg = {
+        id: tempId,
         timestamp: new Date().toLocaleTimeString('vi-VN', { hour: '2-digit', minute: '2-digit' }),
         studentId: studentId,
         studentName: "Sinh viên",
         senderRole: "teacher",
         senderName: "Giảng Viên Hướng Dẫn",
-        text: text
+        text: text,
+        created_at: new Date().toISOString()
       };
 
       if (!state.chatHistory) state.chatHistory = {};
       if (!state.chatHistory[studentId]) state.chatHistory[studentId] = [];
       state.chatHistory[studentId].push(newMsg);
+      state.chatHistory[studentId] = deduplicateMessages(state.chatHistory[studentId]);
       saveState();
       input.value = "";
 
       renderTeacherPrivateChat();
 
-      // Lưu tin nhắn lên bảng chat_messages của Supabase
+      // Lưu tin nhắn lên Supabase qua hàm sendChatMessageSingle (chỉ gửi 1 lần duy nhất)
       const tMsgPayload = {
         student_id: studentId,
         sender_role: 'teacher',
         sender_name: 'Giảng Viên Hướng Dẫn',
         message_text: text,
-        created_at: new Date().toISOString()
+        is_recalled: false,
+        created_at: newMsg.created_at
       };
 
-      if (supabaseClient) {
-        supabaseClient.from('chat_messages').insert(tMsgPayload).then(() => {}).catch(() => {});
-      }
-      supabaseRestPost('chat_messages', tMsgPayload).catch(() => {});
+      sendChatMessageSingle(tMsgPayload);
     }
     window.handleSendTeacherPrivateMessage = handleSendTeacherPrivateMessage;
 
@@ -5436,7 +5801,9 @@
       if (!container) return;
 
       const studentId = currentUser.id;
-      const msgs = (state.chatHistory && state.chatHistory[studentId]) || [];
+      const rawMsgs = (state.chatHistory && state.chatHistory[studentId]) || [];
+      const msgs = deduplicateMessages(rawMsgs);
+      if (state.chatHistory) state.chatHistory[studentId] = msgs;
 
       if (msgs.length === 0) {
         container.innerHTML = `
@@ -5449,22 +5816,54 @@
       }
 
       let html = '';
-      msgs.forEach(m => {
+      const hasMyAv = !!(state.avatars && state.avatars[studentId]);
+      const hasTeacherAv = !!(state.avatars && state.avatars['TEACHER']);
+      msgs.forEach((m, idx) => {
         const isMe = m.senderRole === "student" || m.senderRole === "regular_student";
         const timeStr = m.timestamp ? (m.timestamp.includes(' ') ? m.timestamp.split(' ')[0] : m.timestamp) : '';
+        const avatarContent = isMe 
+          ? (hasMyAv ? `<img src="${state.avatars[studentId]}" class="w-full h-full object-cover" alt="SV">` : 'SV')
+          : (hasTeacherAv ? `<img src="${state.avatars['TEACHER']}" class="w-full h-full object-cover" alt="GV">` : 'GV');
+
+        const isRecalled = m.is_recalled || m.text === "[Tin nhắn đã được thu hồi]";
+        let bodyBubbleHtml = '';
+        if (isRecalled) {
+          bodyBubbleHtml = `
+            <div class="px-3.5 py-2 rounded-2xl text-xs italic text-slate-400 bg-slate-100 border border-slate-200/60 flex items-center gap-1.5 shadow-2xs">
+              <svg class="w-3.5 h-3.5 text-slate-400 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M18.364 18.364A9 9 0 005.636 5.636m12.728 12.728A9 9 0 015.636 5.636m12.728 12.728L5.636 5.636"/></svg>
+              <span>Tin nhắn đã được thu hồi</span>
+            </div>
+          `;
+        } else {
+          bodyBubbleHtml = `
+            <div class="group relative flex items-center gap-1.5 ${isMe ? 'flex-row-reverse' : 'flex-row'}">
+              <div class="px-3.5 py-2 rounded-2xl text-xs sm:text-sm leading-relaxed ${isMe ? 'bg-emerald-600 text-white rounded-tr-xs' : 'bg-white border border-slate-200 text-slate-800 rounded-tl-xs'}">
+                ${escapeHtml(m.text)}
+              </div>
+              ${isMe ? `
+                <button 
+                  onclick="handleRecallFacultyPrivateMessage('${studentId}', ${idx}, '${escapeHtml(m.id || '')}')" 
+                  class="text-[11px] text-slate-400 hover:text-rose-600 px-1.5 py-0.5 rounded hover:bg-slate-100 transition whitespace-nowrap opacity-75 hover:opacity-100 cursor-pointer" 
+                  title="Thu hồi tin nhắn này"
+                >
+                  ↩️ Thu hồi
+                </button>
+              ` : ''}
+            </div>
+          `;
+        }
+
         html += `
           <div class="flex items-start gap-2.5 ${isMe ? 'flex-row-reverse' : ''}">
-            <div class="w-7 h-7 rounded-full ${isMe ? 'bg-emerald-600' : 'bg-purple-600'} text-white font-bold text-xs flex items-center justify-center flex-shrink-0">
-              ${isMe ? 'SV' : 'GV'}
+            <div class="w-7 h-7 rounded-full overflow-hidden shadow-xs flex items-center justify-center flex-shrink-0 ${((isMe && hasMyAv) || (!isMe && hasTeacherAv)) ? 'bg-white border border-slate-200' : (isMe ? 'bg-emerald-600 text-white font-bold text-xs' : 'bg-purple-600 text-white font-bold text-xs')}">
+              ${avatarContent}
             </div>
             <div class="max-w-[75%]">
               <div class="flex items-center gap-1.5 mb-0.5 ${isMe ? 'flex-row-reverse text-right' : ''}">
                 <span class="text-xs font-bold text-slate-700">${escapeHtml(m.senderName || (isMe ? currentUser.name : 'Giảng Viên Hướng Dẫn'))}</span>
                 <span class="text-[10px] text-slate-400 font-mono">${timeStr}</span>
               </div>
-              <div class="px-3.5 py-2 rounded-2xl text-xs sm:text-sm leading-relaxed ${isMe ? 'bg-emerald-600 text-white rounded-tr-xs' : 'bg-white border border-slate-200 text-slate-800 rounded-tl-xs'}">
-                ${escapeHtml(m.text)}
-              </div>
+              ${bodyBubbleHtml}
             </div>
           </div>
         `;
@@ -5473,6 +5872,61 @@
       container.innerHTML = html;
       container.scrollTop = container.scrollHeight;
     }
+
+    // THU HỒI TIN NHẮN KÊNH CHAT RIÊNG 1-1 CỔNG 2
+    async function handleRecallFacultyPrivateMessage(studentId, msgIndex, msgId) {
+      if (!confirm("Bạn có chắc chắn muốn thu hồi tin nhắn này không? Tin nhắn sẽ hiển thị trạng thái đã thu hồi với cả hai bên.")) return;
+      if (!state.chatHistory || !state.chatHistory[studentId] || !state.chatHistory[studentId][msgIndex]) {
+        showToast("Lỗi", "Không tìm thấy tin nhắn cần thu hồi", true);
+        return;
+      }
+
+      const targetMsg = state.chatHistory[studentId][msgIndex];
+      const targetId = msgId || targetMsg.id || targetMsg.rowId || null;
+
+      targetMsg.is_recalled = true;
+      targetMsg.text = "[Tin nhắn đã được thu hồi]";
+      saveState();
+
+      renderTeacherPrivateChat();
+      renderRegularStudentPrivateChat();
+      const active = getActiveChatStudent();
+      if (active && active.id === studentId) {
+        renderMessagesList(state.chatHistory[studentId]);
+      }
+
+      if (supabaseClient) {
+        try {
+          if (targetId) {
+            await supabaseClient.from('chat_messages').update({
+              is_recalled: true,
+              message_text: "[Tin nhắn đã được thu hồi]"
+            }).eq('id', targetId);
+          } else {
+            await supabaseClient.from('chat_messages').update({
+              is_recalled: true,
+              message_text: "[Tin nhắn đã được thu hồi]"
+            }).eq('student_id', studentId).eq('message_text', targetMsg.text);
+          }
+        } catch (e) {}
+
+        try {
+          const bcChan = supabaseClient.channel('k68_realtime_channel');
+          bcChan.subscribe((st) => {
+            if (st === 'SUBSCRIBED') {
+              bcChan.send({
+                type: 'broadcast',
+                event: 'faculty_private_message_recalled',
+                payload: { studentId: studentId, msgIndex: msgIndex, id: targetId }
+              });
+            }
+          });
+        } catch (e) {}
+      }
+
+      showToast("Đã thu hồi tin nhắn", "Tin nhắn trong cuộc trò chuyện riêng đã được thu hồi.");
+    }
+    window.handleRecallFacultyPrivateMessage = handleRecallFacultyPrivateMessage;
 
     async function handleSendRegularStudentPrivateMessage(e) {
       e.preventDefault();
@@ -5483,18 +5937,22 @@
       if (!text) return;
 
       const studentId = currentUser.id;
+      const tempId = "priv_" + Date.now() + "_" + Math.random().toString(36).substr(2, 6);
       const newMsg = {
+        id: tempId,
         timestamp: new Date().toLocaleTimeString('vi-VN', { hour: '2-digit', minute: '2-digit' }),
         studentId: studentId,
         studentName: currentUser.name,
         senderRole: "student",
         senderName: currentUser.name,
-        text: text
+        text: text,
+        created_at: new Date().toISOString()
       };
 
       if (!state.chatHistory) state.chatHistory = {};
       if (!state.chatHistory[studentId]) state.chatHistory[studentId] = [];
       state.chatHistory[studentId].push(newMsg);
+      state.chatHistory[studentId] = deduplicateMessages(state.chatHistory[studentId]);
       saveState();
       input.value = "";
 
@@ -5506,7 +5964,8 @@
         sender_role: 'student',
         sender_name: currentUser.name,
         message_text: text,
-        created_at: new Date().toISOString()
+        is_recalled: false,
+        created_at: newMsg.created_at
       };
 
       sendChatMessageSingle(privPayload);
@@ -5677,12 +6136,17 @@
             ? `<span class="px-1.5 py-0.5 rounded-md text-[10px] font-bold bg-emerald-50 text-emerald-700 border border-emerald-200" title="Đã đăng ký tài khoản">✓ Đã Đăng Ký</span>`
             : `<span class="px-1.5 py-0.5 rounded-md text-[10px] font-medium bg-slate-100 text-slate-500 border border-slate-200" title="Chưa tạo tài khoản mật khẩu">Chưa tạo TK</span>`;
 
+          const hasAvatar = !!(state.avatars && state.avatars[cleanId]);
+          const avatarContent = hasAvatar
+            ? `<img src="${state.avatars[cleanId]}" class="w-full h-full object-cover" alt="${escapeHtml(safeName)}">`
+            : `<span>${initials}</span>`;
+
           html += `
             <div class="p-3 rounded-xl border transition ${isSelected ? 'bg-blue-50/70 border-blue-300 shadow-xs' : 'bg-slate-50/60 border-slate-200/70 hover:bg-white hover:border-slate-300'} flex items-center justify-between gap-3">
               <div class="flex items-center gap-3 min-w-0">
                 <div class="relative flex-shrink-0">
-                  <div class="w-10 h-10 rounded-full bg-emerald-600 text-white font-bold text-xs flex items-center justify-center shadow-xs">
-                    ${initials}
+                  <div class="w-10 h-10 rounded-full overflow-hidden shadow-xs border border-slate-200/80 flex items-center justify-center ${hasAvatar ? 'bg-white' : 'bg-emerald-600 text-white font-bold text-xs'}">
+                    ${avatarContent}
                   </div>
                   <!-- Meta Messenger style green dot -->
                   <span class="absolute bottom-0 right-0 w-3.5 h-3.5 rounded-full bg-emerald-500 ring-2 ring-white ${isOnline ? '' : 'hidden'}" title="Đang trực tuyến"></span>
@@ -5969,8 +6433,17 @@
       if (phoneEl) phoneEl.textContent = currentPhone;
       if (emailEl) emailEl.textContent = currentEmail;
       if (avatarEl) {
-        const parts = currentUser.name.split(" ");
-        avatarEl.textContent = parts.length >= 2 ? (parts[0][0] + parts[parts.length - 1][0]).toUpperCase() : currentUser.name.substring(0, 2).toUpperCase();
+        const hasAv = !!(state.avatars && state.avatars[currentUser.id]);
+        if (hasAv) {
+          avatarEl.innerHTML = `<img src="${state.avatars[currentUser.id]}" class="w-full h-full object-cover rounded-2xl" alt="${escapeHtml(currentUser.name)}">`;
+          avatarEl.className = "w-16 h-16 sm:w-20 sm:h-20 rounded-2xl overflow-hidden shadow-md border-2 border-white ring-2 ring-slate-100 flex items-center justify-center bg-white cursor-pointer";
+        } else {
+          const parts = currentUser.name.split(" ");
+          avatarEl.textContent = parts.length >= 2 ? (parts[0][0] + parts[parts.length - 1][0]).toUpperCase() : currentUser.name.substring(0, 2).toUpperCase();
+          avatarEl.className = "w-16 h-16 sm:w-20 sm:h-20 rounded-2xl bg-gradient-to-tr from-blue-600 via-indigo-600 to-purple-600 text-white font-black text-2xl sm:text-3xl flex items-center justify-center shadow-md border-2 border-white ring-2 ring-slate-100 cursor-pointer";
+        }
+        avatarEl.title = "Nhấp để đổi ảnh đại diện";
+        avatarEl.onclick = () => triggerAvatarUpload(currentUser.id);
       }
 
       const activeTab = state.regularStudentActiveTab || "community";
@@ -6389,6 +6862,7 @@
         });
       }
 
+      updateTeacherSettingAvatarUI();
       document.getElementById("teacherSettingsModal").classList.remove("hidden");
     }
 
@@ -8082,26 +8556,50 @@
         return;
       }
 
+      const btnHeaderTeacherAvatar = document.getElementById("btnHeaderTeacherAvatar");
+
       if (currentUser.role === "teacher") {
         nameEl.textContent = currentUser.name;
         subEl.textContent = "Giáo Viên Chủ Nhiệm (Toàn quyền)";
         roleBadge.textContent = "Giảng Viên";
-        avatarBadge.textContent = "GV";
-        avatarBadge.className = "w-12 h-12 rounded-xl bg-purple-600 text-white font-bold text-base flex items-center justify-center flex-shrink-0 shadow-sm";
+        if (btnHeaderTeacherAvatar) btnHeaderTeacherAvatar.classList.remove("hidden");
+
+        const hasTeacherAv = !!(state.avatars && state.avatars['TEACHER']);
+        if (hasTeacherAv) {
+          avatarBadge.innerHTML = `<img src="${state.avatars['TEACHER']}" class="w-full h-full object-cover" alt="GV">`;
+          avatarBadge.className = "w-12 h-12 rounded-xl overflow-hidden flex items-center justify-center flex-shrink-0 shadow-sm border border-purple-200 cursor-pointer";
+        } else {
+          avatarBadge.textContent = "GV";
+          avatarBadge.className = "w-12 h-12 rounded-xl bg-purple-600 text-white font-bold text-base flex items-center justify-center flex-shrink-0 shadow-sm cursor-pointer";
+        }
+        avatarBadge.title = "Nhấp để đổi ảnh đại diện Giảng viên";
+        avatarBadge.onclick = () => triggerAvatarUpload('TEACHER');
       } else if (currentUser.role === "regular_student") {
         nameEl.textContent = currentUser.name;
         subEl.textContent = `MSV: ${currentUser.id} • ${currentUser.course || 'Khóa dưới'} • SĐT: ${currentUser.phone || '--'}`;
         roleBadge.textContent = "Sinh Viên Khóa Dưới";
-        const parts = currentUser.name.split(" ");
-        avatarBadge.textContent = parts.length >= 2 ? (parts[0][0] + parts[parts.length - 1][0]).toUpperCase() : currentUser.name.substring(0, 2).toUpperCase();
-        avatarBadge.className = "w-12 h-12 rounded-xl bg-emerald-600 text-white font-bold text-base flex items-center justify-center flex-shrink-0 shadow-sm";
+        if (btnHeaderTeacherAvatar) btnHeaderTeacherAvatar.classList.add("hidden");
+
+        const hasRegAv = !!(state.avatars && state.avatars[currentUser.id]);
+        if (hasRegAv) {
+          avatarBadge.innerHTML = `<img src="${state.avatars[currentUser.id]}" class="w-full h-full object-cover" alt="${escapeHtml(currentUser.name)}">`;
+          avatarBadge.className = "w-12 h-12 rounded-xl overflow-hidden flex items-center justify-center flex-shrink-0 shadow-sm border border-emerald-200 cursor-pointer";
+        } else {
+          const parts = currentUser.name.split(" ");
+          avatarBadge.textContent = parts.length >= 2 ? (parts[0][0] + parts[parts.length - 1][0]).toUpperCase() : currentUser.name.substring(0, 2).toUpperCase();
+          avatarBadge.className = "w-12 h-12 rounded-xl bg-emerald-600 text-white font-bold text-base flex items-center justify-center flex-shrink-0 shadow-sm cursor-pointer";
+        }
+        avatarBadge.title = "Nhấp để đổi ảnh đại diện";
+        avatarBadge.onclick = () => triggerAvatarUpload(currentUser.id);
       } else {
         nameEl.textContent = currentUser.name;
         subEl.textContent = `MSV: ${currentUser.id}`;
         roleBadge.textContent = "SV Đồ Án";
+        if (btnHeaderTeacherAvatar) btnHeaderTeacherAvatar.classList.add("hidden");
+
         const hasAv = !!(state.avatars && state.avatars[currentUser.id]);
         if (hasAv) {
-          avatarBadge.innerHTML = `<img src="${state.avatars[currentUser.id]}" class="w-full h-full object-cover" alt="${currentUser.name}">`;
+          avatarBadge.innerHTML = `<img src="${state.avatars[currentUser.id]}" class="w-full h-full object-cover" alt="${escapeHtml(currentUser.name)}">`;
           avatarBadge.className = "w-12 h-12 rounded-xl overflow-hidden flex items-center justify-center flex-shrink-0 shadow-sm border border-slate-200 cursor-pointer";
         } else {
           const parts = currentUser.name.split(" ");
@@ -8553,6 +9051,14 @@
       renderStudentList();
       renderStudentDetail();
       updateChatUIHeaderAndButton();
+      if (currentUser && currentUser.role === "regular_student") {
+        renderRegularStudentPortal();
+      }
+      if (currentUser && currentUser.role === "teacher") {
+        renderRegularStudentsList();
+        renderRegularAdminWorkspace();
+      }
+      renderCommunityChatMessages(false);
     }
 
     // ==============================================================
@@ -8609,8 +9115,14 @@
         if (btnHeaderChatText) btnHeaderChatText.textContent = "💬 Trao đổi với Giảng Viên";
         if (partnerName) partnerName.textContent = "Thầy/Cô Hướng Dẫn";
         if (partnerAvatar) {
-          partnerAvatar.textContent = "GV";
-          partnerAvatar.className = "w-10 h-10 rounded-xl bg-blue-600 text-white font-bold flex items-center justify-center text-sm shadow-sm";
+          const hasTeacherAv = !!(state.avatars && state.avatars['TEACHER']);
+          if (hasTeacherAv) {
+            partnerAvatar.innerHTML = `<img src="${state.avatars['TEACHER']}" class="w-full h-full object-cover rounded-xl" alt="GV">`;
+            partnerAvatar.className = "w-10 h-10 rounded-xl overflow-hidden flex items-center justify-center text-sm shadow-sm border border-white/20";
+          } else {
+            partnerAvatar.textContent = "GV";
+            partnerAvatar.className = "w-10 h-10 rounded-xl bg-purple-600 text-white font-bold flex items-center justify-center text-sm shadow-sm";
+          }
         }
         if (partnerSub) partnerSub.innerHTML = `<span class="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse"></span><span>Giảng Viên Hướng Dẫn • Trực tuyến</span>`;
       }
@@ -8918,7 +9430,9 @@
       const isTeacher = currentUser && currentUser.role === "teacher";
       const nowStr = new Date().toLocaleTimeString('vi-VN', { hour: '2-digit', minute: '2-digit' }) + ' ' + new Date().toLocaleDateString('vi-VN');
 
+      const tempId = "msg_" + Date.now() + "_" + Math.random().toString(36).substr(2, 6);
       const msgObj = {
+        id: tempId,
         timestamp: nowStr,
         studentId: student.id,
         studentName: student.name,
@@ -8930,6 +9444,7 @@
       if (!state.chatHistory) state.chatHistory = {};
       if (!state.chatHistory[student.id]) state.chatHistory[student.id] = [];
       state.chatHistory[student.id].push(msgObj);
+      state.chatHistory[student.id] = deduplicateMessages(state.chatHistory[student.id]);
       saveState();
       renderMessagesList(state.chatHistory[student.id]);
       input.value = "";
@@ -9023,15 +9538,29 @@
       saveState();
       renderMessagesList(state.chatHistory[sId]);
 
-      if (supabaseClient && targetRowId) {
-        try {
-          await supabaseClient.from('chat_messages').update({
-            is_recalled: true,
-            message_text: "[Tin nhắn đã được thu hồi]"
-          }).eq('id', targetRowId);
-        } catch (e) {
-          console.warn("Supabase recall chat error:", e);
+      if (supabaseClient) {
+        if (targetRowId) {
+          try {
+            await supabaseClient.from('chat_messages').update({
+              is_recalled: true,
+              message_text: "[Tin nhắn đã được thu hồi]"
+            }).eq('id', targetRowId);
+          } catch (e) {
+            console.warn("Supabase recall chat error:", e);
+          }
         }
+        try {
+          const bcChan = supabaseClient.channel('k68_realtime_channel');
+          bcChan.subscribe((st) => {
+            if (st === 'SUBSCRIBED') {
+              bcChan.send({
+                type: 'broadcast',
+                event: 'faculty_private_message_recalled',
+                payload: { studentId: sId, msgIndex: msgIndex, id: targetRowId }
+              });
+            }
+          });
+        } catch (e) {}
       }
 
       if (isGoogleAppsScript()) {
