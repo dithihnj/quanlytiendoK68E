@@ -335,7 +335,154 @@ module.exports = async function handler(req, res) {
     }
 
     // -------------------------------------------------------------------------
-    // 2B. GỬI BÁO CÁO TIẾN ĐỘ TRỰC TIẾP (KHI NHẤN NÚT TRÊN WEB)
+    // 2B. GỬI THÔNG BÁO TỰ ĐỘNG TỚI TOÀN THỂ SINH VIÊN (QUA EMAIL)
+    // -------------------------------------------------------------------------
+    if (reqType === 'broadcast_announcement') {
+      const title = payload.title || 'Thông báo từ Giáo viên Chủ nhiệm';
+      const content = payload.content || '';
+      const recipients = Array.isArray(payload.recipients) ? payload.recipients : (payload.recipients ? [payload.recipients] : []);
+      const targetGroupName = payload.targetGroupName || 'Toàn thể sinh viên';
+
+      if (recipients.length === 0) {
+        return res.status(400).json({ success: false, message: 'Danh sách email người nhận trống!' });
+      }
+
+      let sentCount = 0;
+      let failedCount = 0;
+      const errors = [];
+
+      for (const recipientEmail of recipients) {
+        const cleanEmail = (recipientEmail || '').trim();
+        if (!cleanEmail || !cleanEmail.includes('@')) continue;
+
+        const emailSubject = `📢 [Thông Báo GVCN] ${title}`;
+        const emailHtml = `
+          <div style="font-family: Arial, sans-serif; max-width: 650px; margin: 0 auto; background: #ffffff; border: 1px solid #e2e8f0; border-radius: 14px; overflow: hidden; box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);">
+            <div style="background: linear-gradient(135deg, #1e3a8a, #0284c7); padding: 24px; color: #ffffff;">
+              <div style="font-size: 11px; text-transform: uppercase; letter-spacing: 1.5px; opacity: 0.85; font-weight: 700; margin-bottom: 4px;">
+                THÔNG BÁO TỪ GIÁO VIÊN CHỦ NHIỆM &bull; KHOA KỸ THUẬT NĂNG LƯỢNG
+              </div>
+              <h2 style="margin: 0; font-size: 22px; font-weight: 800; color: #ffffff;">
+                ${title}
+              </h2>
+              <div style="font-size: 12px; color: #bae6fd; margin-top: 6px;">
+                Gửi tới: <strong>${cleanEmail}</strong> (${targetGroupName}) &bull; Thời gian: <strong>${nowStr}</strong>
+              </div>
+            </div>
+
+            <div style="padding: 26px;">
+              <div style="font-size: 15px; line-height: 1.7; color: #1e293b; background: #f8fafc; border-left: 4px solid #0284c7; padding: 18px 20px; border-radius: 8px; white-space: pre-wrap;">${content}</div>
+
+              <div style="margin-top: 24px; padding-top: 18px; border-top: 1px solid #e2e8f0; font-size: 13px; color: #64748b; display: flex; justify-content: space-between; align-items: center;">
+                <div>
+                  <strong>Giáo viên Chủ nhiệm</strong><br>
+                  <span style="font-size: 12px; color: #94a3b8;">Hệ Thống Quản Lý Đào Tạo & Nghiên Cứu • VNU-UET</span>
+                </div>
+                <div style="text-align: right;">
+                  <a href="https://quanlytiendok68e.vercel.app/" style="display: inline-block; padding: 8px 16px; background-color: #0284c7; color: #ffffff; text-decoration: none; font-weight: 700; border-radius: 8px; font-size: 12px;">
+                    Truy Cập Hệ Thống &rarr;
+                  </a>
+                </div>
+              </div>
+            </div>
+          </div>
+        `;
+
+        try {
+          const resDispatch = await sendEmailDispatch({
+            to: cleanEmail,
+            subject: emailSubject,
+            html: emailHtml,
+            settings
+          });
+          if (resDispatch.success) {
+            sentCount++;
+          } else {
+            failedCount++;
+            errors.push({ email: cleanEmail, error: resDispatch.message || 'Không gửi được' });
+          }
+        } catch (errOne) {
+          failedCount++;
+          errors.push({ email: cleanEmail, error: errOne.message });
+        }
+      }
+
+      return res.status(200).json({
+        success: sentCount > 0,
+        mode: 'broadcast_announcement',
+        total: recipients.length,
+        sentCount,
+        failedCount,
+        errors
+      });
+    }
+
+    // -------------------------------------------------------------------------
+    // 2C. GỬI EMAIL KHÔI PHỤC MẬT KHẨU CHO SINH VIÊN
+    // -------------------------------------------------------------------------
+    if (reqType === 'password_reset') {
+      const studentEmail = (payload.email || '').trim();
+      const studentName = payload.name || 'Sinh viên';
+      const studentId = payload.studentId || '';
+      const resetPassword = payload.newPassword || '';
+
+      if (!studentEmail) {
+        return res.status(400).json({ success: false, message: 'Thiếu email nhận khôi phục mật khẩu!' });
+      }
+
+      const emailSubject = `🔑 [Khôi Phục Mật Khẩu] Hệ Thống Đào Tạo - Sinh viên ${studentName} (${studentId})`;
+      const emailHtml = `
+        <div style="font-family: Arial, sans-serif; max-width: 580px; margin: 0 auto; background: #ffffff; border: 1px solid #e2e8f0; border-radius: 14px; overflow: hidden; box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);">
+          <div style="background: linear-gradient(135deg, #1e3a8a, #0284c7); padding: 22px; color: #ffffff;">
+            <div style="font-size: 11px; text-transform: uppercase; letter-spacing: 1.5px; opacity: 0.85; font-weight: 700;">
+              YÊU CẦU KHÔI PHỤC MẬT KHẨU
+            </div>
+            <h2 style="margin: 6px 0 0; font-size: 20px; font-weight: 800;">
+              Cấp Lại Mật Khẩu Đăng Nhập
+            </h2>
+          </div>
+          <div style="padding: 24px;">
+            <p style="font-size: 14px; color: #334155; line-height: 1.6;">
+              Xin chào <strong>${studentName}</strong> (Mã SV: <strong style="font-family: monospace; color: #2563eb;">${studentId}</strong>),
+            </p>
+            <p style="font-size: 14px; color: #334155; line-height: 1.6;">
+              Bạn hoặc quản trị viên vừa thực hiện yêu cầu cấp lại mật khẩu đăng nhập trên Hệ Thống Quản Lý Đào Tạo.
+            </p>
+            <div style="background: #eff6ff; border: 1px dashed #3b82f6; border-radius: 10px; padding: 16px; margin: 20px 0; text-align: center;">
+              <div style="font-size: 12px; color: #1e40af; font-weight: 600; text-transform: uppercase;">Mật Khẩu Mới Của Bạn:</div>
+              <div style="font-size: 24px; font-weight: 900; color: #1d4ed8; font-family: monospace; letter-spacing: 2px; margin-top: 6px;">
+                ${resetPassword}
+              </div>
+            </div>
+            <p style="font-size: 13px; color: #64748b; line-height: 1.5;">
+              Vui lòng đăng nhập và đổi lại mật khẩu mới ngay trong mục <em>🔑 Đổi MK</em> để đảm bảo an toàn tài khoản.
+            </p>
+            <div style="text-align: center; margin-top: 24px;">
+              <a href="https://quanlytiendok68e.vercel.app/" style="display: inline-block; padding: 12px 24px; background-color: #2563eb; color: #ffffff; text-decoration: none; font-weight: 700; border-radius: 10px; font-size: 14px;">
+                Đăng Nhập Ngay &rarr;
+              </a>
+            </div>
+          </div>
+        </div>
+      `;
+
+      const dispatchResult = await sendEmailDispatch({
+        to: studentEmail,
+        subject: emailSubject,
+        html: emailHtml,
+        settings
+      });
+
+      return res.status(200).json({
+        success: dispatchResult.success,
+        mode: 'password_reset',
+        recipient: studentEmail,
+        dispatchResult
+      });
+    }
+
+    // -------------------------------------------------------------------------
+    // 2D. GỬI BÁO CÁO TIẾN ĐỘ TRỰC TIẾP (KHI NHẤN NÚT TRÊN WEB)
     // -------------------------------------------------------------------------
     const studentsData = payload.studentsData || [];
     let rowsHtml = '';
