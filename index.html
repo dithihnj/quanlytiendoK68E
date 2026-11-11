@@ -2565,13 +2565,95 @@
       { stt: 24, name: "Nguyễn Văn Huy", id: "23020471", gpa: 2.23, topic: "Kiểm toán năng lượng", course: "Khóa K68 (2023 - 2027)" }
     ];
 
-    // Hàm lấy danh sách toàn bộ sinh viên (Gồm 24 SV K68 mặc định + các SV được Giảng viên thêm mới/nhập từ Excel, loại bỏ các SV đã bị xóa)
+    // Hàm xác định niên khóa & tên khóa chuẩn dựa theo Mã Sinh Viên (MSV):
+    // Mã đầu 23 -> K68 (2023 - 2027), đầu 24 -> K69 (2024 - 2028), đầu 25 -> K70 (2025 - 2029), đầu 26 -> K71 (2026 - 2030)
+    function getCohortInfoFromId(id) {
+      if (!id) return { kNum: 68, kLabel: "K68", fullName: "Khóa K68 (2023 - 2027)", prefix: "23" };
+      const cleanId = String(id).trim();
+      const prefix = parseInt(cleanId.substring(0, 2), 10);
+      if (!isNaN(prefix) && prefix >= 15 && prefix <= 40) {
+        const kNum = prefix + 45; // 23 + 45 = 68, 24 + 45 = 69, 25 + 45 = 70, 26 + 45 = 71
+        const startYear = 2000 + prefix;
+        const endYear = startYear + 4;
+        return {
+          kNum: kNum,
+          kLabel: `K${kNum}`,
+          fullName: `Khóa K${kNum} (${startYear} - ${endYear})`,
+          prefix: String(prefix)
+        };
+      }
+      return { kNum: 68, kLabel: "K68", fullName: "Khóa K68 (2023 - 2027)", prefix: "23" };
+    }
+    window.getCohortInfoFromId = getCohortInfoFromId;
+
+    // Hàm lấy danh sách toàn bộ sinh viên làm đồ án (Loại bỏ ID hệ thống 'COMMUNITY' và các SV đã bị xóa)
     function getAllStudents() {
       const custom = (state && state.customStudents && Array.isArray(state.customStudents)) ? state.customStudents : [];
       const deleted = (state && Array.isArray(state.deletedStudentIds)) ? state.deletedStudentIds : [];
       const combined = [...RAW_STUDENTS, ...custom];
-      return combined.filter(s => s && s.id && !deleted.includes(s.id));
+      return combined.filter(s => s && s.id && s.id !== 'COMMUNITY' && !deleted.includes(s.id));
     }
+
+    // Hàm lấy danh sách TOÀN BỘ SINH VIÊN KHOA VẬT LÝ KỸ THUẬT VÀ CÔNG NGHỆ NANO (Hợp nhất sinh viên đồ án + sinh viên toàn khoa)
+    function getAllFacultyStudents() {
+      const thesisList = getAllStudents();
+      const regularList = (state && state.regularStudents && Array.isArray(state.regularStudents)) ? state.regularStudents : [];
+      const deleted = (state && Array.isArray(state.deletedStudentIds)) ? state.deletedStudentIds : [];
+      
+      const map = new Map();
+
+      // 1. Nạp sinh viên đồ án (24 SV K68 mặc định + các SV thêm mới)
+      thesisList.forEach(s => {
+        if (!s || !s.id || s.id === 'COMMUNITY' || deleted.includes(s.id)) return;
+        const cInfo = getCohortInfoFromId(s.id);
+        const contact = (state.thesisContacts && state.thesisContacts[s.id]) || {};
+        map.set(s.id, {
+          id: s.id,
+          name: s.name,
+          course: s.course || cInfo.fullName,
+          kNum: cInfo.kNum,
+          kLabel: cInfo.kLabel,
+          phone: (contact.phone || s.phone || '').trim(),
+          email: (contact.email || s.email || '').trim(),
+          topic: s.topic || (state.customTopics && state.customTopics[s.id]) || 'Chưa đăng ký đề tài',
+          gpa: s.gpa || 2.50,
+          isThesis: true,
+          isRegistered: Boolean(state.registeredStudentIds && state.registeredStudentIds.includes(s.id))
+        });
+      });
+
+      // 2. Nạp sinh viên các khóa khác (K69, K70, K71...) từ regularStudents
+      regularList.forEach(s => {
+        if (!s || !s.id || s.id === 'COMMUNITY' || deleted.includes(s.id)) return;
+        const cInfo = getCohortInfoFromId(s.id);
+        if (map.has(s.id)) {
+          const existing = map.get(s.id);
+          if (s.phone && !existing.phone) existing.phone = s.phone.trim();
+          if (s.email && !existing.email) existing.email = s.email.trim();
+          if (s.course) existing.course = s.course;
+        } else {
+          map.set(s.id, {
+            id: s.id,
+            name: s.name,
+            course: s.course || cInfo.fullName,
+            kNum: cInfo.kNum,
+            kLabel: cInfo.kLabel,
+            phone: (s.phone || '').trim(),
+            email: (s.email || '').trim(),
+            topic: 'Chưa làm đồ án tốt nghiệp',
+            gpa: s.gpa || 2.50,
+            isThesis: false,
+            isRegistered: Boolean(state.registeredStudentIds && state.registeredStudentIds.includes(s.id))
+          });
+        }
+      });
+
+      return Array.from(map.values()).sort((a, b) => {
+        if (a.kNum !== b.kNum) return a.kNum - b.kNum;
+        return a.id.localeCompare(b.id);
+      });
+    }
+    window.getAllFacultyStudents = getAllFacultyStudents;
 
     // 2. STANDARD THESIS PHASES & CHECKLIST ITEMS (24 TASKS TOTAL)
     const THESIS_PHASES = [
@@ -3213,6 +3295,80 @@
               }
             }
           })
+          .on('postgres_changes', { event: '*', schema: 'public', table: 'students' }, payload => {
+            const st = payload.new;
+            if (st && st.id && st.id !== 'COMMUNITY') {
+              const cInfo = getCohortInfoFromId(st.id);
+              if (!state.regularStudents) state.regularStudents = [];
+              const existsIdx = state.regularStudents.findIndex(r => r.id === st.id);
+              const studentObj = {
+                id: st.id,
+                name: st.name,
+                course: st.course || cInfo.fullName,
+                gpa: st.gpa || 2.50,
+                topic: st.topic || cInfo.fullName
+              };
+              if (existsIdx >= 0) {
+                state.regularStudents[existsIdx] = { ...state.regularStudents[existsIdx], ...studentObj };
+              } else {
+                state.regularStudents.push(studentObj);
+              }
+
+              if (payload.eventType === 'INSERT') {
+                if (!state.registeredStudentIds) state.registeredStudentIds = [];
+                if (!state.registeredStudentIds.includes(st.id)) state.registeredStudentIds.push(st.id);
+                if (!currentUser || currentUser.id !== st.id) {
+                  playMessengerChime();
+                  showToast("Sinh viên mới đăng ký!", `${st.name} (${st.id} - ${cInfo.kLabel}) vừa đăng ký tài khoản.`);
+                }
+              }
+
+              saveState();
+              if (currentUser && currentUser.role === 'teacher') {
+                renderRegularStudentsList();
+                renderRegularAdminWorkspace();
+              }
+            }
+          })
+          .on('postgres_changes', { event: '*', schema: 'public', table: 'system_settings' }, payload => {
+            const row = payload.new;
+            if (row && row.key) {
+              if (row.key === 'REGULAR_STUDENTS_LIST' && row.value) {
+                try {
+                  const arr = JSON.parse(row.value);
+                  if (Array.isArray(arr)) {
+                    state.regularStudents = arr;
+                    saveState();
+                    if (currentUser && currentUser.role === 'teacher') {
+                      renderRegularStudentsList();
+                      renderRegularAdminWorkspace();
+                    }
+                  }
+                } catch (e) {}
+              }
+              if (row.key === 'REGISTERED_STUDENT_IDS' && row.value) {
+                try {
+                  const arr = JSON.parse(row.value);
+                  if (Array.isArray(arr)) {
+                    state.registeredStudentIds = arr;
+                    saveState();
+                  }
+                } catch (e) {}
+              }
+              if (row.key === 'THESIS_STUDENTS_CONTACTS' && row.value) {
+                try {
+                  const tc = JSON.parse(row.value);
+                  if (tc && typeof tc === 'object') {
+                    state.thesisContacts = tc;
+                    saveState();
+                    if (currentUser && currentUser.role === 'teacher') {
+                      renderRegularStudentsList();
+                    }
+                  }
+                } catch (e) {}
+              }
+            }
+          })
           .subscribe();
 
         // Kích hoạt presence theo dõi online
@@ -3419,6 +3575,8 @@
           const { data: studentRows } = await supabaseClient.from('students').select('*');
           if (studentRows) {
             studentRows.forEach(s => {
+              if (!s || !s.id || s.id === 'COMMUNITY') return;
+              const cInfo = getCohortInfoFromId(s.id);
               if (s.topic) state.customTopics[s.id] = s.topic;
               if (s.password && state.registeredStudentIds && state.registeredStudentIds.includes(s.id)) {
                 state.studentPasswords[s.id] = s.password;
@@ -3441,11 +3599,25 @@
                       name: s.name,
                       id: s.id,
                       gpa: s.gpa ? parseFloat(s.gpa) : 2.5,
-                      course: s.course || "Khóa K68 (2023 - 2027)",
+                      course: s.course || cInfo.fullName,
                       topic: s.topic || "Chưa đăng ký chính thức",
                       password: s.password || s.id
                     });
                   }
+                }
+
+                // Luôn bảo đảm sinh viên có trong regularStudents
+                if (!state.regularStudents) state.regularStudents = [];
+                const existInReg = state.regularStudents.some(r => r.id === s.id);
+                if (!existInReg) {
+                  state.regularStudents.push({
+                    id: s.id,
+                    name: s.name,
+                    course: s.course || cInfo.fullName,
+                    email: s.email || (state.thesisContacts && state.thesisContacts[s.id] && state.thesisContacts[s.id].email) || '',
+                    phone: s.phone || (state.thesisContacts && state.thesisContacts[s.id] && state.thesisContacts[s.id].phone) || '',
+                    password: s.password || s.id
+                  });
                 }
               }
             });
@@ -3570,6 +3742,12 @@
           return;
         } catch (err) {
           console.warn("Supabase sync error:", err);
+          if (syncIcon) syncIcon.classList.remove("animate-spin");
+          if (syncText) syncText.textContent = "Đồng Bộ Dữ Liệu";
+          if (showNotification) showToast("Đã đồng bộ bộ nhớ", "Hệ thống đang chạy với dữ liệu lưu trữ mới nhất.", false);
+          saveState();
+          renderAll();
+          return;
         }
       }
 
@@ -3846,48 +4024,83 @@
         return;
       }
 
-      // Kiểm tra xem MSV đã tồn tại trong danh sách đồ án chưa
-      const allCurrent = getAllStudents();
-      const existing = allCurrent.find(s => s.id === id);
-      if (existing) {
+      // 1. Kiểm tra xem tài khoản này đã được ĐĂNG KÝ TRƯỚC ĐÓ chưa
+      if (!state.registeredStudentIds) state.registeredStudentIds = [];
+      const isAlreadyRegistered = state.registeredStudentIds.includes(id);
+      if (isAlreadyRegistered) {
         if (errEl) {
-          errEl.textContent = `Mã sinh viên ${id} (${existing.name}) đã có trong danh sách làm đồ án! Vui lòng chuyển sang tab Đăng Nhập.`;
+          errEl.textContent = `Tài khoản ${id} đã được đăng ký trước đó! Vui lòng chuyển sang tab "Đăng Nhập" để vào hệ thống.`;
           errEl.classList.remove("hidden");
         }
         return;
       }
 
+      // 2. Kiểm tra điều kiện khóa học (Mã SV đầu 23 trở về trước hoặc được duyệt học vượt)
+      const msvPrefix = parseInt(id.substring(0, 2), 10);
+      const seniorPrefix = parseInt(state.seniorCohortPrefix || "23", 10);
+      const isEligibleCohort = !isNaN(msvPrefix) && msvPrefix <= seniorPrefix;
+      const isEarlyApproved = state.earlyThesisApprovedIds && state.earlyThesisApprovedIds.includes(id);
+
+      if (!isEligibleCohort && !isEarlyApproved) {
+        if (errEl) {
+          errEl.textContent = `Mã sinh viên đầu ${id.substring(0, 2)} là khóa dưới (chưa đến năm cuối làm đồ án)! Vui lòng đăng ký qua CỔNG 2 (Sinh Viên). Nếu bạn học vượt, vui lòng liên hệ GVCN để được cấp quyền.`;
+          errEl.classList.remove("hidden");
+        }
+        return;
+      }
+
+      const allCurrent = getAllStudents();
+      const existingInList = allCurrent.find(s => s.id === id);
+
       const btn = document.getElementById("btnSubmitThesisRegister");
       const prevHtml = btn ? btn.innerHTML : "";
       if (btn) {
         btn.disabled = true;
-        btn.innerHTML = `<span>⏳ Đang tạo tài khoản đồ án...</span>`;
+        btn.innerHTML = `<span>⏳ Đang kích hoạt tài khoản đồ án...</span>`;
       }
 
       try {
-        if (!state.customStudents) state.customStudents = [];
-        const newStudent = {
-          stt: allCurrent.length + 1,
-          name: name,
-          id: id,
-          course: course,
-          topic: topic,
-          gpa: isNaN(gpa) ? 2.50 : gpa,
-          password: password,
-          phone: phone,
-          email: email
-        };
+        const cInfo = getCohortInfoFromId(id);
+        const studentCourse = course || (existingInList && existingInList.course) || cInfo.fullName;
 
-        state.customStudents.push(newStudent);
+        // Cập nhật mật khẩu và liên hệ
+        if (!state.studentPasswords) state.studentPasswords = {};
         state.studentPasswords[id] = password;
+
+        if (!state.customTopics) state.customTopics = {};
         state.customTopics[id] = topic;
 
         if (!state.thesisContacts) state.thesisContacts = {};
         state.thesisContacts[id] = { phone: phone, email: email };
 
-        if (!state.registeredStudentIds) state.registeredStudentIds = [];
         if (!state.registeredStudentIds.includes(id)) {
           state.registeredStudentIds.push(id);
+        }
+
+        let studentStt = allCurrent.length + 1;
+        if (existingInList) {
+          // Sinh viên có sẵn trong danh sách K68 mặc định -> Kích hoạt tài khoản
+          studentStt = existingInList.stt || studentStt;
+          existingInList.topic = topic;
+          existingInList.password = password;
+          existingInList.phone = phone;
+          existingInList.email = email;
+          if (name) existingInList.name = name;
+        } else {
+          // Sinh viên mới hoàn toàn -> thêm vào customStudents
+          if (!state.customStudents) state.customStudents = [];
+          const newStudent = {
+            stt: studentStt,
+            name: name,
+            id: id,
+            course: studentCourse,
+            topic: topic,
+            gpa: isNaN(gpa) ? 2.50 : gpa,
+            password: password,
+            phone: phone,
+            email: email
+          };
+          state.customStudents.push(newStudent);
         }
 
         // Đồng bộ thống nhất sang Cổng 2 (Sinh viên toàn khoa)
@@ -3897,7 +4110,7 @@
           state.regularStudents.push({
             id: id,
             name: name,
-            course: course,
+            course: studentCourse,
             email: email,
             phone: phone,
             password: password,
@@ -3906,8 +4119,8 @@
         }
 
         const curCourses = getCoursesList();
-        if (!curCourses.includes(course)) {
-          state.courses.push(course);
+        if (!curCourses.includes(studentCourse)) {
+          state.courses.push(studentCourse);
         }
 
         // Lưu đồng bộ lên Supabase Cloud
@@ -3915,9 +4128,9 @@
           try {
             await supabaseClient.from('students').upsert({
               id: id,
-              stt: newStudent.stt,
+              stt: studentStt,
               name: name,
-              gpa: newStudent.gpa,
+              gpa: isNaN(gpa) ? 2.50 : gpa,
               topic: topic,
               password: password
             }, { onConflict: 'id' });
@@ -3937,6 +4150,24 @@
               { key: 'REGULAR_STUDENTS_LIST', value: JSON.stringify(state.regularStudents), updated_at: new Date().toISOString() },
               { key: 'REGISTERED_STUDENT_IDS', value: JSON.stringify(state.registeredStudentIds), updated_at: new Date().toISOString() }
             ], { onConflict: 'key' });
+
+            // Broadcast trên Realtime
+            const bcChan = supabaseClient.channel('k68_realtime_channel');
+            bcChan.subscribe((st) => {
+              if (st === 'SUBSCRIBED') {
+                bcChan.send({
+                  type: 'broadcast',
+                  event: 'new_regular_student',
+                  payload: {
+                    id: id,
+                    name: name,
+                    course: studentCourse,
+                    email: email,
+                    phone: phone
+                  }
+                });
+              }
+            });
           } catch (supErr) {
             console.warn("Lưu sinh viên đồ án mới lên Supabase:", supErr);
           }
@@ -4057,10 +4288,13 @@
         btn.textContent = "Đang tạo tài khoản...";
       }
 
+      const cInfo = getCohortInfoFromId(id);
+      const studentCourse = cInfo.fullName;
+
       const newStudent = {
         id,
         name,
-        course,
+        course: studentCourse,
         email,
         phone,
         password: pass,
@@ -4092,7 +4326,7 @@
             stt: getAllStudents().length + 1,
             name: name,
             id: id,
-            course: course,
+            course: studentCourse,
             topic: "Chưa đăng ký đề tài chính thức",
             gpa: 2.50,
             password: pass,
@@ -4104,9 +4338,17 @@
 
       saveState();
 
-      // Đồng bộ ngay lên Supabase Cloud system_settings
+      // Đồng bộ ngay lên Supabase Cloud (bảng students & system_settings)
       if (supabaseClient) {
         try {
+          await supabaseClient.from('students').upsert({
+            id: id,
+            name: name,
+            gpa: 2.50,
+            topic: studentCourse,
+            password: pass
+          }, { onConflict: 'id' });
+
           await supabaseClient.from('system_settings').upsert([
             { key: 'REGULAR_STUDENTS_LIST', value: JSON.stringify(state.regularStudents), updated_at: new Date().toISOString() },
             { key: 'THESIS_STUDENTS_CONTACTS', value: JSON.stringify(state.thesisContacts), updated_at: new Date().toISOString() },
@@ -4661,12 +4903,18 @@
     // CỔNG CHAT CHUNG TOÀN KHÓA (COMMUNITY CHAT) - HÀNG NGHÌN SINH VIÊN
     // ==============================================================
     async function handleSendCommunityMessage(e) {
-      e.preventDefault();
+      if (e && e.preventDefault) e.preventDefault();
       if (!currentUser) return;
 
-      const inputTeacher = document.getElementById("communityChatMessageInput");
-      const inputStudent = document.getElementById("regCommunityChatMessageInput");
-      const input = (inputTeacher && !inputTeacher.closest('.hidden')) ? inputTeacher : inputStudent;
+      let input = null;
+      if (e && e.target && e.target.querySelector) {
+        input = e.target.querySelector('input[type="text"]') || e.target.querySelector('input');
+      }
+      if (!input) {
+        const inputTeacher = document.getElementById("communityChatMessageInput");
+        const inputStudent = document.getElementById("regCommunityChatMessageInput");
+        input = (inputStudent && !inputStudent.closest('.hidden')) ? inputStudent : (inputTeacher || inputStudent);
+      }
 
       if (!input) return;
       const text = (input.value || "").trim();
@@ -4781,13 +5029,15 @@
         }
       });
     }
+    window.handleSendCommunityMessage = handleSendCommunityMessage;
+    window.renderCommunityChatMessages = renderCommunityChatMessages;
 
     // ==============================================================
-    // CHAT RIÊNG 1-1 GIỮA GVCN VÀ TỪNG SINH VIÊN KHÓA DƯỚI
+    // CHAT RIÊNG 1-1 GIỮA GVCN VÀ TỪNG SINH VIÊN TOÀN KHOA
     // ==============================================================
     function selectRegularStudentForChat(studentId) {
       state.selectedRegularStudentId = studentId;
-      const match = (state.regularStudents || []).find(s => s.id === studentId);
+      const match = getAllFacultyStudents().find(s => s.id === studentId);
       if (!match) return;
 
       const titleEl = document.getElementById("tabTeacherRightPrivateTitle");
@@ -4795,6 +5045,7 @@
 
       switchTeacherRightTab('private');
     }
+    window.selectRegularStudentForChat = selectRegularStudentForChat;
 
     function renderTeacherPrivateChat() {
       const studentId = state.selectedRegularStudentId;
@@ -4811,11 +5062,11 @@
         return;
       }
 
-      const student = (state.regularStudents || []).find(s => s.id === studentId);
+      const student = getAllFacultyStudents().find(s => s.id === studentId);
       if (!student) return;
 
       if (partnerName) partnerName.textContent = student.name;
-      if (partnerSub) partnerSub.textContent = `MSV: ${student.id} • ${student.course || 'Khóa dưới'} • SĐT: ${student.phone || '--'} • Email: ${student.email || '--'}`;
+      if (partnerSub) partnerSub.textContent = `MSV: ${student.id} • ${student.course || student.kLabel || 'Khóa dưới'} • SĐT: ${student.phone || '--'} • Email: ${student.email || '--'}`;
       if (partnerAvatar) {
         const parts = student.name.split(" ");
         partnerAvatar.textContent = (parts[0][0] + parts[parts.length - 1][0]).toUpperCase();
@@ -4901,6 +5152,7 @@
         }).then(() => {});
       }
     }
+    window.handleSendTeacherPrivateMessage = handleSendTeacherPrivateMessage;
 
     // Khung chat riêng của Sinh Viên Khóa Dưới gửi Thầy/Cô
     function renderRegularStudentPrivateChat() {
@@ -4996,9 +5248,10 @@
         createdAt: new Date().toISOString()
       });
     }
+    window.handleSendRegularStudentPrivateMessage = handleSendRegularStudentPrivateMessage;
 
     // ==============================================================
-    // HIỂN THỊ DANH SÁCH SINH VIÊN KHÓA DƯỚI & THỐNG KÊ (CHO GVCN)
+    // HIỂN THỊ DANH SÁCH SINH VIÊN TOÀN KHOA & THỐNG KÊ (CHO GVCN)
     // ==============================================================
     function renderRegularStudentsList() {
       const container = document.getElementById("regularStudentsListContainer");
@@ -5010,15 +5263,17 @@
       const query = (searchInput ? searchInput.value : "").trim().toLowerCase();
       const courseFilter = courseSelect ? courseSelect.value : "all";
 
-      const list = state.regularStudents || [];
+      const list = getAllFacultyStudents();
 
-      // Cập nhật các lựa chọn khóa học trong dropdown nếu chưa có
+      // Cập nhật các lựa chọn khóa học trong dropdown dựa theo mã sinh viên (K68 đầu 23, K69 đầu 24, K70 đầu 25...)
       if (courseSelect) {
-        const uniqueCourses = Array.from(new Set(list.map(s => s.course).filter(Boolean)));
+        const uniqueK = Array.from(new Set(list.map(s => s.kLabel).filter(Boolean))).sort();
         const currentVal = courseSelect.value;
         let selectHtml = '<option value="all">Tất cả các khóa</option>';
-        uniqueCourses.forEach(c => {
-          selectHtml += `<option value="${escapeHtml(c)}">${escapeHtml(c)}</option>`;
+        uniqueK.forEach(k => {
+          const sample = list.find(s => s.kLabel === k);
+          const fullName = sample ? sample.course : `Khóa ${k}`;
+          selectHtml += `<option value="${escapeHtml(k)}">${escapeHtml(fullName)} (${k})</option>`;
         });
         courseSelect.innerHTML = selectHtml;
         courseSelect.value = currentVal || "all";
@@ -5026,7 +5281,7 @@
 
       // Lọc theo tìm kiếm và khóa
       const filtered = list.filter(s => {
-        const matchCourse = (courseFilter === "all") || (s.course === courseFilter);
+        const matchCourse = (courseFilter === "all") || (s.kLabel === courseFilter) || (s.course === courseFilter);
         const matchQuery = !query || 
           (s.name && s.name.toLowerCase().includes(query)) ||
           (s.id && s.id.toLowerCase().includes(query)) ||
@@ -5042,7 +5297,7 @@
         container.innerHTML = `
           <div class="text-center py-12 text-slate-400 text-xs">
             <span class="text-2xl block mb-2">👥</span>
-            ${list.length === 0 ? 'Chưa có sinh viên khóa dưới nào đăng ký tài khoản.' : 'Không tìm thấy sinh viên phù hợp với bộ lọc.'}
+            ${list.length === 0 ? 'Chưa có sinh viên nào trong danh sách toàn khoa.' : 'Không tìm thấy sinh viên phù hợp với bộ lọc.'}
           </div>
         `;
         return;
@@ -5062,13 +5317,13 @@
         const isEarlyApproved = state.earlyThesisApprovedIds && state.earlyThesisApprovedIds.includes(s.id);
 
         let thesisBadgeHtml = '';
-        if (isSeniorOrOlder) {
-          thesisBadgeHtml = `<span class="px-2 py-0.5 rounded-full text-[10px] font-bold bg-blue-100 text-blue-800" title="Đã đủ niên khóa làm đồ án tốt nghiệp">🎓 Cổng 1 Đồ Án</span>`;
+        if (isSeniorOrOlder || s.isThesis) {
+          thesisBadgeHtml = `<span class="px-2 py-0.5 rounded-full text-[10px] font-bold bg-blue-100 text-blue-800" title="Sinh viên đủ điều kiện làm đồ án tốt nghiệp">🎓 Cổng 1 Đồ Án</span>`;
         } else if (isEarlyApproved) {
           thesisBadgeHtml = `
             <button 
               onclick="toggleEarlyThesisApproval('${s.id}')" 
-              class="px-2 py-0.5 rounded-full text-[10px] font-bold bg-amber-100 text-amber-900 border border-amber-300 hover:bg-amber-200 transition flex items-center gap-1" 
+              class="px-2 py-0.5 rounded-full text-[10px] font-bold bg-amber-100 text-amber-900 border border-amber-300 hover:bg-amber-200 transition flex items-center gap-1 cursor-pointer" 
               title="Đã được cấp quyền làm đồ án sớm (học vượt). Nhấn để hủy quyền."
             >
               <span>⭐ Đã duyệt Học Vượt</span>
@@ -5079,13 +5334,24 @@
           thesisBadgeHtml = `
             <button 
               onclick="toggleEarlyThesisApproval('${s.id}')" 
-              class="px-2 py-0.5 rounded-full text-[10px] font-bold bg-purple-50 text-purple-700 border border-purple-200 hover:bg-purple-100 transition flex items-center gap-1" 
+              class="px-2 py-0.5 rounded-full text-[10px] font-bold bg-purple-50 text-purple-700 border border-purple-200 hover:bg-purple-100 transition flex items-center gap-1 cursor-pointer" 
               title="Cấp quyền làm đồ án sớm (học vượt) để sinh viên này truy cập Cổng 1"
             >
               <span>⚡ Cấp Quyền Đồ Án</span>
             </button>
           `;
         }
+
+        // Khóa học & Badge màu sắc theo khóa K:
+        let kBadgeColor = 'bg-blue-50 text-blue-800 border-blue-200';
+        if (s.kLabel === 'K69') kBadgeColor = 'bg-emerald-50 text-emerald-800 border-emerald-200';
+        else if (s.kLabel === 'K70') kBadgeColor = 'bg-purple-50 text-purple-800 border-purple-200';
+        else if (s.kLabel === 'K71') kBadgeColor = 'bg-amber-50 text-amber-800 border-amber-200';
+        else if (s.kLabel === 'K67') kBadgeColor = 'bg-slate-100 text-slate-800 border-slate-200';
+
+        let regBadgeHtml = s.isRegistered
+          ? `<span class="px-1.5 py-0.5 rounded-md text-[10px] font-bold bg-emerald-50 text-emerald-700 border border-emerald-200" title="Đã đăng ký tài khoản">✓ Đã Đăng Ký</span>`
+          : `<span class="px-1.5 py-0.5 rounded-md text-[10px] font-medium bg-slate-100 text-slate-500 border border-slate-200" title="Chưa tạo tài khoản mật khẩu">Chưa tạo TK</span>`;
 
         html += `
           <div class="p-3 rounded-xl border transition ${isSelected ? 'bg-blue-50/70 border-blue-300 shadow-xs' : 'bg-slate-50/60 border-slate-200/70 hover:bg-white hover:border-slate-300'} flex items-center justify-between gap-3">
@@ -5098,10 +5364,11 @@
                 <span class="absolute bottom-0 right-0 w-3.5 h-3.5 rounded-full bg-emerald-500 ring-2 ring-white ${isOnline ? '' : 'hidden'}" title="Đang trực tuyến"></span>
               </div>
               <div class="min-w-0">
-                <div class="flex items-center gap-2 flex-wrap">
+                <div class="flex items-center gap-1.5 flex-wrap">
                   <h4 class="text-xs sm:text-sm font-bold text-slate-900 truncate">${escapeHtml(s.name)}</h4>
-                  <span class="px-2 py-0.5 rounded-full text-[10px] font-bold bg-emerald-100 text-emerald-800 truncate">${escapeHtml(s.course || 'Khóa dưới')}</span>
+                  <span class="px-2 py-0.5 rounded-full text-[10px] font-bold border ${kBadgeColor} truncate">${escapeHtml(s.course)}</span>
                   ${thesisBadgeHtml}
+                  ${regBadgeHtml}
                 </div>
                 <div class="flex items-center gap-3 text-[11px] text-slate-500 mt-0.5">
                   <span class="font-mono text-blue-600 font-bold">${escapeHtml(s.id)}</span>
@@ -5116,17 +5383,18 @@
             <div class="flex items-center gap-1 flex-shrink-0">
               <button 
                 onclick="selectRegularStudentForChat('${s.id}')" 
-                class="px-2.5 py-1.5 text-xs font-bold rounded-lg bg-blue-50 hover:bg-blue-100 text-blue-700 transition flex items-center gap-1"
+                class="px-2.5 py-1.5 text-xs font-bold rounded-lg bg-blue-50 hover:bg-blue-100 text-blue-700 transition flex items-center gap-1 cursor-pointer"
                 title="Nhắn tin 1-1 với sinh viên này"
               >
                 <span>💬 Chat</span>
               </button>
               <button 
                 onclick="handleDeleteRegularStudent('${s.id}')" 
-                class="p-1.5 text-xs font-bold rounded-lg bg-rose-50 hover:bg-rose-100 text-rose-600 transition"
-                title="Xóa tài khoản sinh viên này"
+                class="px-2 py-1.5 text-xs font-bold rounded-lg bg-rose-50 hover:bg-rose-100 text-rose-600 border border-rose-200 transition flex items-center gap-1 cursor-pointer"
+                title="Xóa tài khoản sinh viên ${escapeHtml(s.name)} (${s.id}) khỏi hệ thống"
               >
-                🗑️
+                <span>🗑️</span>
+                <span class="text-[11px]">Xóa</span>
               </button>
             </div>
           </div>
@@ -5138,7 +5406,8 @@
 
     function toggleEarlyThesisApproval(studentId) {
       if (!state.earlyThesisApprovedIds) state.earlyThesisApprovedIds = [];
-      const s = (state.regularStudents || []).find(it => it.id === studentId) || { name: "Sinh viên", id: studentId };
+      const all = getAllFacultyStudents();
+      const s = all.find(it => it.id === studentId) || { name: "Sinh viên", id: studentId };
       const idx = state.earlyThesisApprovedIds.indexOf(studentId);
 
       if (idx >= 0) {
@@ -5181,53 +5450,74 @@
     window.toggleEarlyThesisApproval = toggleEarlyThesisApproval;
 
     function handleDeleteRegularStudent(id) {
-      const match = (state.regularStudents || []).find(s => s.id === id);
+      const all = getAllFacultyStudents();
+      const match = all.find(s => s.id === id);
       if (!match) return;
 
-      if (!confirm(`Bạn có chắc chắn muốn xóa tài khoản sinh viên "${match.name}" (MSV: ${match.id}) khỏi danh sách khóa dưới?`)) {
+      if (!confirm(`Bạn có chắc chắn muốn xóa tài khoản sinh viên "${match.name}" (MSV: ${match.id}) khỏi hệ thống toàn khoa?`)) {
         return;
       }
 
-      state.regularStudents = state.regularStudents.filter(s => s.id !== id);
+      if (!state.deletedStudentIds) state.deletedStudentIds = [];
+      if (!state.deletedStudentIds.includes(id)) {
+        state.deletedStudentIds.push(id);
+      }
+
+      if (state.regularStudents) {
+        state.regularStudents = state.regularStudents.filter(s => s.id !== id);
+      }
+      if (state.customStudents) {
+        state.customStudents = state.customStudents.filter(s => s.id !== id);
+      }
+      if (state.registeredStudentIds) {
+        state.registeredStudentIds = state.registeredStudentIds.filter(regId => regId !== id);
+      }
+
       saveState();
 
       if (supabaseClient) {
-        supabaseClient.from('system_settings').upsert({
-          key: 'REGULAR_STUDENTS_LIST',
-          value: JSON.stringify(state.regularStudents),
-          updated_at: new Date().toISOString()
-        }, { onConflict: 'key' }).then(() => {});
+        Promise.all([
+          supabaseClient.from('students').delete().eq('id', id),
+          supabaseClient.from('system_settings').upsert([
+            { key: 'REGULAR_STUDENTS_LIST', value: JSON.stringify(state.regularStudents || []), updated_at: new Date().toISOString() },
+            { key: 'DELETED_STUDENT_IDS', value: JSON.stringify(state.deletedStudentIds || []), updated_at: new Date().toISOString() },
+            { key: 'REGISTERED_STUDENT_IDS', value: JSON.stringify(state.registeredStudentIds || []), updated_at: new Date().toISOString() }
+          ], { onConflict: 'key' })
+        ]).catch(e => console.warn("Supabase delete regular student error:", e));
       }
 
       renderRegularStudentsList();
       renderRegularAdminWorkspace();
-      showToast("Đã xóa sinh viên", `Đã xóa tài khoản ${match.name} khỏi hệ thống.`);
+      showToast("Đã xóa sinh viên", `Đã xóa tài khoản ${match.name} (${id}) khỏi hệ thống.`);
     }
+    window.handleDeleteRegularStudent = handleDeleteRegularStudent;
 
     function exportRegularStudentsToCsv() {
-      const list = state.regularStudents || [];
+      const list = getAllFacultyStudents();
       if (list.length === 0) {
-        alert("Chưa có dữ liệu sinh viên khóa dưới để xuất!");
+        alert("Chưa có dữ liệu sinh viên toàn khoa để xuất!");
         return;
       }
 
-      let csv = "STT,Mã Sinh Viên,Họ và Tên,Khóa Học,Số Điện Thoại,Email,Ngày Đăng Ký\n";
+      let csv = "STT,Mã Sinh Viên,Họ và Tên,Khóa Học,Khóa K,Số Điện Thoại,Email,Đề Tài Đồ Án\n";
       list.forEach((s, idx) => {
-        csv += `${idx + 1},"${s.id}","${s.name}","${s.course || ''}","${s.phone || ''}","${s.email || ''}","${s.created_at || ''}"\n`;
+        csv += `${idx + 1},"${s.id}","${s.name}","${s.course || ''}","${s.kLabel || ''}","${s.phone || ''}","${s.email || ''}","${s.topic || ''}"\n`;
       });
 
       const blob = new Blob(["\uFEFF" + csv], { type: "text/csv;charset=utf-8;" });
       const url = URL.createObjectURL(blob);
       const link = document.createElement("a");
       link.setAttribute("href", url);
-      link.setAttribute("download", `Danh_Sach_Sinh_Vien_Khoa_Duoi_${Date.now()}.csv`);
+      link.setAttribute("download", `Danh_Sach_Sinh_Vien_Toan_Khoa_${Date.now()}.csv`);
       document.body.appendChild(link);
       link.click();
       document.body.removeChild(link);
+      showToast("Xuất Excel thành công!", `Đã xuất ${list.length} sinh viên toàn khoa ra file CSV.`);
     }
+    window.exportRegularStudentsToCsv = exportRegularStudentsToCsv;
 
     function renderRegularAdminWorkspace() {
-      const list = state.regularStudents || [];
+      const list = getAllFacultyStudents();
       const totalEl = document.getElementById("statTotalRegularStudents");
       const onlineEl = document.getElementById("statOnlineRegularStudents");
       const coursesEl = document.getElementById("statCoursesBreakdown");
@@ -5241,8 +5531,13 @@
         onlineEl.textContent = onlineCount;
       }
       if (coursesEl) {
-        const courses = Array.from(new Set(list.map(s => s.course).filter(Boolean)));
-        coursesEl.textContent = courses.length > 0 ? courses.join(", ") : "K69, K70, K71...";
+        const countsByK = {};
+        list.forEach(s => {
+          const k = s.kLabel || 'K68';
+          countsByK[k] = (countsByK[k] || 0) + 1;
+        });
+        const summary = Object.keys(countsByK).sort().map(k => `${k}: ${countsByK[k]} SV`).join(" • ");
+        coursesEl.textContent = summary || "Tất cả các khóa";
       }
 
       renderRegularStudentsList();
