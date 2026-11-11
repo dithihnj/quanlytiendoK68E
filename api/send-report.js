@@ -125,6 +125,235 @@ async function sendEmailDispatch({ to, subject, html, settings }) {
   };
 }
 
+// ==============================================================================
+// HÀM TỔNG HỢP & PHÁT BẢN TIN 7:00 SÁNG CỐ ĐỊNH HÀNG NGÀY VỀ GMAIL CỦA THẦY
+// ==============================================================================
+async function generateAndSendDailyDigest({ teacherEmail, settings, clientMessages, nowStr }) {
+  try {
+    let pendingList = [];
+    if (settings && settings.PENDING_STUDENT_MESSAGES_FOR_DIGEST) {
+      try {
+        const parsed = JSON.parse(settings.PENDING_STUDENT_MESSAGES_FOR_DIGEST);
+        if (Array.isArray(parsed)) pendingList = parsed;
+      } catch (e) {}
+    }
+
+    if (Array.isArray(clientMessages) && clientMessages.length > 0) {
+      pendingList = pendingList.concat(clientMessages);
+    }
+
+    // Nếu hàng đợi trống, thử lấy từ bảng chat_messages trong 24h qua
+    if (pendingList.length === 0) {
+      try {
+        const sinceTime = new Date(Date.now() - 24 * 60 * 60 * 1000).toISOString();
+        const res = await fetch(`${SUPABASE_URL}/rest/v1/chat_messages?sender_role=eq.student&created_at=gte.${sinceTime}&order=created_at.asc`, {
+          headers: { 'apikey': SUPABASE_ANON_KEY, 'Authorization': `Bearer ${SUPABASE_ANON_KEY}` }
+        });
+        if (res.ok) {
+          const rows = await res.json();
+          if (Array.isArray(rows) && rows.length > 0) {
+            pendingList = rows.map(r => ({
+              studentId: r.student_id,
+              studentName: r.student_name || 'Sinh viên',
+              cohort: 'Sinh viên',
+              phone: '',
+              email: '',
+              text: r.message_text || '',
+              timestamp: r.created_at ? new Date(r.created_at).toLocaleString('vi-VN', { timeZone: 'Asia/Ho_Chi_Minh' }) : nowStr
+            }));
+          }
+        }
+      } catch (errDb) {
+        console.warn("Lỗi đọc chat_messages trong 24h:", errDb);
+      }
+    }
+
+    if (pendingList.length === 0) {
+      return {
+        success: true,
+        count: 0,
+        message: 'Hiện không có tin nhắn mới nào từ sinh viên trong 24 giờ qua cần phát bản tin 7:00 sáng.'
+      };
+    }
+
+    // Trích xuất danh bạ từ THESIS_STUDENTS_CONTACTS và REGULAR_STUDENTS_LIST
+    let thesisContacts = {};
+    if (settings && settings.THESIS_STUDENTS_CONTACTS) {
+      try { thesisContacts = JSON.parse(settings.THESIS_STUDENTS_CONTACTS) || {}; } catch (e) {}
+    }
+    let regularStudents = [];
+    if (settings && settings.REGULAR_STUDENTS_LIST) {
+      try { regularStudents = JSON.parse(settings.REGULAR_STUDENTS_LIST) || []; } catch (e) {}
+    }
+
+    // Nhóm tin nhắn theo từng sinh viên
+    const byStudent = {};
+    pendingList.forEach(item => {
+      const sId = item.studentId || 'Chưa rõ MSV';
+      if (!byStudent[sId]) {
+        const matchedReg = regularStudents.find(rs => rs.id === sId) || {};
+        const matchedThesis = thesisContacts[sId] || {};
+
+        const resolvedPhone = item.phone && item.phone !== 'Chưa có' && item.phone !== 'Chưa cập nhật' 
+          ? item.phone 
+          : (matchedThesis.phone || matchedReg.phone || '');
+        const resolvedEmail = item.email && item.email !== 'Chưa có' && item.email !== 'Chưa cập nhật' 
+          ? item.email 
+          : (matchedThesis.email || matchedReg.email || '');
+
+        byStudent[sId] = {
+          id: sId,
+          name: item.studentName || matchedReg.name || 'Sinh viên',
+          cohort: item.cohort || matchedReg.course || 'Sinh viên',
+          phone: resolvedPhone,
+          email: resolvedEmail,
+          messages: []
+        };
+      }
+      byStudent[sId].messages.push({
+        text: item.text,
+        time: item.timestamp || nowStr
+      });
+    });
+
+    const studentList = Object.values(byStudent);
+    const totalMessages = pendingList.length;
+    const studentCount = studentList.length;
+
+    let studentsCardsHtml = '';
+    studentList.forEach((s, idx) => {
+      let msgsHtml = '';
+      s.messages.forEach(m => {
+        msgsHtml += `
+          <div style="background: #ffffff; border: 1px solid #e2e8f0; border-radius: 8px; padding: 10px 14px; margin-bottom: 8px;">
+            <div style="font-size: 14px; color: #0f172a; line-height: 1.5; font-style: italic;">
+              "${m.text}"
+            </div>
+            <div style="font-size: 11px; color: #94a3b8; text-align: right; margin-top: 4px;">
+              🕒 ${m.time}
+            </div>
+          </div>
+        `;
+      });
+
+      const phoneLink = s.phone ? `<a href="tel:${s.phone}" style="color: #2563eb; text-decoration: none; font-weight: 700;">📞 ${s.phone}</a>` : `<span style="color: #94a3b8; font-style: italic;">Chưa có SĐT</span>`;
+      const emailLink = s.email ? `<a href="mailto:${s.email}" style="color: #7c3aed; text-decoration: none; font-weight: 700;">✉️ ${s.email}</a>` : `<span style="color: #94a3b8; font-style: italic;">Chưa có Email</span>`;
+
+      studentsCardsHtml += `
+        <div style="background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 12px; padding: 18px; margin-bottom: 16px;">
+          <div style="display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #e2e8f0; padding-bottom: 10px; margin-bottom: 12px; flex-wrap: wrap; gap: 8px;">
+            <div>
+              <span style="font-size: 15px; font-weight: 800; color: #0f172a;">${idx + 1}. ${s.name}</span>
+              <span style="display: inline-block; background: #dbeafe; color: #1e40af; font-size: 11px; font-weight: 700; padding: 2px 8px; border-radius: 6px; margin-left: 6px; font-family: monospace;">MSV: ${s.id}</span>
+              <span style="font-size: 12px; color: #64748b; margin-left: 6px;">(${s.cohort})</span>
+            </div>
+            <div style="font-size: 12px;">
+              ${phoneLink} &bull; ${emailLink}
+            </div>
+          </div>
+          <div>${msgsHtml}</div>
+        </div>
+      `;
+    });
+
+    const emailSubject = `📬 [Bản Tin 7:00 Sáng] Tổng Hợp ${totalMessages} Tin Nhắn Mới Từ ${studentCount} Sinh Viên (${nowStr})`;
+
+    const emailHtml = `
+      <div style="font-family: Arial, sans-serif; max-width: 720px; margin: 0 auto; background: #ffffff; border: 1px solid #cbd5e1; border-radius: 16px; overflow: hidden; box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);">
+        <div style="background: linear-gradient(135deg, #0f172a, #1e3a8a); padding: 26px; color: #ffffff;">
+          <div style="display: inline-block; padding: 4px 10px; background: rgba(56, 189, 248, 0.2); border: 1px solid rgba(56, 189, 248, 0.4); border-radius: 20px; font-size: 11px; font-weight: 700; letter-spacing: 1px; text-transform: uppercase; margin-bottom: 8px;">
+            BẢN TIN ĐỊNH KỲ 7:00 SÁNG HÀNG NGÀY
+          </div>
+          <h2 style="margin: 0; font-size: 24px; font-weight: 900; letter-spacing: -0.5px;">
+            Tổng Hợp Tin Nhắn Sinh Viên Gửi Thầy
+          </h2>
+          <div style="font-size: 13px; color: #93c5fd; margin-top: 6px;">
+            Khoa Vật Lý Kỹ Thuật và Công Nghệ Nano &bull; Đại học Công nghệ (VNU-UET)
+          </div>
+          <div style="font-size: 12px; color: #cbd5e1; margin-top: 4px;">
+            Thời gian phát bản tin: <strong>${nowStr}</strong> &bull; Hộp thư nhận: <strong>${teacherEmail}</strong>
+          </div>
+        </div>
+
+        <div style="padding: 24px;">
+          <!-- METRICS CARDS -->
+          <div style="display: flex; gap: 12px; margin-bottom: 24px;">
+            <div style="flex: 1; background: #eff6ff; border: 1px solid #bfdbfe; border-radius: 12px; padding: 14px; text-align: center;">
+              <div style="font-size: 11px; color: #1e40af; font-weight: 700; text-transform: uppercase;">Số SV Nhắn Tin</div>
+              <div style="font-size: 28px; font-weight: 900; color: #1d4ed8; margin-top: 4px;">${studentCount}</div>
+            </div>
+            <div style="flex: 1; background: #f0fdf4; border: 1px solid #bbf7d0; border-radius: 12px; padding: 14px; text-align: center;">
+              <div style="font-size: 11px; color: #166534; font-weight: 700; text-transform: uppercase;">Tổng Tin Nhắn Mới</div>
+              <div style="font-size: 28px; font-weight: 900; color: #15803d; margin-top: 4px;">${totalMessages}</div>
+            </div>
+            <div style="flex: 1; background: #faf5ff; border: 1px solid #e9d5ff; border-radius: 12px; padding: 14px; text-align: center;">
+              <div style="font-size: 11px; color: #6b21a8; font-weight: 700; text-transform: uppercase;">Chu kỳ gửi</div>
+              <div style="font-size: 14px; font-weight: 800; color: #7e22ce; margin-top: 10px;">7:00 Sáng Cố Định</div>
+            </div>
+          </div>
+
+          <!-- GROUPED MESSAGES -->
+          <div>
+            ${studentsCardsHtml}
+          </div>
+
+          <!-- CTA BUTTON -->
+          <div style="margin-top: 24px; text-align: center; padding-top: 20px; border-top: 1px solid #e2e8f0;">
+            <a href="https://quanlytiendok68e.vercel.app/" style="display: inline-block; padding: 14px 28px; background-color: #2563eb; color: #ffffff; text-decoration: none; font-weight: 800; border-radius: 12px; font-size: 14px; box-shadow: 0 4px 6px -1px rgba(37, 99, 235, 0.4);">
+              Mở Hệ Thống Trả Lời Tin Nhắn Trên Web &rarr;
+            </a>
+            <div style="font-size: 11px; color: #94a3b8; margin-top: 10px;">
+              Bản tin được tổng hợp tự động mỗi ngày 1 lần vào 7:00 sáng để đảm bảo hộp thư của Thầy luôn tinh gọn và không bị ngập email.
+            </div>
+          </div>
+        </div>
+      </div>
+    `;
+
+    const dispatchResult = await sendEmailDispatch({
+      to: teacherEmail,
+      subject: emailSubject,
+      html: emailHtml,
+      settings
+    });
+
+    if (dispatchResult.success) {
+      // Xóa sạch hàng đợi tin nhắn sau khi đã gửi thành công
+      try {
+        await fetch(`${SUPABASE_URL}/rest/v1/system_settings`, {
+          method: 'POST',
+          headers: {
+            'apikey': SUPABASE_ANON_KEY,
+            'Authorization': `Bearer ${SUPABASE_ANON_KEY}`,
+            'Content-Type': 'application/json',
+            'Prefer': 'resolution=merge-duplicates'
+          },
+          body: JSON.stringify({
+            key: 'PENDING_STUDENT_MESSAGES_FOR_DIGEST',
+            value: JSON.stringify([]),
+            updated_at: new Date().toISOString()
+          })
+        });
+      } catch (errClear) {
+        console.warn("Lỗi dọn dẹp hàng đợi sau khi gửi bản tin:", errClear);
+      }
+    }
+
+    return {
+      success: dispatchResult.success,
+      mode: 'daily_digest',
+      count: totalMessages,
+      studentCount,
+      recipient: teacherEmail,
+      message: `Đã phát bản tin 7:00 sáng thành công tới ${teacherEmail} (${totalMessages} tin nhắn từ ${studentCount} sinh viên).`,
+      dispatchResult
+    };
+  } catch (err) {
+    console.error("Lỗi generateAndSendDailyDigest:", err);
+    return { success: false, error: err.message };
+  }
+}
+
 module.exports = async function handler(req, res) {
   // CORS Headers
   res.setHeader('Access-Control-Allow-Credentials', 'true');
@@ -147,9 +376,18 @@ module.exports = async function handler(req, res) {
     const nowStr = new Date().toLocaleString('vi-VN', { timeZone: 'Asia/Ho_Chi_Minh' });
 
     // =========================================================================
-    // CASE 1: KÍCH HOẠT HÀNG TUẦN TỰ ĐỘNG BẰNG VERCEL CRON JOB (GET Request)
+    // CASE 1: KÍCH HOẠT TỰ ĐỘNG BẰNG VERCEL CRON JOB (GET Request)
     // =========================================================================
     if (req.method === 'GET') {
+      const action = (req.query && req.query.action) || 'daily_digest';
+      
+      // Mặc định Cron 0 0 * * * (07:00 AM VN) sẽ gửi Bản Tin Tổng Hợp Tin Nhắn Sinh Viên
+      if (action === 'daily_digest') {
+        const digestResult = await generateAndSendDailyDigest({ teacherEmail, settings, clientMessages: [], nowStr });
+        return res.status(200).json(digestResult);
+      }
+
+      // Nếu action=weekly: Tổng hợp bảng tiến độ cả lớp hàng tuần
       // Lấy danh sách toàn bộ sinh viên từ Supabase
       const [studentsRes, progressRes] = await Promise.all([
         fetch(`${SUPABASE_URL}/rest/v1/students?select=*`, {
@@ -276,61 +514,52 @@ module.exports = async function handler(req, res) {
     const reqType = payload.type || 'progress_report';
 
     // -------------------------------------------------------------------------
-    // 2A. THÔNG BÁO TIN NHẮN CHAT MỚI TỪ SINH VIÊN
+    // 2A. BẢN TIN TỔNG HỢP 7:00 SÁNG CỐ ĐỊNH (KÍCH HOẠT THỦ CÔNG HOẶC TỰ ĐỘNG)
+    // -------------------------------------------------------------------------
+    if (reqType === 'daily_digest') {
+      const clientMessages = payload.clientMessages || [];
+      const digestResult = await generateAndSendDailyDigest({ teacherEmail, settings, clientMessages, nowStr });
+      return res.status(200).json(digestResult);
+    }
+
+    // -------------------------------------------------------------------------
+    // 2B. NẾU CÓ REQUEST CHAT_NOTIFICATION: GOM VÀO HÀNG ĐỢI (KHÔNG GỬI EMAIL TỨC THÌ ĐỂ TRÁNH SPAM)
     // -------------------------------------------------------------------------
     if (reqType === 'chat_notification') {
-      const studentName = payload.studentName || 'Sinh viên';
-      const studentId = payload.studentId || '';
-      const messageText = payload.messageText || '(Không có nội dung)';
-      const msgTime = payload.timestamp || nowStr;
-
-      const chatSubject = `🔔 [Tin Nhắn Mới] Sinh viên ${studentName} (${studentId}) vừa nhắn trên web`;
-
-      const chatHtml = `
-        <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; background: #ffffff; border: 1px solid #e2e8f0; border-radius: 14px; overflow: hidden; box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);">
-          <div style="background: linear-gradient(135deg, #2563eb, #1d4ed8); padding: 20px; color: #ffffff;">
-            <div style="font-size: 11px; text-transform: uppercase; letter-spacing: 1.5px; opacity: 0.85; font-weight: 700; margin-bottom: 4px;">
-              THÔNG BÁO TIN NHẮN TỨC THÌ
-            </div>
-            <h3 style="margin: 0; font-size: 20px; font-weight: 800;">
-              Sinh Viên Vừa Gửi Tin Nhắn Mới
-            </h3>
-            <div style="font-size: 12px; color: #bae6fd; margin-top: 4px;">
-              Thời gian: <strong>${msgTime}</strong>
-            </div>
-          </div>
-
-          <div style="padding: 24px;">
-            <div style="background: #f8fafc; border-left: 4px solid #2563eb; padding: 16px; border-radius: 8px; margin-bottom: 20px;">
-              <div style="font-size: 13px; color: #64748b; margin-bottom: 6px;">
-                Người gửi: <strong style="color: #1e293b; font-size: 14px;">${studentName}</strong> (MSV: <span style="font-family: monospace; color: #2563eb; font-weight: 700;">${studentId}</span>)
-              </div>
-              <div style="font-size: 15px; color: #0f172a; line-height: 1.5; font-style: italic; background: #ffffff; padding: 12px; border-radius: 8px; border: 1px solid #e2e8f0;">
-                "${messageText}"
-              </div>
-            </div>
-
-            <div style="text-align: center; margin-top: 24px;">
-              <a href="https://quanlytiendok68e.vercel.app/" style="display: inline-block; padding: 12px 24px; background-color: #2563eb; color: #ffffff; text-decoration: none; font-weight: 700; border-radius: 10px; font-size: 14px;">
-                Vào Trả Lời Tin Nhắn Trên Web &rarr;
-              </a>
-            </div>
-          </div>
-        </div>
-      `;
-
-      const dispatchResult = await sendEmailDispatch({
-        to: teacherEmail,
-        subject: chatSubject,
-        html: chatHtml,
-        settings
-      });
+      try {
+        let curPending = [];
+        if (settings && settings.PENDING_STUDENT_MESSAGES_FOR_DIGEST) {
+          try { curPending = JSON.parse(settings.PENDING_STUDENT_MESSAGES_FOR_DIGEST); } catch (e) {}
+        }
+        curPending.push({
+          studentName: payload.studentName || 'Sinh viên',
+          studentId: payload.studentId || '',
+          cohort: payload.cohort || 'Sinh viên',
+          phone: payload.phone || '',
+          email: payload.email || '',
+          text: payload.messageText || '',
+          timestamp: payload.timestamp || nowStr
+        });
+        await fetch(`${SUPABASE_URL}/rest/v1/system_settings`, {
+          method: 'POST',
+          headers: {
+            'apikey': SUPABASE_ANON_KEY,
+            'Authorization': `Bearer ${SUPABASE_ANON_KEY}`,
+            'Content-Type': 'application/json',
+            'Prefer': 'resolution=merge-duplicates'
+          },
+          body: JSON.stringify({
+            key: 'PENDING_STUDENT_MESSAGES_FOR_DIGEST',
+            value: JSON.stringify(curPending),
+            updated_at: new Date().toISOString()
+          })
+        });
+      } catch (e) {}
 
       return res.status(200).json({
-        success: dispatchResult.success,
-        mode: 'chat_notification',
-        recipient: teacherEmail,
-        dispatchResult
+        success: true,
+        mode: 'queued_for_daily_digest',
+        message: 'Tin nhắn đã được gom vào Bản Tin 7:00 Sáng gửi về Thầy (không spam email tức thì).'
       });
     }
 
