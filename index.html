@@ -390,6 +390,7 @@
                       id="regThesisId" 
                       required 
                       placeholder="VD: 23020999" 
+                      oninput="handleAutoDetectCohortForThesis(this.value)"
                       class="w-full px-3 py-2 rounded-xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-blue-500 text-xs font-mono text-slate-800 uppercase"
                     />
                   </div>
@@ -598,6 +599,7 @@
                       id="regStudentId" 
                       placeholder="VD: 24020123" 
                       required
+                      oninput="handleAutoDetectCohortForRegStudent(this.value)"
                       class="w-full px-3 py-2 text-xs rounded-xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-emerald-500 bg-slate-50 focus:bg-white transition font-mono"
                     >
                   </div>
@@ -2648,6 +2650,41 @@
     }
     window.getCohortInfoFromId = getCohortInfoFromId;
 
+    // Tự động gợi ý khóa học chuẩn khi sinh viên nhập Mã Sinh Viên (MSV)
+    function handleAutoDetectCohortForThesis(idVal) {
+      if (!idVal || String(idVal).trim().length < 2) return;
+      const cInfo = getCohortInfoFromId(idVal);
+      const sel = document.getElementById("regThesisCourse");
+      if (sel) {
+        let found = false;
+        for (let i = 0; i < sel.options.length; i++) {
+          if (sel.options[i].value.includes(cInfo.kLabel)) {
+            sel.selectedIndex = i;
+            found = true;
+            break;
+          }
+        }
+        if (!found) {
+          const opt = document.createElement("option");
+          opt.value = cInfo.fullName;
+          opt.textContent = cInfo.fullName;
+          sel.appendChild(opt);
+          sel.value = cInfo.fullName;
+        }
+      }
+    }
+    window.handleAutoDetectCohortForThesis = handleAutoDetectCohortForThesis;
+
+    function handleAutoDetectCohortForRegStudent(idVal) {
+      if (!idVal || String(idVal).trim().length < 2) return;
+      const cInfo = getCohortInfoFromId(idVal);
+      const courseInput = document.getElementById("regStudentCourse");
+      if (courseInput && (!courseInput.value || courseInput.value.startsWith("Khóa K") || courseInput.value.startsWith("K6"))) {
+        courseInput.value = cInfo.fullName;
+      }
+    }
+    window.handleAutoDetectCohortForRegStudent = handleAutoDetectCohortForRegStudent;
+
     // Hàm lấy danh sách toàn bộ sinh viên làm đồ án (Loại bỏ ID hệ thống 'COMMUNITY' và các SV đã bị xóa)
     function getAllStudents() {
       const custom = (state && state.customStudents && Array.isArray(state.customStudents)) ? state.customStudents : [];
@@ -4443,6 +4480,13 @@
 
       state.regularStudents.push(newStudent);
 
+      // Tự động bổ sung khóa học mới vào danh mục hệ thống
+      if (!state.courses) state.courses = [];
+      if (!state.courses.includes(studentCourse)) {
+        state.courses.push(studentCourse);
+      }
+      populateCourseDropdowns();
+
       // Thống nhất hệ thống tài khoản sinh viên:
       if (!state.studentPasswords) state.studentPasswords = {};
       state.studentPasswords[id] = pass;
@@ -5504,17 +5548,49 @@
         }
 
         // Cập nhật các lựa chọn khóa học trong dropdown dựa theo mã sinh viên (K68 đầu 23, K69 đầu 24, K70 đầu 25...)
-        if (courseSelect && courseSelect.options.length <= 1) {
-          const uniqueK = Array.from(new Set(list.map(s => s.kLabel).filter(Boolean))).sort();
-          let selectHtml = '<option value="all">Tất cả các khóa</option>';
-          uniqueK.forEach(k => {
-            const sample = list.find(s => s.kLabel === k);
-            const fullName = sample ? sample.course : `Khóa ${k}`;
-            selectHtml += `<option value="${escapeHtml(k)}">${escapeHtml(fullName)} (${k})</option>`;
+        if (courseSelect) {
+          const currentVal = courseSelect.value || "all";
+
+          // Lấy tất cả các khóa K có trong danh sách sinh viên thực tế (ví dụ: K68, K69...)
+          const existingKs = Array.from(new Set(list.map(s => s.kLabel).filter(Boolean)));
+
+          // Danh sách các khóa chuẩn bị sẵn để giáo viên dễ lọc và phân loại
+          const standardKs = ["K67", "K68", "K69", "K70", "K71", "K72"];
+
+          // Gộp lại, lọc trùng và sắp xếp theo thứ tự khóa tăng dần
+          const allKs = Array.from(new Set([...existingKs, ...standardKs])).sort((a, b) => {
+            const numA = parseInt(a.replace(/\D/g, ''), 10) || 0;
+            const numB = parseInt(b.replace(/\D/g, ''), 10) || 0;
+            return numA - numB;
           });
-          courseSelect.innerHTML = selectHtml;
-          courseSelect.value = "all";
-          courseFilter = "all";
+
+          // Chữ ký (signature) để chỉ cập nhật DOM khi danh sách khóa hoặc số lượng SV thay đổi
+          const sig = allKs.map(k => `${k}:${list.filter(s => s.kLabel === k).length}`).join('|');
+          if (courseSelect.dataset.lastCourseSig !== sig) {
+            let selectHtml = '<option value="all">Tất cả các khóa</option>';
+            allKs.forEach(k => {
+              const count = list.filter(s => s.kLabel === k).length;
+              const sample = list.find(s => s.kLabel === k);
+              const kNum = parseInt(k.replace(/\D/g, ''), 10) || 68;
+              const prefix = kNum - 45;
+              const startYear = 2000 + prefix;
+              const endYear = startYear + 4;
+              const fullName = sample ? sample.course : `Khóa ${k} (${startYear} - ${endYear})`;
+
+              const countText = count > 0 ? ` (${count} SV)` : '';
+              selectHtml += `<option value="${escapeHtml(k)}">${escapeHtml(fullName)} (${k})${countText}</option>`;
+            });
+
+            courseSelect.innerHTML = selectHtml;
+            courseSelect.dataset.lastCourseSig = sig;
+
+            if (allKs.includes(currentVal) || currentVal === "all") {
+              courseSelect.value = currentVal;
+            } else {
+              courseSelect.value = "all";
+            }
+          }
+          courseFilter = courseSelect.value || "all";
         }
 
         // Lọc theo tìm kiếm và khóa an toàn 100% với kiểu dữ liệu
@@ -6407,8 +6483,23 @@
     // ==============================================================
     function getCoursesList() {
       if (!state.courses || !Array.isArray(state.courses) || state.courses.length === 0) {
-        state.courses = ["Khóa K68 (2023 - 2027)", "Khóa K67 (2022 - 2026)", "Khóa K69 (2024 - 2028)"];
+        state.courses = [
+          "Khóa K68 (2023 - 2027)",
+          "Khóa K69 (2024 - 2028)",
+          "Khóa K70 (2025 - 2029)",
+          "Khóa K71 (2026 - 2030)",
+          "Khóa K67 (2022 - 2026)"
+        ];
       }
+      // Tự động bổ sung các khóa thực tế từ sinh viên toàn khoa nếu chưa có
+      try {
+        const allFaculty = getAllFacultyStudents();
+        allFaculty.forEach(s => {
+          if (s.course && !state.courses.includes(s.course)) {
+            state.courses.push(s.course);
+          }
+        });
+      } catch (e) {}
       return state.courses;
     }
 
