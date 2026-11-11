@@ -659,15 +659,15 @@ module.exports = async function handler(req, res) {
         return res.status(400).json({ success: false, message: 'Thiếu email nhận khôi phục mật khẩu!' });
       }
 
-      const emailSubject = `🔑 [Khôi Phục Mật Khẩu] Hệ Thống Đào Tạo - Sinh viên ${studentName} (${studentId})`;
+      const emailSubject = `🔑 [Mật Khẩu Đăng Nhập] Hệ Thống Đào Tạo - Sinh viên ${studentName} (${studentId})`;
       const emailHtml = `
         <div style="font-family: Arial, sans-serif; max-width: 580px; margin: 0 auto; background: #ffffff; border: 1px solid #e2e8f0; border-radius: 14px; overflow: hidden; box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);">
           <div style="background: linear-gradient(135deg, #1e3a8a, #0284c7); padding: 22px; color: #ffffff;">
             <div style="font-size: 11px; text-transform: uppercase; letter-spacing: 1.5px; opacity: 0.85; font-weight: 700;">
-              YÊU CẦU KHÔI PHỤC MẬT KHẨU
+              THÔNG BÁO MẬT KHẨU TÀI KHOẢN
             </div>
-            <h2 style="margin: 6px 0 0; font-size: 20px; font-weight: 800;">
-              Cấp Lại Mật Khẩu Đăng Nhập
+            <h2 style="margin: 6px 0 0; font-size: 20px; font-weight: 800; color: #ffffff;">
+              Mật Khẩu Đăng Nhập Hệ Thống
             </h2>
           </div>
           <div style="padding: 24px;">
@@ -675,20 +675,20 @@ module.exports = async function handler(req, res) {
               Xin chào <strong>${studentName}</strong> (Mã SV: <strong style="font-family: monospace; color: #2563eb;">${studentId}</strong>),
             </p>
             <p style="font-size: 14px; color: #334155; line-height: 1.6;">
-              Bạn hoặc quản trị viên vừa thực hiện yêu cầu cấp lại mật khẩu đăng nhập trên Hệ Thống Quản Lý Đào Tạo.
+              Hệ thống đã nhận được yêu cầu lấy lại mật khẩu từ tài khoản của bạn. Dưới đây là mật khẩu đăng nhập của bạn:
             </p>
-            <div style="background: #eff6ff; border: 1px dashed #3b82f6; border-radius: 10px; padding: 16px; margin: 20px 0; text-align: center;">
-              <div style="font-size: 12px; color: #1e40af; font-weight: 600; text-transform: uppercase;">Mật Khẩu Mới Của Bạn:</div>
-              <div style="font-size: 24px; font-weight: 900; color: #1d4ed8; font-family: monospace; letter-spacing: 2px; margin-top: 6px;">
+            <div style="background: #eff6ff; border: 1px dashed #3b82f6; border-radius: 10px; padding: 18px; margin: 20px 0; text-align: center;">
+              <div style="font-size: 12px; color: #1e40af; font-weight: 700; text-transform: uppercase; letter-spacing: 1px;">Mật Khẩu Đăng Nhập:</div>
+              <div style="font-size: 26px; font-weight: 900; color: #1d4ed8; font-family: monospace; letter-spacing: 2px; margin-top: 6px;">
                 ${resetPassword}
               </div>
             </div>
             <p style="font-size: 13px; color: #64748b; line-height: 1.5;">
-              Vui lòng đăng nhập và đổi lại mật khẩu mới ngay trong mục <em>🔑 Đổi MK</em> để đảm bảo an toàn tài khoản.
+              Bạn có thể sử dụng mật khẩu này để đăng nhập ngay vào hệ thống. Sau khi đăng nhập thành công, bạn có thể chủ động đổi lại mật khẩu mới bất cứ lúc nào trong mục <em>🔑 Đổi MK</em>.
             </p>
             <div style="text-align: center; margin-top: 24px;">
-              <a href="https://quanlytiendok68e.vercel.app/" style="display: inline-block; padding: 12px 24px; background-color: #2563eb; color: #ffffff; text-decoration: none; font-weight: 700; border-radius: 10px; font-size: 14px;">
-                Đăng Nhập Ngay &rarr;
+              <a href="https://quanlytiendok68e.vercel.app/" style="display: inline-block; padding: 12px 26px; background-color: #2563eb; color: #ffffff; text-decoration: none; font-weight: 700; border-radius: 10px; font-size: 14px; box-shadow: 0 4px 6px -1px rgba(37, 99, 235, 0.4);">
+                Đăng Nhập Vào Hệ Thống Ngay &rarr;
               </a>
             </div>
           </div>
