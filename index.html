@@ -2563,6 +2563,17 @@
 
   <!-- JAVASCRIPT APPLICATION LOGIC -->
   <script>
+    function escapeHtml(str) {
+      if (str === null || str === undefined) return "";
+      return String(str)
+        .replace(/&/g, "&amp;")
+        .replace(/</g, "&lt;")
+        .replace(/>/g, "&gt;")
+        .replace(/"/g, "&quot;")
+        .replace(/'/g, "&#39;");
+    }
+    window.escapeHtml = escapeHtml;
+
     // 1. FILTERED STUDENTS LIST: ONLY STUDENTS WITH ID STARTING WITH "2302" (24 STUDENTS)
     const RAW_STUDENTS = [
       { stt: 1, name: "Trần Gia Bình", id: "23020452", gpa: 2.98, topic: "Điện mặt trời" },
@@ -4281,7 +4292,7 @@
         localStorage.setItem("K68_LAST_ACCESS_" + id, new Date().toLocaleString('vi-VN'));
         trackUserPresence();
 
-        closeLoginModal();
+        hideLoginModal();
         renderAll();
 
         showToast("🎉 Đăng ký đồ án thành công!", `Chào mừng bạn ${name}! Hồ sơ đề tài đồ án của bạn đã sẵn sàng.`);
@@ -5580,10 +5591,6 @@
         console.error("Critical error in renderRegularStudentsList:", err);
       }
     }
-      });
-
-      container.innerHTML = html;
-    }
 
     function toggleEarlyThesisApproval(studentId) {
       if (!state.earlyThesisApprovedIds) state.earlyThesisApprovedIds = [];
@@ -5834,12 +5841,17 @@
     window.switchRegStudentTab = switchRegStudentTab;
 
     function showLoginModal() {
-      document.getElementById("loginModal").classList.remove("hidden");
+      const m = document.getElementById("loginModal");
+      if (m) m.classList.remove("hidden");
     }
+    window.showLoginModal = showLoginModal;
 
     function hideLoginModal() {
-      document.getElementById("loginModal").classList.add("hidden");
+      const m = document.getElementById("loginModal");
+      if (m) m.classList.add("hidden");
     }
+    window.hideLoginModal = hideLoginModal;
+    window.closeLoginModal = hideLoginModal;
 
     function handleStudentLogin(e) {
       e.preventDefault();
