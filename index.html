@@ -997,24 +997,27 @@
   </div>
 
   <!-- ==================== TEACHER SETTINGS MODAL ==================== -->
-  <div id="teacherSettingsModal" class="fixed inset-0 z-50 bg-slate-900/60 backdrop-blur-xs flex items-center justify-center p-4 hidden">
-    <div class="bg-white rounded-3xl max-w-lg w-full shadow-2xl border border-slate-200 overflow-hidden transform transition-all">
-      <div class="p-6 bg-purple-900 text-white flex items-center justify-between">
+  <div id="teacherSettingsModal" class="fixed inset-0 z-50 bg-slate-900/60 backdrop-blur-xs flex items-center justify-center p-3 sm:p-4 hidden overflow-y-auto">
+    <div class="bg-white rounded-3xl max-w-lg w-full shadow-2xl border border-slate-200 overflow-hidden transform transition-all my-auto max-h-[90vh] flex flex-col">
+      <!-- HEADER -->
+      <div class="p-5 bg-gradient-to-r from-purple-900 via-purple-800 to-indigo-900 text-white flex items-center justify-between flex-shrink-0">
         <div class="flex items-center gap-3">
-          <div class="w-10 h-10 rounded-xl bg-purple-600 flex items-center justify-center text-lg shadow-md shadow-purple-500/30">
+          <div class="w-10 h-10 rounded-xl bg-purple-600/80 border border-purple-400/30 flex items-center justify-center text-lg shadow-md">
             ⚙️
           </div>
           <div>
             <h3 class="text-base font-bold text-white">Cài Đặt Quản Trị &amp; Email GV</h3>
-            <p class="text-xs text-purple-200">Tự động gửi thông báo về hộp thư Gmail</p>
+            <p class="text-xs text-purple-200">Quản lý nhận thông báo Gmail &amp; Niên khóa làm đồ án</p>
           </div>
         </div>
-        <button onclick="closeTeacherSettingsModal()" class="text-purple-300 hover:text-white p-1 rounded-lg transition">
+        <button onclick="closeTeacherSettingsModal()" class="text-purple-300 hover:text-white p-1.5 rounded-lg transition hover:bg-white/10" title="Đóng">
           <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
         </button>
       </div>
 
-      <div class="p-6 space-y-4">
+      <!-- BODY (SCROLLABLE NẾU MÀN HÌNH NHỎ) -->
+      <div class="p-5 sm:p-6 space-y-4 overflow-y-auto flex-1">
+        <!-- 1. GMAIL NHẬN BÁO CÁO -->
         <div>
           <label class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1.5 flex items-center gap-1.5">
             <span>📧 Địa Chỉ Gmail Nhận Báo Cáo</span>
@@ -1022,28 +1025,28 @@
           <input 
             type="email" 
             id="settingTeacherEmailInput" 
-            placeholder="tkdark3010@gmail.com" 
-            class="w-full px-4 py-3 text-sm rounded-xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-purple-500 bg-slate-50 focus:bg-white transition"
+            placeholder="duynh710@gmail.com" 
+            class="w-full px-4 py-2.5 text-sm rounded-xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-purple-500 bg-slate-50 focus:bg-white transition"
           >
           <p class="text-[11px] text-slate-400 mt-1">
-            Báo cáo định kỳ hàng tuần, thông báo sinh viên nhắn tin và báo cáo gửi tay sẽ tự động gửi thẳng về địa chỉ này.
+            Báo cáo định kỳ hàng tuần, thông báo tin nhắn sinh viên sẽ tự động gửi thẳng về địa chỉ này.
           </p>
         </div>
 
-        <!-- CÁCH 1: GMAIL APP PASSWORD (100% VÀO HỘP THƯ CHÍNH) -->
-        <div class="p-3.5 bg-emerald-50/80 rounded-2xl border border-emerald-200">
+        <!-- 2. MẬT KHẨU ỨNG DỤNG GMAIL -->
+        <div class="p-4 bg-emerald-50/80 rounded-2xl border border-emerald-200">
           <div class="flex items-center justify-between mb-1.5">
             <label class="block text-xs font-bold text-emerald-950 uppercase tracking-wider flex items-center gap-1.5">
-              <span>⭐ Cách 1 (Khuyên dùng): Mật khẩu ứng dụng Gmail</span>
+              <span>⭐ Mật Khẩu Ứng Dụng Gmail (16 chữ cái)</span>
             </label>
             <a href="https://myaccount.google.com/apppasswords" target="_blank" rel="noopener noreferrer" class="text-[11px] text-emerald-700 font-bold hover:underline flex items-center gap-0.5">
-              <span>Lấy mã 16 chữ cái (20s)</span> &nearr;
+              <span>Lấy mã (20s)</span> &nearr;
             </a>
           </div>
           <input 
             type="password" 
             id="settingGmailAppPasswordInput" 
-            placeholder="abcd efgh ijkl mnop (Mật khẩu ứng dụng 16 ký tự)" 
+            placeholder="abcd efgh ijkl mnop (16 ký tự)" 
             class="w-full px-4 py-2.5 text-sm rounded-xl border border-emerald-200 focus:outline-none focus:ring-2 focus:ring-emerald-500 bg-white font-mono transition"
           >
           <p class="text-[11px] text-emerald-800/90 mt-1">
@@ -1051,42 +1054,8 @@
           </p>
         </div>
 
-        <!-- CÁCH 2: BREVO API KEY -->
-        <div>
-          <div class="flex items-center justify-between mb-1.5">
-            <label class="block text-xs font-bold text-slate-700 uppercase tracking-wider">
-              <span>Hoặc Cách 2: Mã Brevo API Key</span>
-            </label>
-            <a href="https://app.brevo.com/settings/keys/api" target="_blank" rel="noopener noreferrer" class="text-[11px] text-blue-600 font-bold hover:underline flex items-center gap-1">
-              <span>Lấy mã Brevo</span> &nearr;
-            </a>
-          </div>
-          <input 
-            type="password" 
-            id="settingBrevoApiKeyInput" 
-            placeholder="xkeysib-... (Dán mã Brevo API Key vào đây)" 
-            class="w-full px-4 py-2.5 text-sm rounded-xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-purple-500 bg-slate-50 focus:bg-white font-mono transition"
-          >
-          <p class="text-[11px] text-slate-500 mt-1">
-            Đăng nhập <a href="https://app.brevo.com/settings/keys/api" target="_blank" rel="noopener noreferrer" class="text-blue-600 underline font-semibold">brevo.com</a> ➔ Vào <strong>SMTP &amp; API</strong> ➔ <strong>Generate a new API key</strong> ➔ Dán mã bắt đầu bằng <code class="bg-slate-100 px-1 py-0.5 rounded text-blue-700 font-bold">xkeysib-...</code> vào đây.
-          </p>
-        </div>
-
-        <div class="pt-0.5">
-          <details class="text-xs text-slate-500">
-            <summary class="cursor-pointer hover:text-slate-800 font-medium">Hoặc dùng Resend API Key (Tùy chọn)</summary>
-            <div class="mt-2 space-y-1">
-              <input 
-                type="password" 
-                id="settingResendApiKeyInput" 
-                placeholder="re_... (Nếu bạn thích dùng Resend)" 
-                class="w-full px-3 py-2 text-xs rounded-lg border border-slate-200 bg-slate-50 font-mono"
-              >
-            </div>
-          </details>
-        </div>
-
-        <div class="p-4 bg-purple-50/60 rounded-2xl border border-purple-200 flex items-center justify-between gap-4">
+        <!-- 3. TOGGLE TỰ ĐỘNG GỬI QUA GMAIL -->
+        <div class="p-3.5 bg-purple-50/60 rounded-2xl border border-purple-200 flex items-center justify-between gap-4">
           <div>
             <div class="text-xs font-bold text-purple-950">Tự động gửi thông báo qua Gmail</div>
             <div class="text-[11px] text-purple-700/80 mt-0.5">Báo cáo tuần &amp; Tin nhắn sinh viên</div>
@@ -1097,8 +1066,8 @@
           </label>
         </div>
 
-        <!-- QUẢN LÝ NIÊN KHÓA LÀM ĐỒ ÁN (CỔNG 1) -->
-        <div class="p-4 bg-blue-50/80 rounded-2xl border border-blue-200 space-y-2.5">
+        <!-- 4. QUẢN LÝ NIÊN KHÓA LÀM ĐỒ ÁN (CỔNG 1) -->
+        <div class="p-4 bg-blue-50/80 rounded-2xl border border-blue-200 space-y-2">
           <div class="flex items-center justify-between">
             <span class="text-xs font-bold text-blue-950 flex items-center gap-1.5">
               <span>🎓 Khóa Năm Cuối Làm Đồ Án Hiện Tại</span>
@@ -1108,37 +1077,36 @@
             </span>
           </div>
           <p class="text-[11px] text-blue-800 leading-relaxed">
-            Sinh viên có Mã SV đầu <strong>&le; <span id="currentSeniorPrefixText">23</span></strong> sẽ được phép truy cập Cổng 1 làm đồ án (và không bao giờ mất quyền). Sinh viên khóa dưới cần được cấp quyền Học Vượt.
+            Sinh viên có Mã SV đầu <strong>&le; <span id="currentSeniorPrefixText">23</span></strong> sẽ được phép truy cập Cổng 1 làm đồ án (không mất quyền). Sinh viên khóa dưới cần được cấp quyền Học Vượt.
           </p>
-          <div class="flex items-center gap-2 pt-1">
+          <div class="pt-1">
             <button 
               type="button" 
               onclick="handleAdvanceSeniorCohortYear()" 
-              class="flex-1 py-2 px-3 bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white font-bold text-xs rounded-xl shadow-xs transition flex items-center justify-center gap-1.5"
+              class="w-full py-2.5 px-3 bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 active:scale-[0.99] text-white font-bold text-xs rounded-xl shadow-xs transition flex items-center justify-center gap-1.5 cursor-pointer"
             >
               <span>⏭️ Tiến Thêm 1 Năm Học (Lên K<span id="nextSeniorCohortNumber">69</span>)</span>
             </button>
           </div>
         </div>
+      </div>
 
-        <div class="pt-2 border-t border-slate-100 flex flex-col gap-2.5">
-          <button 
-            type="button" 
-            onclick="handleSaveTeacherSettings()" 
-            class="w-full py-3 bg-purple-600 hover:bg-purple-700 text-white font-bold text-xs rounded-xl shadow-md shadow-purple-500/25 transition flex items-center justify-center gap-2"
-          >
-            <span>💾 Lưu Cài Đặt Email</span>
-          </button>
-          
-          <button 
-            type="button" 
-            onclick="handleSendClassSummaryReport()" 
-            id="btnModalSendSummary"
-            class="w-full py-2.5 bg-white hover:bg-purple-50 text-purple-700 font-bold text-xs rounded-xl border border-purple-200 transition flex items-center justify-center gap-2"
-          >
-            <span>📨 Gửi Ngay Báo Cáo Tiến Độ 24 SV Về Gmail</span>
-          </button>
-        </div>
+      <!-- STICKY FOOTER: NÚT XÁC NHẬN NỔI BẬT KHÔNG BAO GIỜ BỊ KHUẤT -->
+      <div class="p-4 bg-slate-50 border-t border-slate-200 flex flex-col sm:flex-row items-center gap-2.5 flex-shrink-0">
+        <button 
+          type="button" 
+          onclick="closeTeacherSettingsModal()" 
+          class="w-full sm:w-auto py-2.5 px-4 text-xs font-bold text-slate-600 hover:text-slate-800 hover:bg-slate-200/60 rounded-xl transition cursor-pointer"
+        >
+          Đóng
+        </button>
+        <button 
+          type="button" 
+          onclick="handleSaveTeacherSettings()" 
+          class="w-full sm:flex-1 py-3 px-5 bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-700 hover:to-indigo-700 active:scale-[0.99] text-white font-bold text-xs sm:text-sm rounded-xl shadow-lg shadow-purple-500/30 transition flex items-center justify-center gap-2 cursor-pointer"
+        >
+          <span>💾 Xác Nhận &amp; Lưu Cài Đặt</span>
+        </button>
       </div>
     </div>
   </div>
@@ -2574,6 +2542,63 @@
     }
     window.escapeHtml = escapeHtml;
 
+    // HÀM KHỬ TRÙNG LẶP TIN NHẮN (CHỐNG LẶP KÉP TRÊN MÀN HÌNH & TRONG DATABASE)
+    function deduplicateMessages(msgList) {
+      if (!Array.isArray(msgList)) return [];
+      const result = [];
+      const seenIds = new Set();
+
+      for (let i = 0; i < msgList.length; i++) {
+        const m = msgList[i];
+        if (!m) continue;
+
+        const idStr = m.id ? String(m.id) : null;
+        if (idStr && seenIds.has(idStr)) continue;
+
+        const textClean = String(m.text || "").trim();
+        const senderClean = String(m.sender_name || m.sender_id || "").trim();
+        const mTime = m.created_at ? new Date(m.created_at).getTime() : 0;
+
+        // Kiểm tra xem tin nhắn có bị trùng y hệt tin nhắn vừa thêm vào trước đó không
+        if (result.length > 0) {
+          const prev = result[result.length - 1];
+          const prevText = String(prev.text || "").trim();
+          const prevSender = String(prev.sender_name || prev.sender_id || "").trim();
+          const prevTime = prev.created_at ? new Date(prev.created_at).getTime() : 0;
+
+          if (textClean === prevText && senderClean === prevSender) {
+            // Cách nhau dưới 6 giây hoặc không có timestamp -> lặp do gửi kép, bỏ qua!
+            if (!mTime || !prevTime || Math.abs(mTime - prevTime) < 6000) {
+              continue;
+            }
+          }
+        }
+
+        if (idStr) seenIds.add(idStr);
+        result.push(m);
+      }
+      return result;
+    }
+    window.deduplicateMessages = deduplicateMessages;
+
+    // HÀM GỬI TIN NHẮN ĐƠN (SINGLE DISPATCH - CHỈ GỬI 1 LẦN, TUYỆT ĐỐI KHÔNG GỬI KÉP)
+    async function sendChatMessageSingle(payload) {
+      if (supabaseClient) {
+        try {
+          const { error } = await supabaseClient.from('chat_messages').insert(payload);
+          if (!error) return true;
+        } catch (e) {}
+      }
+      try {
+        await supabaseRestPost('chat_messages', payload);
+        return true;
+      } catch (e) {
+        console.warn("Lỗi gửi tin nhắn qua REST API:", e);
+        return false;
+      }
+    }
+    window.sendChatMessageSingle = sendChatMessageSingle;
+
     // 1. FILTERED STUDENTS LIST: ONLY STUDENTS WITH ID STARTING WITH "2302" (24 STUDENTS)
     const RAW_STUDENTS = [
       { stt: 1, name: "Trần Gia Bình", id: "23020452", gpa: 2.98, topic: "Điện mặt trời" },
@@ -3266,7 +3291,17 @@
                 } catch (e) {}
 
                 if (!state.communityChatMessages) state.communityChatMessages = [];
-                const exists = state.communityChatMessages.some(m => m.id === msg.id);
+                let exists = state.communityChatMessages.some(m => m.id === msg.id);
+                if (!exists) {
+                  // Chống dội lặp tin nhắn client vừa tự gửi trong 6 giây
+                  const lastFew = state.communityChatMessages.slice(-5);
+                  const isRecentEcho = lastFew.some(m => 
+                    String(m.text || "").trim() === String(msgText || "").trim() &&
+                    (m.sender_name === msg.student_name || m.sender_id === msg.sender_name)
+                  );
+                  if (isRecentEcho) exists = true;
+                }
+
                 if (!exists) {
                   const commMsgObj = {
                     id: msg.id,
@@ -3278,6 +3313,7 @@
                     created_at: msg.created_at
                   };
                   state.communityChatMessages.push(commMsgObj);
+                  state.communityChatMessages = deduplicateMessages(state.communityChatMessages);
                   saveState();
                   renderCommunityChatMessages(true);
 
@@ -4619,15 +4655,15 @@
 
       if (btn) {
         btn.disabled = true;
-        btn.textContent = "Đang kiểm tra & gửi mail...";
+        btn.textContent = "⏳ Đang kiểm tra & gửi mật khẩu...";
       }
 
-      // Tìm trong danh sách SV toàn khoa
+      // 1. Tìm trong danh sách SV toàn khoa (Cổng 2)
       const regList = state.regularStudents || [];
       let match = regList.find(s => (s.id && s.id.toLowerCase() === account) || (s.email && s.email.toLowerCase() === account));
-      let isRegular = true;
+      let isRegular = Boolean(match);
 
-      // Nếu không thấy, tìm trong SV làm đồ án (theo Mã SV hoặc theo Email đăng ký)
+      // 2. Nếu không thấy, tìm trong SV làm đồ án (Cổng 1)
       if (!match) {
         match = getAllStudents().find(s => {
           const sId = (s.id || '').toLowerCase();
@@ -4639,7 +4675,7 @@
 
       if (!match) {
         if (status) {
-          status.textContent = "Không tìm thấy tài khoản tương ứng với thông tin bạn nhập!";
+          status.textContent = "Không tìm thấy tài khoản tương ứng với Mã SV hoặc Email bạn nhập! Vui lòng kiểm tra lại.";
           status.className = "text-xs p-3 rounded-xl border border-rose-200 bg-rose-50 text-rose-700 text-center font-medium";
           status.classList.remove("hidden");
         }
@@ -4650,11 +4686,15 @@
         return;
       }
 
+      // Trích xuất Email đã đăng ký của sinh viên (kiểm tra cả 3 nguồn lưu trữ)
       const thesisContact = (!isRegular && state.thesisContacts && state.thesisContacts[match.id]) || {};
-      const studentEmail = match.email || thesisContact.email || (account.includes("@") ? account : "");
-      if (!studentEmail || !studentEmail.includes("@")) {
+      const regMatch = regList.find(r => r.id === match.id);
+      let studentEmail = (match.email || thesisContact.email || (regMatch && regMatch.email) || "").trim();
+      if (!studentEmail && account.includes("@")) studentEmail = account;
+
+      if (!studentEmail || !studentEmail.includes("@") || !studentEmail.includes(".")) {
         if (status) {
-          status.textContent = `Tài khoản ${match.name} (${match.id}) chưa đăng ký địa chỉ email! Vui lòng liên hệ Thầy/Cô Chủ nhiệm để được cấp lại mật khẩu.`;
+          status.textContent = `Tài khoản sinh viên "${match.name}" (MSV: ${match.id}) chưa cập nhật địa chỉ email liên hệ! Vui lòng liên hệ Thầy/Cô Chủ nhiệm để được cấp lại mật khẩu.`;
           status.className = "text-xs p-3 rounded-xl border border-amber-200 bg-amber-50 text-amber-800 text-center font-medium";
           status.classList.remove("hidden");
         }
@@ -4665,12 +4705,17 @@
         return;
       }
 
-      // Tạo mật khẩu ngẫu nhiên mới 6 chữ số
-      const newPassword = Math.floor(100000 + Math.random() * 900000).toString();
+      // Lấy mật khẩu hiện tại của sinh viên hoặc cấp mật khẩu mới an toàn
+      const existingPass = (state.studentPasswords && state.studentPasswords[match.id]) || match.password || "";
+      const sendPassword = (existingPass && String(existingPass).trim().length >= 4) 
+        ? String(existingPass).trim() 
+        : Math.floor(100000 + Math.random() * 900000).toString();
 
+      // Đồng bộ mật khẩu đảm bảo sinh viên dùng được ngay
+      if (!state.studentPasswords) state.studentPasswords = {};
+      state.studentPasswords[match.id] = sendPassword;
+      if (match.password !== undefined) match.password = sendPassword;
       if (isRegular) {
-        match.password = newPassword;
-        saveState();
         if (supabaseClient) {
           supabaseClient.from('system_settings').upsert({
             key: 'REGULAR_STUDENTS_LIST',
@@ -4679,15 +4724,13 @@
           }, { onConflict: 'key' }).then(() => {});
         }
       } else {
-        if (!state.studentPasswords) state.studentPasswords = {};
-        state.studentPasswords[match.id] = newPassword;
-        saveState();
         if (supabaseClient) {
-          supabaseClient.from('students').update({ password: newPassword }).eq('id', match.id).then(() => {});
+          supabaseClient.from('students').update({ password: sendPassword }).eq('id', match.id).then(() => {});
         }
       }
+      saveState();
 
-      // Gửi email khôi phục qua API
+      // Gửi email mật khẩu trực tiếp qua API
       try {
         const res = await fetch('/api/send-report', {
           method: 'POST',
@@ -4697,20 +4740,20 @@
             email: studentEmail,
             name: match.name,
             studentId: match.id,
-            newPassword: newPassword
+            newPassword: sendPassword
           })
         });
         const resData = await res.json();
 
         if (status) {
-          status.innerHTML = `✅ <strong>Thành công!</strong> Mật khẩu mới đã được phát về hộp thư <strong>${studentEmail}</strong>.<br><span class="text-[11px] text-slate-500 mt-1 block">Vui lòng kiểm tra hộp thư đến (hoặc thư rác/spam) và dùng mật khẩu này để đăng nhập.</span>`;
-          status.className = "text-xs p-3 rounded-xl border border-emerald-200 bg-emerald-50 text-emerald-800 text-center";
+          status.innerHTML = `✅ <strong>Thành công!</strong> Mật khẩu đăng nhập đã được gửi tới hộp thư <strong>${studentEmail}</strong>.<br><span class="text-[11px] text-slate-500 mt-1 block">Vui lòng kiểm tra hộp thư đến (hoặc hòm Spam/Thư rác) và sử dụng mật khẩu này để đăng nhập.</span>`;
+          status.className = "text-xs p-3.5 rounded-xl border border-emerald-200 bg-emerald-50 text-emerald-800 text-center leading-relaxed";
           status.classList.remove("hidden");
         }
       } catch (errApi) {
         if (status) {
-          status.innerHTML = `Đã cấp mật khẩu mới: <strong class="font-mono text-blue-700">${newPassword}</strong><br><span class="text-[11px] text-slate-500">Hệ thống mạng tạm thời gián đoạn việc gửi email, bạn có thể dùng mật khẩu trên để đăng nhập ngay.</span>`;
-          status.className = "text-xs p-3 rounded-xl border border-blue-200 bg-blue-50 text-blue-800 text-center";
+          status.innerHTML = `Mật khẩu đăng nhập của bạn là: <strong class="font-mono text-blue-700 text-sm">${sendPassword}</strong><br><span class="text-[11px] text-slate-500 mt-1 block">Hệ thống mạng tạm thời bận gửi email, bạn có thể copy mật khẩu trên để đăng nhập ngay lập tức.</span>`;
+          status.className = "text-xs p-3.5 rounded-xl border border-blue-200 bg-blue-50 text-blue-800 text-center leading-relaxed";
           status.classList.remove("hidden");
         }
       }
@@ -4784,27 +4827,49 @@
     }
 
     function getAnnouncementRecipientsList(target) {
-      const recipients = [];
+      const emailSet = new Set();
       const regList = state.regularStudents || [];
       const thesisList = getAllStudents();
+      const thesisContacts = state.thesisContacts || {};
 
+      // 1. Sinh viên khóa dưới / toàn khoa (Cổng 2)
       if (target === "regular" || target === "all") {
         regList.forEach(s => {
-          if (s.email && s.email.includes("@") && !recipients.includes(s.email.toLowerCase())) {
-            recipients.push(s.email.toLowerCase());
+          const em = (s.email || "").trim().toLowerCase();
+          if (em && em.includes("@") && em.includes(".")) {
+            emailSet.add(em);
           }
         });
       }
 
+      // 2. Sinh viên làm đồ án (Cổng 1)
       if (target === "thesis" || target === "all") {
         thesisList.forEach(s => {
-          if (s.email && s.email.includes("@") && !recipients.includes(s.email.toLowerCase())) {
-            recipients.push(s.email.toLowerCase());
+          const sId = s.id;
+          const directEmail = (s.email || "").trim().toLowerCase();
+          const contactEmail = (thesisContacts[sId] && thesisContacts[sId].email ? thesisContacts[sId].email : "").trim().toLowerCase();
+          const regMatch = regList.find(r => r.id === sId);
+          const regEmail = (regMatch && regMatch.email ? regMatch.email : "").trim().toLowerCase();
+
+          const finalEmail = directEmail || contactEmail || regEmail;
+          if (finalEmail && finalEmail.includes("@") && finalEmail.includes(".")) {
+            emailSet.add(finalEmail);
+          }
+        });
+
+        // Quét thêm toàn bộ danh bạ đồ án đã nhập
+        Object.keys(thesisContacts).forEach(sId => {
+          const c = thesisContacts[sId];
+          if (c && c.email) {
+            const em = String(c.email).trim().toLowerCase();
+            if (em && em.includes("@") && em.includes(".")) {
+              emailSet.add(em);
+            }
           }
         });
       }
 
-      return recipients;
+      return Array.from(emailSet);
     }
 
     function updateAnnouncementRecipientPreview() {
@@ -5039,12 +5104,13 @@
 
       if (!state.communityChatMessages) state.communityChatMessages = [];
       state.communityChatMessages.push(newMsg);
+      state.communityChatMessages = deduplicateMessages(state.communityChatMessages);
       saveState();
       input.value = "";
 
       renderCommunityChatMessages(true);
 
-      // Lưu lên Supabase: chèn vào chat_messages với student_id = 'COMMUNITY' để kích hoạt Realtime tức thì
+      // Lưu lên Supabase: chèn DUY NHẤT 1 LẦN qua sendChatMessageSingle (chống gửi trùng)
       const payloadCommunity = {
         student_id: 'COMMUNITY',
         student_name: currentUser.name,
@@ -5057,17 +5123,15 @@
         is_recalled: false
       };
 
+      sendChatMessageSingle(payloadCommunity);
+
       if (supabaseClient) {
-        supabaseClient.from('chat_messages').insert(payloadCommunity).then(() => {}).catch(() => {});
         supabaseClient.from('system_settings').upsert({
           key: 'COMMUNITY_CHAT_MESSAGES',
           value: JSON.stringify(state.communityChatMessages.slice(-200)),
           updated_at: new Date().toISOString()
         }, { onConflict: 'key' }).then(() => {}).catch(() => {});
       }
-
-      // Đảm bảo tin nhắn được đẩy thẳng qua REST API (không sợ lỗi SDK hay WebSocket)
-      supabaseRestPost('chat_messages', payloadCommunity).catch(e => console.warn("REST chat error:", e));
     }
 
     function renderCommunityChatMessages(forceScroll = false) {
@@ -5077,7 +5141,9 @@
         document.getElementById("floatingCommunityChatContainer")
       ];
 
-      const messages = state.communityChatMessages || [];
+      const rawMessages = state.communityChatMessages || [];
+      const messages = deduplicateMessages(rawMessages);
+      state.communityChatMessages = messages;
 
       containers.forEach(container => {
         if (!container) return;
@@ -5399,10 +5465,7 @@
         created_at: new Date().toISOString()
       };
 
-      if (supabaseClient) {
-        supabaseClient.from('chat_messages').insert(privPayload).then(() => {}).catch(() => {});
-      }
-      supabaseRestPost('chat_messages', privPayload).catch(() => {});
+      sendChatMessageSingle(privPayload);
 
       // Gom tin nhắn vào hàng đợi Bản Tin 7:00 Sáng gửi về Thầy (không gửi email tức thì để tránh spam hộp thư)
       queueMessageForDailyDigest({
@@ -8748,15 +8811,15 @@
           is_recalled: false
         };
 
+        sendChatMessageSingle(commPayload);
+
         if (supabaseClient) {
-          supabaseClient.from('chat_messages').insert(commPayload).then(() => {}).catch(() => {});
           supabaseClient.from('system_settings').upsert({
             key: 'COMMUNITY_CHAT_MESSAGES',
             value: JSON.stringify(state.communityChatMessages.slice(-200)),
             updated_at: new Date().toISOString()
           }, { onConflict: 'key' }).then(() => {}).catch(() => {});
         }
-        supabaseRestPost('chat_messages', commPayload).catch(e => console.warn("REST send error:", e));
         return;
       }
 
@@ -9376,12 +9439,118 @@
       URL.revokeObjectURL(url);
     }
 
+    // ==============================================================
+    // TIẾN TRÌNH TỰ ĐỘNG ĐỒNG BỘ TIN NHẮN & DỮ LIỆU MỚI (KHÔNG CẦN F5)
+    // ==============================================================
+    let liveAutoSyncTimer = null;
+    let isAutoSyncing = false;
+
+    async function smartLiveAutoSync() {
+      if (isAutoSyncing) return;
+      isAutoSyncing = true;
+
+      try {
+        // 1. Tự động lấy tin nhắn Chat Chung mới nhất (mỗi lần lấy 120 tin gần nhất)
+        let commRows = null;
+        if (supabaseClient) {
+          const { data } = await supabaseClient
+            .from('chat_messages')
+            .select('*')
+            .eq('student_id', 'COMMUNITY')
+            .order('created_at', { ascending: true })
+            .limit(120);
+          commRows = data;
+        } else {
+          commRows = await supabaseRestGet('chat_messages?student_id=eq.COMMUNITY&order=created_at.asc&limit=120');
+        }
+
+        if (commRows && Array.isArray(commRows) && commRows.length > 0) {
+          const mapped = commRows.map(m => {
+            let msgText = m.message_text;
+            let msgCourse = 'Khóa K68';
+            try {
+              const parsed = JSON.parse(m.message_text);
+              if (parsed && parsed.text) {
+                msgText = parsed.text;
+                msgCourse = parsed.course || msgCourse;
+              }
+            } catch (e) {}
+            return {
+              id: m.id,
+              sender_id: m.sender_name || 'SV',
+              sender_name: m.student_name || m.sender_name || 'Sinh viên',
+              sender_role: m.sender_role,
+              course: msgCourse,
+              text: msgText,
+              created_at: m.created_at
+            };
+          });
+
+          const cleanList = deduplicateMessages(mapped);
+          const currentList = state.communityChatMessages || [];
+          
+          const lastOldId = currentList.length > 0 ? String(currentList[currentList.length - 1].id || currentList[currentList.length - 1].created_at || '') : '';
+          const lastNewId = cleanList.length > 0 ? String(cleanList[cleanList.length - 1].id || cleanList[cleanList.length - 1].created_at || '') : '';
+
+          if (cleanList.length !== currentList.length || lastNewId !== lastOldId) {
+            const lastMsg = cleanList.length > 0 ? cleanList[cleanList.length - 1] : null;
+            const isFromMe = currentUser && lastMsg && (currentUser.name === lastMsg.sender_name || currentUser.id === lastMsg.sender_id);
+            
+            state.communityChatMessages = cleanList;
+            saveState();
+            renderCommunityChatMessages(true);
+
+            if (!isFromMe && lastMsg) {
+              playMessengerChime();
+            }
+          }
+        }
+
+        // 2. Nếu đang mở chat riêng 1-1: tự động nạp tin nhắn mới
+        if (currentUser) {
+          if (currentUser.role === "teacher" && typeof selectedStudentIdForTeacherChat !== "undefined" && selectedStudentIdForTeacherChat) {
+            if (typeof fetchStudentChatForTeacher === "function") {
+              fetchStudentChatForTeacher(selectedStudentIdForTeacherChat);
+            }
+          } else if (currentUser.role === "student" && currentUser.id) {
+            if (typeof fetchMyPrivateChatMessages === "function") {
+              fetchMyPrivateChatMessages();
+            }
+          }
+        }
+
+      } catch (err) {
+        // ngầm bỏ qua lỗi mạng
+      } finally {
+        isAutoSyncing = false;
+      }
+    }
+
+    function startSmartAutoSync() {
+      if (liveAutoSyncTimer) clearInterval(liveAutoSyncTimer);
+      // Chạy ngay sau 1.5 giây
+      setTimeout(smartLiveAutoSync, 1500);
+      // Tự động quét và nạp tin nhắn mới mỗi 2.5 giây (hoàn toàn không cần F5)
+      liveAutoSyncTimer = setInterval(smartLiveAutoSync, 2500);
+
+      // Định kỳ mỗi 7 giây tự động đồng bộ sinh viên mới đăng ký, tiến độ, thông báo mới
+      setInterval(() => {
+        if (typeof syncDataFromBackend === "function") {
+          syncDataFromBackend(false);
+        }
+      }, 7000);
+    }
+    window.startSmartAutoSync = startSmartAutoSync;
+
     window.addEventListener("DOMContentLoaded", () => {
       loadState();
       populateCourseDropdowns();
       populateLoginDatalist();
       updateChatBadges();
       checkUrlForTeacherMode();
+
+      // Khởi động tiến trình Tự Động Đồng Bộ Mới Nhất (Smart Auto-Sync - KHÔNG CẦN F5)
+      startSmartAutoSync();
 
       // Khởi tạo kênh Realtime Supabase & Hiện diện trực tuyến (Online Presence)
       if (typeof initSupabaseRealtime === "function") {
