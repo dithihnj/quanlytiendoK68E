@@ -13,6 +13,23 @@ const DEFAULT_TEACHER_EMAIL = 'tkdark3010@gmail.com';
 
 const getEnv = () => (typeof process !== 'undefined' && process.env) ? process.env : {};
 
+function cleanStudentMessageText(rawText) {
+  if (!rawText) return "";
+  let clean = String(rawText).trim();
+  try {
+    if ((clean.startsWith('{') && clean.endsWith('}')) || (clean.startsWith('"{') && clean.endsWith('}"'))) {
+      if (clean.startsWith('"{') && clean.endsWith('}"')) {
+        clean = clean.slice(1, -1).replace(/\\"/g, '"');
+      }
+      const parsed = JSON.parse(clean);
+      if (parsed && parsed.text) {
+        clean = parsed.text;
+      }
+    }
+  } catch (e) {}
+  return clean;
+}
+
 // Hàm lấy cấu hình từ Supabase system_settings
 async function getSupabaseSettings() {
   try {
@@ -158,7 +175,7 @@ async function generateAndSendDailyDigest({ teacherEmail, settings, clientMessag
               cohort: 'Sinh viên',
               phone: '',
               email: '',
-              text: r.message_text || '',
+              text: cleanStudentMessageText(r.message_text || ''),
               timestamp: r.created_at ? new Date(r.created_at).toLocaleString('vi-VN', { timeZone: 'Asia/Ho_Chi_Minh' }) : nowStr
             }));
           }
@@ -210,14 +227,21 @@ async function generateAndSendDailyDigest({ teacherEmail, settings, clientMessag
           messages: []
         };
       }
-      byStudent[sId].messages.push({
-        text: item.text,
-        time: item.timestamp || nowStr
-      });
+      const cleanText = cleanStudentMessageText(item.text);
+      if (!cleanText) return;
+
+      // Chống lặp tin nhắn kép
+      const isDuplicate = byStudent[sId].messages.some(m => m.text === cleanText);
+      if (!isDuplicate) {
+        byStudent[sId].messages.push({
+          text: cleanText,
+          time: item.timestamp || nowStr
+        });
+      }
     });
 
-    const studentList = Object.values(byStudent);
-    const totalMessages = pendingList.length;
+    const studentList = Object.values(byStudent).filter(s => s.messages && s.messages.length > 0);
+    const totalMessages = studentList.reduce((acc, cur) => acc + cur.messages.length, 0);
     const studentCount = studentList.length;
 
     let studentsCardsHtml = '';
@@ -225,11 +249,9 @@ async function generateAndSendDailyDigest({ teacherEmail, settings, clientMessag
       let msgsHtml = '';
       s.messages.forEach(m => {
         msgsHtml += `
-          <div style="background: #ffffff; border: 1px solid #e2e8f0; border-radius: 8px; padding: 10px 14px; margin-bottom: 8px;">
-            <div style="font-size: 14px; color: #0f172a; line-height: 1.5; font-style: italic;">
-              "${m.text}"
-            </div>
-            <div style="font-size: 11px; color: #94a3b8; text-align: right; margin-top: 4px;">
+          <div style="background: #ffffff; border: 1px solid #e2e8f0; border-left: 4px solid #2563eb; border-radius: 8px; padding: 12px 16px; margin-bottom: 10px; box-shadow: 0 1px 2px rgba(0,0,0,0.04);">
+            <div style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; font-size: 14px; color: #1e293b; font-weight: 500; line-height: 1.6; white-space: pre-wrap;">${m.text}</div>
+            <div style="font-family: -apple-system, BlinkMacSystemFont, sans-serif; font-size: 11px; color: #64748b; font-weight: 500; text-align: right; margin-top: 6px;">
               🕒 ${m.time}
             </div>
           </div>
